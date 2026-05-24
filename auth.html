@@ -387,6 +387,13 @@ body::before {
 const GOOGLE_CLIENT_ID = '468899724697-mct44qubsrdaps8ll6m4npv34k6jeucn.apps.googleusercontent.com';
 const TG_BOT_NAME      = 'Elyon_by_unkony_bot';
 const BACKEND_URL      = 'https://elyon-bot.onrender.com';
+let   TG_BOT_ID        = '';
+
+// Получаем bot_id с сервера при загрузке
+fetch(`${BACKEND_URL}/api/bot_info`)
+  .then(r => r.json())
+  .then(d => { if (d.bot_id) TG_BOT_ID = String(d.bot_id); })
+  .catch(() => {});
 
 // ── Toast ─────────────────────────────────────────────────────────
 function showToast(msg, type = '') {
@@ -413,133 +420,106 @@ function saveSessionAndRedirect(userData) {
 }
 
 // ══ GOOGLE AUTH ═══════════════════════════════════════════════════
-let googleClient;
-
-window.addEventListener('load', () => {
-  if (typeof google === 'undefined') return;
-
-  // Инициализируем Google Identity Services
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleGoogleResponse,
-    auto_select: false,
-    cancel_on_tap_outside: true,
-  });
-
-  // Рендерим скрытую кнопку — нужна для вызова prompt
-  google.accounts.id.renderButton(
-    document.getElementById('tg-widget-container'), // используем как контейнер-заглушку
-    { theme: 'filled_black', size: 'large' }
-  );
-});
+const GOOGLE_REDIRECT_URI = window.location.origin + window.location.pathname;
 
 function triggerGoogle() {
-  if (typeof google === 'undefined') {
-    showToast('Google auth is not available. Check your connection.', 'error');
-    return;
-  }
-  showLoading('Connecting to Google...');
-  google.accounts.id.prompt((notification) => {
-    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      hideLoading();
-      // Fallback: открываем OAuth напрямую
-      const params = new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        redirect_uri: window.location.origin + '/auth.html',
-        response_type: 'token',
-        scope: 'email profile',
-        state: 'google_oauth'
-      });
-      window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
-    }
+  const params = new URLSearchParams({
+    client_id:     GOOGLE_CLIENT_ID,
+    redirect_uri:  GOOGLE_REDIRECT_URI,
+    response_type: 'token',
+    scope:         'email profile openid',
+    prompt:        'select_account'
   });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
 }
 
-async function handleGoogleResponse(response) {
-  // response.credential — это JWT токен
-  showLoading('Verifying with Google...');
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: response.credential })
-    });
-    const data = await res.json();
-    hideLoading();
-    if (data.ok) {
-      showToast('Welcome to Elyon!', 'success');
-      setTimeout(() => saveSessionAndRedirect(data.user), 600);
-    } else {
-      showToast(data.error || 'Google sign-in failed.', 'error');
-    }
-  } catch (e) {
-    hideLoading();
-    showToast('Network error. Try again.', 'error');
-  }
-}
-
-// Обрабатываем возврат после OAuth redirect (fallback)
-window.addEventListener('load', () => {
+// Обрабатываем возврат после Google redirect
+(function handleGoogleReturn() {
   const hash = window.location.hash;
-  if (hash.includes('access_token') && location.search.includes('state=google_oauth') || hash.includes('access_token')) {
-    const params = new URLSearchParams(hash.slice(1));
-    const accessToken = params.get('access_token');
-    if (accessToken) {
-      handleGoogleAccessToken(accessToken);
-    }
-  }
-});
+  if (!hash.includes('access_token')) return;
+  const params = new URLSearchParams(hash.slice(1));
+  const accessToken = params.get('access_token');
+  if (!accessToken) return;
+  // Чистим URL
+  window.history.replaceState({}, document.title, window.location.pathname);
+  handleGoogleAccessToken(accessToken);
+})();
 
 async function handleGoogleAccessToken(accessToken) {
   showLoading('Verifying with Google...');
   try {
-    // Получаем данные профиля через Google API
     const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: 'Bearer ' + accessToken }
     });
+    if (!profileRes.ok) throw new Error('Failed to get profile');
     const profile = await profileRes.json();
 
     const res = await fetch(`${BACKEND_URL}/api/auth/google_profile`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ profile })
+      body:    JSON.stringify({ profile })
     });
     const data = await res.json();
     hideLoading();
     if (data.ok) {
       showToast('Welcome to Elyon!', 'success');
-      setTimeout(() => saveSessionAndRedirect(data.user), 600);
+      setTimeout(() => saveSessionAndRedirect(data.user), 700);
     } else {
       showToast(data.error || 'Sign-in failed.', 'error');
     }
   } catch (e) {
     hideLoading();
     showToast('Network error. Try again.', 'error');
+    console.error('Google auth error:', e);
   }
 }
 
 // ══ TELEGRAM AUTH ══════════════════════════════════════════════════
+// Bot ID для @Elyon_by_unkony_bot — получается из getMe
+// Используем имя бота, Telegram сам резолвит ID через oauth.telegram.org
 function triggerTelegram() {
-  // Telegram Login Widget работает через window.open с callback
+  const origin      = encodeURIComponent(window.location.origin);
+  const returnTo    = encodeURIComponent(window.location.href.split('#')[0]);
+  const tgAuthUrl   = `https://oauth.telegram.org/auth?bot_id=${TG_BOT_ID}&origin=${origin}&embed=1&request_access=write&return_to=${returnTo}`;
+
   const width  = 550;
   const height = 470;
-  const left   = (screen.width  - width)  / 2;
-  const top    = (screen.height - height) / 2;
+  const left   = Math.max(0, (screen.width  - width)  / 2);
+  const top    = Math.max(0, (screen.height - height) / 2);
 
-  // Задаём callback ДО открытия окна
-  window.onTelegramAuth = async function(user) {
+  const popup = window.open(
+    tgAuthUrl,
+    'telegram_auth',
+    `width=${width},height=${height},left=${left},top=${top},scrollbars=no`
+  );
+
+  if (!popup) {
+    showToast('Allow popups for this site and try again.', 'error');
+    return;
+  }
+
+  const handler = async (event) => {
+    if (event.origin !== 'https://oauth.telegram.org') return;
+    window.removeEventListener('message', handler);
+
+    const user = event.data;
+    if (!user || !user.id) {
+      showToast('Telegram sign-in cancelled.', '');
+      return;
+    }
+
     showLoading('Verifying with Telegram...');
     try {
       const res = await fetch(`${BACKEND_URL}/api/auth/telegram`, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user })
+        body:    JSON.stringify({ user })
       });
       const data = await res.json();
       hideLoading();
       if (data.ok) {
         showToast('Welcome to Elyon!', 'success');
-        setTimeout(() => saveSessionAndRedirect(data.user), 600);
+        setTimeout(() => saveSessionAndRedirect(data.user), 700);
       } else {
         showToast(data.error || 'Telegram sign-in failed.', 'error');
       }
@@ -549,33 +529,73 @@ function triggerTelegram() {
     }
   };
 
-  // Динамически создаём и вставляем Telegram Login Widget script
-  const existing = document.getElementById('tg-login-script');
-  if (existing) existing.remove();
+  window.addEventListener('message', handler);
 
-  const script = document.createElement('script');
-  script.id = 'tg-login-script';
-  script.src = 'https://telegram.org/js/telegram-widget.js?22';
-  script.setAttribute('data-telegram-login', TG_BOT_NAME);
-  script.setAttribute('data-size', 'large');
-  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-  script.setAttribute('data-request-access', 'write');
-  script.async = true;
-
-  // Вставляем в скрытый контейнер — виджет сам откроет попап
-  const container = document.getElementById('tg-widget-container');
-  container.innerHTML = '';
-  container.appendChild(script);
-
-  // Даём виджету загрузиться и кликаем на его кнопку
-  setTimeout(() => {
-    const tgBtn = container.querySelector('iframe') || container.querySelector('a');
-    if (tgBtn) tgBtn.click();
-    else {
-      // Если iframe не появился — показываем инструкцию
-      showToast('Telegram window opened. Complete sign-in there.', '');
+  const timer = setInterval(() => {
+    if (popup.closed) {
+      clearInterval(timer);
+      window.removeEventListener('message', handler);
     }
-  }, 1200);
+  }, 1000);
+}
+
+  const width  = 550;
+  const height = 470;
+  const left   = Math.max(0, (screen.width  - width)  / 2);
+  const top    = Math.max(0, (screen.height - height) / 2);
+
+  const popup = window.open(
+    tgAuthUrl,
+    'telegram_auth',
+    `width=${width},height=${height},left=${left},top=${top},scrollbars=no`
+  );
+
+  if (!popup) {
+    showToast('Allow popups for this site and try again.', 'error');
+    return;
+  }
+
+  // Слушаем postMessage от Telegram OAuth попапа
+  const handler = async (event) => {
+    if (event.origin !== 'https://oauth.telegram.org') return;
+    window.removeEventListener('message', handler);
+
+    const user = event.data;
+    if (!user || !user.id) {
+      showToast('Telegram sign-in cancelled.', '');
+      return;
+    }
+
+    showLoading('Verifying with Telegram...');
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/auth/telegram`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ user })
+      });
+      const data = await res.json();
+      hideLoading();
+      if (data.ok) {
+        showToast('Welcome to Elyon!', 'success');
+        setTimeout(() => saveSessionAndRedirect(data.user), 700);
+      } else {
+        showToast(data.error || 'Telegram sign-in failed.', 'error');
+      }
+    } catch (e) {
+      hideLoading();
+      showToast('Network error. Try again.', 'error');
+    }
+  };
+
+  window.addEventListener('message', handler);
+
+  // Таймаут если попап закрыт без авторизации
+  const timer = setInterval(() => {
+    if (popup.closed) {
+      clearInterval(timer);
+      window.removeEventListener('message', handler);
+    }
+  }, 1000);
 }
 
 // ══ EMAIL AUTH ═════════════════════════════════════════════════════
