@@ -548,65 +548,6 @@ function triggerTelegram() {
   }, 1000);
 }
 
-  const width  = 550;
-  const height = 470;
-  const left   = Math.max(0, (screen.width  - width)  / 2);
-  const top    = Math.max(0, (screen.height - height) / 2);
-
-  const popup = window.open(
-    tgAuthUrl,
-    'telegram_auth',
-    `width=${width},height=${height},left=${left},top=${top},scrollbars=no`
-  );
-
-  if (!popup) {
-    showToast('Allow popups for this site and try again.', 'error');
-    return;
-  }
-
-  // Слушаем postMessage от Telegram OAuth попапа
-  const handler = async (event) => {
-    if (event.origin !== 'https://oauth.telegram.org') return;
-    window.removeEventListener('message', handler);
-
-    const user = event.data;
-    if (!user || !user.id) {
-      showToast('Telegram sign-in cancelled.', '');
-      return;
-    }
-
-    showLoading('Verifying with Telegram...');
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/telegram`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ user })
-      });
-      const data = await res.json();
-      hideLoading();
-      if (data.ok) {
-        showToast('Welcome to Elyon!', 'success');
-        setTimeout(() => saveSessionAndRedirect(data.user), 700);
-      } else {
-        showToast(data.error || 'Telegram sign-in failed.', 'error');
-      }
-    } catch (e) {
-      hideLoading();
-      showToast('Network error. Try again.', 'error');
-    }
-  };
-
-  window.addEventListener('message', handler);
-
-  // Таймаут если попап закрыт без авторизации
-  const timer = setInterval(() => {
-    if (popup.closed) {
-      clearInterval(timer);
-      window.removeEventListener('message', handler);
-    }
-  }, 1000);
-}
-
 // ══ EMAIL AUTH ═════════════════════════════════════════════════════
 let currentTab = 'signin';
 
