@@ -387,18 +387,13 @@ body::before {
 const GOOGLE_CLIENT_ID = '468899724697-mct44qubsrdaps8ll6m4npv34k6jeucn.apps.googleusercontent.com';
 const TG_BOT_NAME      = 'Elyon_by_unkony_bot';
 const BACKEND_URL      = 'https://elyon-bot.onrender.com';
-let   TG_BOT_ID        = '';
+let   TG_BOT_ID        = '8901631697'; // fallback hardcoded
 
-// Получаем bot_id с сервера
+// Обновляем bot_id с сервера (на случай если изменится)
 fetch(`${BACKEND_URL}/api/bot_info`, { signal: AbortSignal.timeout(5000) })
   .then(r => r.json())
-  .then(d => {
-    if (d.bot_id) {
-      TG_BOT_ID = String(d.bot_id);
-      console.log('Bot ID loaded:', TG_BOT_ID);
-    }
-  })
-  .catch(e => console.warn('Could not load bot_id:', e));
+  .then(d => { if (d.bot_id) TG_BOT_ID = String(d.bot_id); })
+  .catch(() => {});
 
 // ── Toast ─────────────────────────────────────────────────────────
 function showToast(msg, type = '') {
