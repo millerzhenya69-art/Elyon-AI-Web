@@ -389,11 +389,16 @@ const TG_BOT_NAME      = 'Elyon_by_unkony_bot';
 const BACKEND_URL      = 'https://elyon-bot.onrender.com';
 let   TG_BOT_ID        = '';
 
-// Получаем bot_id с сервера при загрузке
-fetch(`${BACKEND_URL}/api/bot_info`)
+// Получаем bot_id с сервера
+fetch(`${BACKEND_URL}/api/bot_info`, { signal: AbortSignal.timeout(5000) })
   .then(r => r.json())
-  .then(d => { if (d.bot_id) TG_BOT_ID = String(d.bot_id); })
-  .catch(() => {});
+  .then(d => {
+    if (d.bot_id) {
+      TG_BOT_ID = String(d.bot_id);
+      console.log('Bot ID loaded:', TG_BOT_ID);
+    }
+  })
+  .catch(e => console.warn('Could not load bot_id:', e));
 
 // ── Toast ─────────────────────────────────────────────────────────
 function showToast(msg, type = '') {
@@ -478,9 +483,18 @@ async function handleGoogleAccessToken(accessToken) {
 // Bot ID для @Elyon_by_unkony_bot — получается из getMe
 // Используем имя бота, Telegram сам резолвит ID через oauth.telegram.org
 function triggerTelegram() {
-  const origin      = encodeURIComponent(window.location.origin);
-  const returnTo    = encodeURIComponent(window.location.href.split('#')[0]);
-  const tgAuthUrl   = `https://oauth.telegram.org/auth?bot_id=${TG_BOT_ID}&origin=${origin}&embed=1&request_access=write&return_to=${returnTo}`;
+  if (!TG_BOT_ID) {
+    showToast('Loading Telegram auth... please try again in a moment.', '');
+    fetch(`${BACKEND_URL}/api/bot_info`, { signal: AbortSignal.timeout(5000) })
+      .then(r => r.json())
+      .then(d => { if (d.bot_id) { TG_BOT_ID = String(d.bot_id); showToast('Ready! Click Telegram again.', 'success'); } })
+      .catch(() => showToast('Server unavailable. Try email sign-in.', 'error'));
+    return;
+  }
+
+  const origin    = encodeURIComponent(window.location.origin);
+  const returnTo  = encodeURIComponent(window.location.href.split('#')[0]);
+  const tgAuthUrl = `https://oauth.telegram.org/auth?bot_id=${TG_BOT_ID}&origin=${origin}&embed=1&request_access=write&return_to=${returnTo}`;
 
   const width  = 550;
   const height = 470;
@@ -708,10 +722,17 @@ function resendEmail() {
 
 document.addEventListener('keydown', e => { if (e.key === 'Enter') handleSubmit(); });
 
-// Redirect if already logged in
-if (localStorage.getItem('elyon_auth') === '1') {
-  window.location.href = 'app.html';
-}
+// Скрываем loading overlay сразу при загрузке страницы
+hideLoading();
+
+// Если уже залогинен — показываем уведомление с кнопкой перейти, а не редиректим сразу
+(function checkExistingSession() {
+  if (localStorage.getItem('elyon_auth') !== '1') return;
+  const user = JSON.parse(localStorage.getItem('elyon_user') || '{}');
+  const name = user.first_name || user.email || 'you';
+  showToast(`Already signed in as ${name}. Redirecting...`, 'success');
+  setTimeout(() => { window.location.href = 'app.html'; }, 1500);
+})();
 </script>
 </body>
 </html>
