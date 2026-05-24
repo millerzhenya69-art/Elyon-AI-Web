@@ -1458,6 +1458,45 @@ function setLang(lang, el) {
 }
 
 renderChatList();
+
+// ── Сессия пользователя ───────────────────────────────────────────
+(function() {
+  if (!localStorage.getItem('elyon_auth')) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  const raw = localStorage.getItem('elyon_user');
+  if (!raw) return;
+  try {
+    const u = JSON.parse(raw);
+    const letter = (u.first_name || u.email || 'U')[0].toUpperCase();
+
+    // Аватар в навбаре
+    const avatarBtn = document.getElementById('user-avatar-btn');
+    const userMenu  = document.getElementById('user-menu');
+    if (u.avatar) {
+      const img = document.createElement('img');
+      img.src = u.avatar;
+      img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
+      img.onerror = () => { avatarBtn.innerHTML = letter; avatarBtn.appendChild(userMenu); };
+      avatarBtn.innerHTML = '';
+      avatarBtn.appendChild(img);
+      avatarBtn.appendChild(userMenu);
+    } else {
+      avatarBtn.innerHTML = letter;
+      avatarBtn.appendChild(userMenu);
+    }
+
+    // Профиль-панель
+    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'User';
+    const nameEl  = document.querySelector('.profile-name');
+    const emailEl = document.querySelector('.profile-email');
+    const bigAv   = document.querySelector('.profile-avatar-big');
+    if (nameEl)  nameEl.textContent  = fullName;
+    if (emailEl) emailEl.textContent = u.email || '';
+    if (bigAv)   bigAv.textContent   = letter;
+  } catch(e) { console.warn('Session load error:', e); }
+})();
 </script>
 </body>
 </html>
