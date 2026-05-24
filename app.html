@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elyon AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:   #0e0e0e;
+  --off:     #181818;
+  --card:    #202020;
+  --card2:   #252525;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --beige:   #e8ddd0;
+  --beige2:  #c9bfb3;
+  --white:   #f8f5f0;
+  --muted:   rgba(248,245,240,0.4);
+  --serif:   'Instrument Serif', Georgia, serif;
+  --sans:    'DM Sans', sans-serif;
+  --sidebar: 260px;
+  --radius:  14px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══ TOP NAV ══════════════════════════════════════════════════════ */
+.topnav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(14,14,14,0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 200;
+  gap: 12px;
+}
+
+.topnav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Hover zone для сайдбара */
+.nav-trigger {
+  position: relative;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border-radius: 9px;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+.nav-trigger:hover { background: rgba(255,255,255,0.06); }
+.nav-trigger svg { width: 18px; height: 18px; opacity: 0.7; }
+
+.topnav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.topnav-logo img { width: 26px; height: 26px; }
+.topnav-logo span {
+  font-family: var(--serif);
+  font-size: 17px;
+  color: var(--white);
+}
+
+/* Model selector */
+.model-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--beige2);
+  font-family: var(--sans);
+  position: relative;
+}
+.model-select:hover { border-color: var(--border2); color: var(--white); }
+.model-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--beige);
+  flex-shrink: 0;
+}
+
+/* Model dropdown */
+.model-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 6px;
+  min-width: 200px;
+  display: none;
+  z-index: 300;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.model-dropdown.open { display: block; }
+
+.model-option {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.model-option:hover { background: rgba(255,255,255,0.05); }
+.model-option.active { background: rgba(232,221,208,0.07); }
+
+.model-option-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--white);
+}
+.model-option-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.model-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: rgba(232,221,208,0.1);
+  color: var(--beige2);
+  letter-spacing: 0.04em;
+}
+
+.topnav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* New chat button */
+.btn-newchat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+.btn-newchat:hover { border-color: var(--border2); color: var(--white); }
+
+/* Avatar */
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--beige2), var(--beige));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 6px;
+  min-width: 180px;
+  display: none;
+  z-index: 300;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.user-menu.open { display: block; }
+
+.user-menu-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--white);
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.user-menu-item:hover { background: rgba(255,255,255,0.05); }
+.user-menu-item.danger { color: #e07070; }
+.user-menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ══ SIDEBAR ══════════════════════════════════════════════════════ */
+.sidebar {
+  position: fixed;
+  top: 52px; left: 0; bottom: 0;
+  width: var(--sidebar);
+  background: var(--off);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 10px;
+  transform: translateX(-100%);
+  transition: transform 0.26s cubic-bezier(0.4,0,0.2,1);
+  z-index: 150;
+}
+.sidebar.open { transform: translateX(0); }
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 10px 8px;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+  color: var(--muted);
+  position: relative;
+}
+.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.chat-item.active { background: rgba(232,221,208,0.06); color: var(--white); }
+
+.chat-item-icon { font-size: 14px; flex-shrink: 0; opacity: 0.6; }
+.chat-item-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+}
+
+.chat-item-del {
+  opacity: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.chat-item:hover .chat-item-del { opacity: 1; }
+.chat-item-del:hover { color: #e07070; }
+
+.sidebar-nav {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.sidebar-nav-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.sidebar-nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 52px 0 0 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 140;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.26s;
+}
+.sidebar-overlay.show { opacity: 1; pointer-events: all; }
+
+/* ══ MAIN AREA ════════════════════════════════════════════════════ */
+.main {
+  margin-top: 52px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Welcome screen ── */
+.welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px 120px;
+  text-align: center;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.welcome-logo {
+  width: 56px; height: 56px;
+  margin-bottom: 24px;
+  opacity: 0.9;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+.welcome h1 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+.welcome h1 em { font-style: italic; color: var(--beige); }
+
+.welcome-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 40px;
+  font-weight: 300;
+}
+
+/* Suggestion chips */
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-width: 560px;
+}
+
+.chip {
+  padding: 9px 16px;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  font-family: var(--sans);
+}
+.chip:hover {
+  border-color: rgba(232,221,208,0.25);
+  color: var(--white);
+  background: var(--card);
+}
+
+/* ── Chat messages ── */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 0 8px;
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.messages.show { display: flex; }
+
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.msg-group {
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 6px 24px;
+}
+
+/* User message */
+.msg-user {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.msg-user-bubble {
+  max-width: 72%;
+  padding: 12px 16px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 18px 18px 4px 18px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--white);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* AI message */
+.msg-ai {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.msg-ai-avatar {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(232,221,208,0.08);
+  border: 1px solid rgba(232,221,208,0.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.msg-ai-avatar img { width: 16px; height: 16px; opacity: 0.85; }
+
+.msg-ai-content {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(248,245,240,0.88);
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding-top: 4px;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 6px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+.typing-logo {
+  width: 28px; height: 28px;
+  border-radius: 8px;
+  background: rgba(232,221,208,0.08);
+  border: 1px solid rgba(232,221,208,0.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.typing-logo img {
+  width: 16px; height: 16px; opacity: 0.85;
+  animation: spin-slow 3s linear infinite;
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+
+.typing-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding-top: 8px;
+}
+.typing-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--beige2);
+  animation: bounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+@keyframes bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ══ INPUT AREA ═══════════════════════════════════════════════════ */
+.input-area {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px 24px 24px;
+  background: linear-gradient(to top, var(--black) 70%, transparent);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Welcome mode — по центру */
+.welcome-mode .input-area {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, 100%);
+  padding: 20px 24px 32px;
+  background: none;
+}
+
+.input-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  background: var(--off);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 12px 12px 12px 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.input-box:focus-within {
+  border-color: rgba(232,221,208,0.28);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+}
+
+.input-textarea {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  resize: none;
+  max-height: 160px;
+  min-height: 24px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.input-textarea::-webkit-scrollbar { display: none; }
+.input-textarea::placeholder { color: rgba(248,245,240,0.28); }
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.input-btn {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.input-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+
+.input-send {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: none;
+  background: var(--beige);
+  color: var(--black);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: background 0.18s, transform 0.15s, opacity 0.18s;
+  flex-shrink: 0;
+}
+.input-send:hover { background: var(--white); transform: scale(1.05); }
+.input-send:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+.input-hint {
+  text-align: center;
+  font-size: 11px;
+  color: rgba(248,245,240,0.2);
+  margin-top: 10px;
+}
+
+/* ══ PANELS ═══════════════════════════════════════════════════════ */
+.panel {
+  position: fixed;
+  inset: 52px 0 0 0;
+  background: var(--black);
+  z-index: 120;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.panel.show { display: flex; }
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.panel-back {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 20px;
+  padding: 4px;
+  transition: color 0.15s;
+  line-height: 1;
+}
+.panel-back:hover { color: var(--white); }
+.panel-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--white);
+}
+
+/* Settings panel */
+.settings-body { padding: 24px; max-width: 560px; }
+.settings-group { margin-bottom: 32px; }
+.settings-group-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--beige2);
+  margin-bottom: 14px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { font-size: 14px; color: var(--white); }
+.settings-row-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* Toggle */
+.toggle {
+  width: 42px; height: 24px;
+  background: var(--off);
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle.on { background: var(--beige); border-color: var(--beige); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle.on::after { transform: translateX(18px); background: var(--black); }
+
+/* Segment control */
+.segment {
+  display: flex;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg-btn {
+  padding: 6px 14px;
+  border-radius: 7px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.seg-btn.active { background: var(--card2); color: var(--white); }
+
+/* Theme picker */
+.theme-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.theme-swatch {
+  width: 56px; height: 40px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.theme-swatch:hover { transform: scale(1.05); }
+.theme-swatch.active { border-color: var(--beige); }
+.theme-swatch-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* Profile panel */
+.profile-body { padding: 24px; max-width: 480px; }
+.profile-avatar-big {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--beige2), var(--beige));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 16px;
+}
+.profile-name {
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.profile-email { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+.profile-card {
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.profile-card-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.profile-card-value { font-size: 15px; color: var(--white); font-weight: 500; }
+.profile-card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.btn-upgrade {
+  width: 100%;
+  padding: 13px;
+  background: var(--beige);
+  color: var(--black);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
+  margin-top: 6px;
+}
+.btn-upgrade:hover { background: var(--white); }
+
+/* Pricing panel */
+.pricing-body { padding: 24px; max-width: 640px; }
+.pricing-grid { display: flex; flex-direction: column; gap: 10px; }
+.pricing-card {
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.pricing-card:hover { border-color: rgba(232,221,208,0.2); }
+.pricing-card.featured {
+  border-color: rgba(232,221,208,0.25);
+  background: var(--card);
+}
+.pricing-card.featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--beige2), var(--beige));
+}
+
+.pricing-tier { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--beige2); margin-bottom: 8px; }
+.pricing-name { font-family: var(--serif); font-size: 22px; color: var(--white); margin-bottom: 4px; }
+.pricing-price { font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 12px; }
+.pricing-price span { font-size: 14px; color: var(--muted); }
+.pricing-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+.pricing-limit { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--beige2); background: rgba(232,221,208,0.07); padding: 4px 10px; border-radius: 100px; margin-bottom: 16px; }
+.pricing-btn {
+  width: 100%;
+  padding: 11px;
+  border-radius: 10px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+.pricing-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.pricing-card.featured .pricing-btn {
+  background: var(--beige);
+  color: var(--black);
+  border-color: transparent;
+}
+.pricing-card.featured .pricing-btn:hover { background: var(--white); }
+
+/* ══ RESPONSIVE ═══════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  :root { --sidebar: 80vw; }
+  .btn-newchat span { display: none; }
+  .input-hint { display: none; }
+  .msg-user-bubble { max-width: 88%; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<nav class="topnav">
+  <div class="topnav-left">
+    <div class="nav-trigger" onclick="toggleSidebar()" title="Chats">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+        <line x1="3" y1="6" x2="17" y2="6"/>
+        <line x1="3" y1="10" x2="17" y2="10"/>
+        <line x1="3" y1="14" x2="17" y2="14"/>
+      </svg>
+    </div>
+    <a href="index.html" class="topnav-logo">
+      <img src="elyon_logo.png" alt="Elyon">
+      <span>Elyon</span>
+    </a>
+    <div class="model-select" onclick="toggleModelDropdown()" id="model-select-btn">
+      <span class="model-dot"></span>
+      <span id="model-label">Core</span>
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="opacity:0.5">
+        <path d="M2 3.5 L5 6.5 L8 3.5"/>
+      </svg>
+      <div class="model-dropdown" id="model-dropdown">
+        <div class="model-option active" onclick="selectModel('core', 'Core', event)">
+          <div>
+            <div class="model-option-name">Elyon Core</div>
+            <div class="model-option-desc">DeepSeek · 15 msg/day</div>
+          </div>
+          <span class="model-badge">FREE</span>
+        </div>
+        <div class="model-option" onclick="selectModel('nova', 'Nova', event)">
+          <div>
+            <div class="model-option-name">Elyon Nova</div>
+            <div class="model-option-desc">Gemini Flash · 25 msg/day</div>
+          </div>
+          <span class="model-badge">100₽</span>
+        </div>
+        <div class="model-option" onclick="selectModel('pro', 'PRO', event)">
+          <div>
+            <div class="model-option-name">Elyon PRO</div>
+            <div class="model-option-desc">Gemini Thinking · 40 msg/day</div>
+          </div>
+          <span class="model-badge">200₽</span>
+        </div>
+        <div class="model-option" onclick="selectModel('absolution', 'Absolution', event)">
+          <div>
+            <div class="model-option-name">Elyon Absolution</div>
+            <div class="model-option-desc">Gemini Pro · 50 msg/day</div>
+          </div>
+          <span class="model-badge">300₽</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="topnav-right">
+    <button class="btn-newchat" onclick="newChat()">
+      <span style="font-size:16px">+</span>
+      <span>New chat</span>
+    </button>
+    <div class="user-avatar" onclick="toggleUserMenu()" id="user-avatar-btn">
+      U
+      <div class="user-menu" id="user-menu">
+        <a href="#" class="user-menu-item" onclick="showPanel('profile-panel')">
+          <span>👤</span> Profile
+        </a>
+        <a href="#" class="user-menu-item" onclick="showPanel('pricing-panel')">
+          <span>⭐</span> Pricing
+        </a>
+        <a href="#" class="user-menu-item" onclick="showPanel('settings-panel')">
+          <span>⚙️</span> Settings
+        </a>
+        <div class="user-menu-sep"></div>
+        <a href="auth.html" class="user-menu-item danger">
+          <span>↩</span> Sign out
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-section-label">Recent chats</div>
+  <div id="chat-list">
+    <div class="chat-item active">
+      <span class="chat-item-icon">💬</span>
+      <span class="chat-item-title">New chat</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('profile-panel')">
+      <span class="sidebar-nav-icon">👤</span> Profile
+    </a>
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('pricing-panel')">
+      <span class="sidebar-nav-icon">⭐</span> Pricing
+    </a>
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('settings-panel')">
+      <span class="sidebar-nav-icon">⚙️</span> Settings
+    </a>
+    <a href="auth.html" class="sidebar-nav-item" style="color:#e07070">
+      <span class="sidebar-nav-icon">↩</span> Sign out
+    </a>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="main welcome-mode" id="main">
+
+  <!-- Welcome screen -->
+  <div class="welcome" id="welcome-screen">
+    <img src="elyon_logo.png" alt="Elyon" class="welcome-logo">
+    <h1>Hello, I am <em>Elyon.</em><br>How can I help you today?</h1>
+    <p class="welcome-sub">Ask me anything — I'm here to think with you.</p>
+    <div class="suggestions">
+      <div class="chip" onclick="fillInput(this)">✦ Explain quantum computing simply</div>
+      <div class="chip" onclick="fillInput(this)">◎ Analyze this document</div>
+      <div class="chip" onclick="fillInput(this)">⌘ Write a Python script</div>
+      <div class="chip" onclick="fillInput(this)">◈ Latest AI news today</div>
+      <div class="chip" onclick="fillInput(this)">❖ Help me brainstorm ideas</div>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages"></div>
+
+  <!-- Input -->
+  <div class="input-area" id="input-area">
+    <div class="input-box">
+      <textarea
+        class="input-textarea"
+        id="input"
+        placeholder="Message Elyon..."
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this); updateSendBtn()"
+      ></textarea>
+      <div class="input-actions">
+        <button class="input-btn" title="Attach file" onclick="document.getElementById('file-input').click()">📎</button>
+        <input type="file" id="file-input" style="display:none" onchange="handleFile(event)">
+        <button class="input-send" id="send-btn" onclick="sendMessage()" disabled>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 2L8 14M8 2L4 6M8 2L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="input-hint">Elyon can make mistakes. Consider checking important information.</p>
+  </div>
+
+</main>
+
+<!-- ══ PANELS ══════════════════════════════════════════════════════ -->
+
+<!-- Settings panel -->
+<div class="panel" id="settings-panel">
+  <div class="panel-header">
+    <button class="panel-back" onclick="hidePanel('settings-panel')">←</button>
+    <h2 class="panel-title">Settings</h2>
+  </div>
+  <div class="settings-body">
+    <div class="settings-group">
+      <div class="settings-group-label">Appearance</div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Theme</div>
+        </div>
+        <div class="theme-grid">
+          <div>
+            <div class="theme-swatch active" style="background:#0e0e0e;border:1px solid #333" onclick="setTheme('dark', this)"></div>
+            <div class="theme-swatch-label">Dark</div>
+          </div>
+          <div>
+            <div class="theme-swatch" style="background:#000000" onclick="setTheme('amoled', this)"></div>
+            <div class="theme-swatch-label">AMOLED</div>
+          </div>
+          <div>
+            <div class="theme-swatch" style="background:#f5f5f0;border:1px solid #ddd" onclick="setTheme('light', this)"></div>
+            <div class="theme-swatch-label">Light</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Font size</div>
+        </div>
+        <div class="segment">
+          <button class="seg-btn active" onclick="setFontSize('small', this)">S</button>
+          <button class="seg-btn" onclick="setFontSize('medium', this)">M</button>
+          <button class="seg-btn" onclick="setFontSize('large', this)">L</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-label">Language</div>
+      <div class="settings-row">
+        <div class="settings-row-label">Interface language</div>
+        <div class="segment">
+          <button class="seg-btn active" onclick="setLang('en', this)">EN</button>
+          <button class="seg-btn" onclick="setLang('ru', this)">RU</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="settings-group-label">Chat</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Send with Enter</div>
+          <div class="settings-row-sub">Shift+Enter for new line</div>
+        </div>
+        <div class="toggle on" id="enter-toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-row-label">Show typing indicator</div>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile panel -->
+<div class="panel" id="profile-panel">
+  <div class="panel-header">
+    <button class="panel-back" onclick="hidePanel('profile-panel')">←</button>
+    <h2 class="panel-title">Profile</h2>
+  </div>
+  <div class="profile-body">
+    <div class="profile-avatar-big">U</div>
+    <div class="profile-name">User</div>
+    <div class="profile-email">user@example.com</div>
+
+    <div class="profile-card">
+      <div class="profile-card-label">Subscription</div>
+      <div class="profile-card-value">Elyon Core</div>
+      <div class="profile-card-sub">Free plan · 15 messages/day</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-card-label">Messages today</div>
+      <div class="profile-card-value">0 / 15</div>
+      <div class="profile-card-sub">Resets at midnight</div>
+    </div>
+    <div class="profile-card">
+      <div class="profile-card-label">Member since</div>
+      <div class="profile-card-value">May 2026</div>
+    </div>
+    <button class="btn-upgrade" onclick="hidePanel('profile-panel'); showPanel('pricing-panel')">
+      Upgrade plan →
+    </button>
+  </div>
+</div>
+
+<!-- Pricing panel -->
+<div class="panel" id="pricing-panel">
+  <div class="panel-header">
+    <button class="panel-back" onclick="hidePanel('pricing-panel')">←</button>
+    <h2 class="panel-title">Plans</h2>
+  </div>
+  <div class="pricing-body">
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Free</div>
+        <div class="pricing-name">Elyon Core</div>
+        <div class="pricing-price">0 ₽ <span>/ month</span></div>
+        <div class="pricing-limit">◎ 15 messages / day</div>
+        <div class="pricing-desc">DeepSeek model. Fast answers for everyday questions.</div>
+        <button class="pricing-btn">Current plan</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">Popular</div>
+        <div class="pricing-name">Elyon Nova</div>
+        <div class="pricing-price">100 ₽ <span>/ month</span></div>
+        <div class="pricing-limit">◎ 25 messages / day</div>
+        <div class="pricing-desc">Gemini Flash. Smarter, faster responses for serious work.</div>
+        <button class="pricing-btn">Subscribe →</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Advanced</div>
+        <div class="pricing-name">Elyon PRO</div>
+        <div class="pricing-price">200 ₽ <span>/ month</span></div>
+        <div class="pricing-limit">◎ 40 messages / day</div>
+        <div class="pricing-desc">Gemini Thinking. Deep reasoning for complex problems.</div>
+        <button class="pricing-btn">Subscribe →</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Ultimate</div>
+        <div class="pricing-name">Elyon Absolution</div>
+        <div class="pricing-price">300 ₽ <span>/ month</span></div>
+        <div class="pricing-limit">◎ 50 messages / day</div>
+        <div class="pricing-desc">Gemini Pro. Maximum capability for the most demanding tasks.</div>
+        <button class="pricing-btn">Subscribe →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────
+let chatStarted = false;
+let currentModel = 'core';
+let chats = [{ id: 'default', title: 'New chat', messages: [] }];
+let activeChatId = 'default';
+let enterToSend = true;
+
+// ── Sidebar ────────────────────────────────────────────────────────
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.classList.toggle('show');
+}
+
+// ── Model dropdown ─────────────────────────────────────────────────
+function toggleModelDropdown() {
+  document.getElementById('model-dropdown').classList.toggle('open');
+}
+function selectModel(id, label, e) {
+  e.stopPropagation();
+  currentModel = id;
+  document.getElementById('model-label').textContent = label;
+  document.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById('model-dropdown').classList.remove('open');
+}
+
+// ── User menu ──────────────────────────────────────────────────────
+function toggleUserMenu() {
+  document.getElementById('user-menu').classList.toggle('open');
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', e => {
+  if (!document.getElementById('model-select-btn').contains(e.target))
+    document.getElementById('model-dropdown').classList.remove('open');
+  if (!document.getElementById('user-avatar-btn').contains(e.target))
+    document.getElementById('user-menu').classList.remove('open');
+});
+
+// ── Panels ─────────────────────────────────────────────────────────
+function showPanel(id) {
+  document.getElementById('user-menu').classList.remove('open');
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.remove('open');
+  o.classList.remove('show');
+  document.getElementById(id).classList.add('show');
+}
+function hidePanel(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+// ── Chat ───────────────────────────────────────────────────────────
+function fillInput(chip) {
+  const text = chip.textContent.replace(/^[✦◎⌘◈❖]\s/, '');
+  document.getElementById('input').value = text;
+  document.getElementById('input').focus();
+  updateSendBtn();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function updateSendBtn() {
+  const val = document.getElementById('input').value.trim();
+  document.getElementById('send-btn').disabled = val.length === 0;
+}
+
+function handleKey(e) {
+  const useEnter = document.getElementById('enter-toggle').classList.contains('on');
+  if (e.key === 'Enter' && !e.shiftKey && useEnter) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function newChat() {
+  const id = 'chat_' + Date.now();
+  chats.unshift({ id, title: 'New chat', messages: [] });
+  activeChatId = id;
+  chatStarted = false;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('messages').classList.remove('show');
+  document.getElementById('welcome-screen').style.display = '';
+  document.getElementById('main').classList.add('welcome-mode');
+  document.getElementById('input').value = '';
+  document.getElementById('input').style.height = '';
+  updateSendBtn();
+  renderChatList();
+  const s = document.getElementById('sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  s.classList.remove('open');
+  o.classList.remove('show');
+}
+
+function renderChatList() {
+  const list = document.getElementById('chat-list');
+  list.innerHTML = chats.map(c => `
+    <div class="chat-item ${c.id === activeChatId ? 'active' : ''}" onclick="switchChat('${c.id}')">
+      <span class="chat-item-icon">💬</span>
+      <span class="chat-item-title">${c.title}</span>
+      ${chats.length > 1 ? `<button class="chat-item-del" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+function switchChat(id) {
+  activeChatId = id;
+  const chat = chats.find(c => c.id === id);
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  if (chat.messages.length > 0) {
+    chatStarted = true;
+    chat.messages.forEach(m => appendMessage(m.role, m.content, false));
+    msgs.classList.add('show');
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('main').classList.remove('welcome-mode');
+  } else {
+    chatStarted = false;
+    msgs.classList.remove('show');
+    document.getElementById('welcome-screen').style.display = '';
+    document.getElementById('main').classList.add('welcome-mode');
+  }
+  renderChatList();
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+
+function deleteChat(id) {
+  chats = chats.filter(c => c.id !== id);
+  if (activeChatId === id) {
+    activeChatId = chats[0]?.id || 'default';
+    if (!chats.length) chats = [{ id: 'default', title: 'New chat', messages: [] }];
+    switchChat(chats[0].id);
+  }
+  renderChatList();
+}
+
+function appendMessage(role, content, scroll = true) {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'msg-group';
+
+  if (role === 'user') {
+    el.innerHTML = `<div class="msg-user"><div class="msg-user-bubble">${escapeHtml(content)}</div></div>`;
+  } else {
+    el.innerHTML = `
+      <div class="msg-ai">
+        <div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div>
+        <div class="msg-ai-content">${escapeHtml(content)}</div>
+      </div>`;
+  }
+  msgs.appendChild(el);
+  if (scroll) msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+function escapeHtml(text) {
+  return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typing';
+  el.innerHTML = `
+    <div class="typing-logo"><img src="elyon_logo.png" alt=""></div>
+    <div class="typing-dots">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>`;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // First message — transition from welcome to chat
+  if (!chatStarted) {
+    chatStarted = true;
+    const welcome = document.getElementById('welcome-screen');
+    const msgs = document.getElementById('messages');
+    welcome.style.display = 'none';
+    msgs.classList.add('show');
+    document.getElementById('main').classList.remove('welcome-mode');
+
+    // Update chat title
+    const chat = chats.find(c => c.id === activeChatId);
+    if (chat) {
+      chat.title = text.slice(0, 30);
+      renderChatList();
+    }
+  }
+
+  // Clear input
+  input.value = '';
+  input.style.height = '';
+  updateSendBtn();
+
+  // Add user message
+  const chat = chats.find(c => c.id === activeChatId);
+  chat?.messages.push({ role: 'user', content: text });
+  appendMessage('user', text);
+
+  // Show typing
+  showTyping();
+  document.getElementById('send-btn').disabled = true;
+
+  try {
+    const BACKEND = 'https://elyon-bot.onrender.com';
+    const history = (chat?.messages || []).map(m => ({ role: m.role, content: m.content }));
+    history.push({ role: 'user', content: text });
+
+    const res = await fetch(`${BACKEND}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: 0, model: currentModel === 'core' ? 'gpt' : 'gemini', messages: history })
+    });
+
+    const data = await res.json();
+    const reply = data.reply || data.error || 'No response.';
+
+    hideTyping();
+    chat?.messages.push({ role: 'assistant', content: reply });
+    appendMessage('assistant', reply);
+  } catch (err) {
+    hideTyping();
+    appendMessage('assistant', 'Connection error. Please try again.');
+  }
+
+  document.getElementById('send-btn').disabled = false;
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('input').value = `[File: ${file.name}]`;
+  updateSendBtn();
+}
+
+// ── Settings ───────────────────────────────────────────────────────
+function setTheme(theme, el) {
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const root = document.documentElement;
+  if (theme === 'amoled') {
+    root.style.setProperty('--black', '#000000');
+    root.style.setProperty('--off', '#0a0a0a');
+    root.style.setProperty('--card', '#111111');
+  } else if (theme === 'light') {
+    root.style.setProperty('--black', '#f5f5f0');
+    root.style.setProperty('--off', '#ffffff');
+    root.style.setProperty('--card', '#ebebeb');
+    root.style.setProperty('--white', '#111118');
+    root.style.setProperty('--muted', 'rgba(17,17,24,0.5)');
+    root.style.setProperty('--border', 'rgba(0,0,0,0.08)');
+  } else {
+    root.style.setProperty('--black', '#0e0e0e');
+    root.style.setProperty('--off', '#181818');
+    root.style.setProperty('--card', '#202020');
+    root.style.setProperty('--white', '#f8f5f0');
+    root.style.setProperty('--muted', 'rgba(248,245,240,0.4)');
+    root.style.setProperty('--border', 'rgba(255,255,255,0.07)');
+  }
+}
+
+function setFontSize(size, el) {
+  document.querySelectorAll('.seg-btn').forEach(b => {
+    if (b.closest('.segment') === el.closest('.segment')) b.classList.remove('active');
+  });
+  el.classList.add('active');
+  const sizes = { small: '13px', medium: '15px', large: '17px' };
+  document.body.style.fontSize = sizes[size];
+}
+
+function setLang(lang, el) {
+  document.querySelectorAll('.seg-btn').forEach(b => {
+    if (b.closest('.segment') === el.closest('.segment')) b.classList.remove('active');
+  });
+  el.classList.add('active');
+}
+
+renderChatList();
+</script>
+</body>
+</html>
