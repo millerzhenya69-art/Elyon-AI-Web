@@ -232,70 +232,47 @@ body {
   margin: 4px 0;
 }
 
-/* ══ TOP DRAWER (сайдбар сверху) ══════════════════════════════════ */
+/* ══ SIDEBAR ══════════════════════════════════════════════════════ */
 .sidebar {
   position: fixed;
-  top: 52px; left: 0; right: 0;
-  background: rgba(16,16,16,0.97);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border2);
+  top: 52px; left: 0; bottom: 0;
+  width: var(--sidebar);
+  background: var(--off);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 10px;
+  transform: translateX(-100%);
+  transition: transform 0.26s cubic-bezier(0.4,0,0.2,1);
   z-index: 150;
-  transform: translateY(-100%);
-  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  max-height: calc(100vh - 52px);
-  overflow-y: auto;
-  scrollbar-width: none;
 }
-.sidebar::-webkit-scrollbar { display: none; }
-.sidebar.open { transform: translateY(0); }
-
-/* Внутренняя сетка */
-.sidebar-inner {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 20px 24px 24px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 20px;
-}
-
-/* Левая часть — чаты */
-.sidebar-chats { min-width: 0; }
+.sidebar.open { transform: translateX(0); }
 
 .sidebar-section-label {
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.chat-list-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px;
-  margin-bottom: 14px;
+  padding: 6px 10px 8px;
 }
 
 .chat-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
   cursor: pointer;
   transition: background 0.15s;
   font-size: 13px;
   color: var(--muted);
   position: relative;
-  border: 1px solid transparent;
 }
-.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); border-color: var(--border); }
-.chat-item.active { background: rgba(232,221,208,0.07); color: var(--white); border-color: rgba(232,221,208,0.12); }
+.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.chat-item.active { background: rgba(232,221,208,0.06); color: var(--white); }
 
-.chat-item-icon { font-size: 13px; flex-shrink: 0; opacity: 0.5; }
+.chat-item-icon { font-size: 14px; flex-shrink: 0; opacity: 0.6; }
 .chat-item-title {
   flex: 1;
   white-space: nowrap;
@@ -310,7 +287,7 @@ body {
   border: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   padding: 2px 4px;
   border-radius: 4px;
   transition: opacity 0.15s, color 0.15s;
@@ -319,66 +296,26 @@ body {
 .chat-item:hover .chat-item-del { opacity: 1; }
 .chat-item-del:hover { color: #e07070; }
 
-/* Кнопка нового чата */
-.sidebar-new-chat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: none;
-  border: 1px dashed rgba(255,255,255,0.12);
-  border-radius: 10px;
-  color: var(--muted);
-  font-family: var(--sans);
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.18s, color 0.18s, background 0.18s;
-  width: 100%;
-  margin-top: 4px;
-}
-.sidebar-new-chat:hover {
-  border-color: rgba(232,221,208,0.25);
-  color: var(--white);
-  background: rgba(255,255,255,0.03);
-}
-
-/* Правая часть — навигация */
 .sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 160px;
-  padding-left: 20px;
-  border-left: 1px solid var(--border);
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 10px 10px;
   border-radius: 9px;
   cursor: pointer;
   font-size: 13px;
   color: var(--muted);
   transition: background 0.15s, color 0.15s;
   text-decoration: none;
-  white-space: nowrap;
 }
 .sidebar-nav-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
-.sidebar-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
-
-/* Overlay */
-.sidebar-overlay {
-  position: fixed;
-  inset: 52px 0 0 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 140;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.28s;
-}
-.sidebar-overlay.show { opacity: 1; pointer-events: all; }
+.sidebar-nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
 /* Overlay */
 .sidebar-overlay {
@@ -1003,35 +940,28 @@ body {
 <!-- Sidebar overlay -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<!-- Top drawer sidebar -->
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-inner">
-    <!-- Чаты -->
-    <div class="sidebar-chats">
-      <div class="sidebar-section-label">Recent chats</div>
-      <div class="chat-list-grid" id="chat-list"></div>
-      <button class="sidebar-new-chat" onclick="newChat()">
-        <span style="font-size:16px">+</span> New chat
-      </button>
+  <div class="sidebar-section-label">Recent chats</div>
+  <div id="chat-list">
+    <div class="chat-item active">
+      <span class="chat-item-icon">💬</span>
+      <span class="chat-item-title">New chat</span>
     </div>
-
-    <!-- Навигация -->
-    <div class="sidebar-nav">
-      <div class="sidebar-section-label">Menu</div>
-      <a href="#" class="sidebar-nav-item" onclick="showPanel('profile-panel'); toggleSidebar()">
-        <span class="sidebar-nav-icon">👤</span> Profile
-      </a>
-      <a href="#" class="sidebar-nav-item" onclick="showPanel('pricing-panel'); toggleSidebar()">
-        <span class="sidebar-nav-icon">⭐</span> Pricing
-      </a>
-      <a href="#" class="sidebar-nav-item" onclick="showPanel('settings-panel'); toggleSidebar()">
-        <span class="sidebar-nav-icon">⚙️</span> Settings
-      </a>
-      <div style="height:1px;background:var(--border);margin:8px 0"></div>
-      <a href="auth.html" class="sidebar-nav-item" style="color:#e07070" onclick="localStorage.clear()">
-        <span class="sidebar-nav-icon">↩</span> Sign out
-      </a>
-    </div>
+  </div>
+  <div class="sidebar-nav">
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('profile-panel')">
+      <span class="sidebar-nav-icon">👤</span> Profile
+    </a>
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('pricing-panel')">
+      <span class="sidebar-nav-icon">⭐</span> Pricing
+    </a>
+    <a href="#" class="sidebar-nav-item" onclick="showPanel('settings-panel')">
+      <span class="sidebar-nav-icon">⚙️</span> Settings
+    </a>
+    <a href="auth.html" class="sidebar-nav-item" style="color:#e07070">
+      <span class="sidebar-nav-icon">↩</span> Sign out
+    </a>
   </div>
 </div>
 
@@ -1359,7 +1289,6 @@ function switchChat(id) {
     document.getElementById('main').classList.add('welcome-mode');
   }
   renderChatList();
-  // Закрываем drawer
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
 }
@@ -1529,45 +1458,6 @@ function setLang(lang, el) {
 }
 
 renderChatList();
-
-// ── Сессия пользователя ───────────────────────────────────────────
-(function() {
-  if (!localStorage.getItem('elyon_auth')) {
-    window.location.href = 'auth.html';
-    return;
-  }
-  const raw = localStorage.getItem('elyon_user');
-  if (!raw) return;
-  try {
-    const u = JSON.parse(raw);
-    const letter = (u.first_name || u.email || 'U')[0].toUpperCase();
-
-    // Аватар в навбаре
-    const avatarBtn = document.getElementById('user-avatar-btn');
-    const userMenu  = document.getElementById('user-menu');
-    if (u.avatar) {
-      const img = document.createElement('img');
-      img.src = u.avatar;
-      img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
-      img.onerror = () => { avatarBtn.innerHTML = letter; avatarBtn.appendChild(userMenu); };
-      avatarBtn.innerHTML = '';
-      avatarBtn.appendChild(img);
-      avatarBtn.appendChild(userMenu);
-    } else {
-      avatarBtn.innerHTML = letter;
-      avatarBtn.appendChild(userMenu);
-    }
-
-    // Профиль-панель
-    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'User';
-    const nameEl  = document.querySelector('.profile-name');
-    const emailEl = document.querySelector('.profile-email');
-    const bigAv   = document.querySelector('.profile-avatar-big');
-    if (nameEl)  nameEl.textContent  = fullName;
-    if (emailEl) emailEl.textContent = u.email || '';
-    if (bigAv)   bigAv.textContent   = letter;
-  } catch(e) { console.warn('Session load error:', e); }
-})();
 </script>
 </body>
 </html>
