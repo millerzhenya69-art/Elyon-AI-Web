@@ -232,47 +232,73 @@ body {
   margin: 4px 0;
 }
 
-/* ══ SIDEBAR ══════════════════════════════════════════════════════ */
+/* ══ TOP DRAWER (сайдбар сверху) ══════════════════════════════════ */
 .sidebar {
   position: fixed;
-  top: 52px; left: 0; bottom: 0;
-  width: var(--sidebar);
-  background: var(--off);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  padding: 16px 10px;
-  transform: translateX(-100%);
-  transition: transform 0.26s cubic-bezier(0.4,0,0.2,1);
+  top: 52px; left: 0; right: 0;
+  background: rgba(16,16,16,0.97);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border2);
   z-index: 150;
+  transform: translateY(-100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  max-height: calc(100vh - 52px);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
-.sidebar.open { transform: translateX(0); }
+.sidebar::-webkit-scrollbar { display: none; }
+.sidebar.open { transform: translateY(0); }
+
+/* Внутренняя сетка */
+.sidebar-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 24px 24px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Левая часть — чаты */
+.sidebar-chats {
+  flex: 1;
+  min-width: 0;
+}
 
 .sidebar-section-label {
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 6px 10px 8px;
+  margin-bottom: 10px;
+}
+
+.chat-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+  margin-bottom: 14px;
 }
 
 .chat-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 10px;
-  border-radius: 9px;
+  padding: 10px 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s;
   font-size: 13px;
   color: var(--muted);
   position: relative;
+  border: 1px solid transparent;
 }
-.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
-.chat-item.active { background: rgba(232,221,208,0.06); color: var(--white); }
+.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); border-color: var(--border); }
+.chat-item.active { background: rgba(232,221,208,0.07); color: var(--white); border-color: rgba(232,221,208,0.12); }
 
-.chat-item-icon { font-size: 14px; flex-shrink: 0; opacity: 0.6; }
+.chat-item-icon { font-size: 13px; flex-shrink: 0; opacity: 0.5; }
 .chat-item-title {
   flex: 1;
   white-space: nowrap;
@@ -287,7 +313,7 @@ body {
   border: none;
   color: var(--muted);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   padding: 2px 4px;
   border-radius: 4px;
   transition: opacity 0.15s, color 0.15s;
@@ -296,26 +322,67 @@ body {
 .chat-item:hover .chat-item-del { opacity: 1; }
 .chat-item-del:hover { color: #e07070; }
 
+/* Кнопка нового чата */
+.sidebar-new-chat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: none;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 10px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  width: 100%;
+  margin-top: 4px;
+}
+.sidebar-new-chat:hover {
+  border-color: rgba(232,221,208,0.25);
+  color: var(--white);
+  background: rgba(255,255,255,0.03);
+}
+
+/* Правая часть — навигация */
 .sidebar-nav {
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 180px;
+  flex-shrink: 0;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 10px;
+  padding: 10px 12px;
   border-radius: 9px;
   cursor: pointer;
   font-size: 13px;
   color: var(--muted);
   transition: background 0.15s, color 0.15s;
   text-decoration: none;
+  white-space: nowrap;
 }
 .sidebar-nav-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
-.sidebar-nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 52px 0 0 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 140;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s;
+}
+.sidebar-overlay.show { opacity: 1; pointer-events: all; }
 
 /* Overlay */
 .sidebar-overlay {
@@ -847,7 +914,103 @@ body {
 }
 .pricing-card.featured .pricing-btn:hover { background: var(--white); }
 
-/* ══ RESPONSIVE ═══════════════════════════════════════════════════ */
+/* Admin panel */
+.admin-body { padding: 24px; max-width: 680px; }
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.admin-stat {
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.admin-stat-num {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--beige);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.admin-stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.admin-group-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--beige2);
+  margin-bottom: 10px;
+  margin-top: 20px;
+}
+.admin-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.admin-user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.admin-user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(232,221,208,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600;
+  color: var(--beige);
+  flex-shrink: 0;
+}
+.admin-user-name { flex: 1; color: var(--white); }
+.admin-user-role {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: rgba(232,221,208,0.07);
+  color: var(--beige2);
+}
+.admin-user-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+.admin-loading {
+  text-align: center;
+  padding: 32px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.btn-admin-action {
+  padding: 10px 18px;
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+.btn-admin-action:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.btn-admin-action.danger { color: #e07070; border-color: rgba(224,112,112,0.3); }
+.btn-admin-action.danger:hover { background: rgba(224,112,112,0.08); }
 @media (max-width: 600px) {
   :root { --sidebar: 80vw; }
   .btn-newchat span { display: none; }
@@ -882,28 +1045,28 @@ body {
         <div class="model-option active" onclick="selectModel('core', 'Core', event)">
           <div>
             <div class="model-option-name">Elyon Core</div>
-            <div class="model-option-desc">DeepSeek · 15 msg/day</div>
+            <div class="model-option-desc">Fast & free · 15 msg/day</div>
           </div>
           <span class="model-badge">FREE</span>
         </div>
         <div class="model-option" onclick="selectModel('nova', 'Nova', event)">
           <div>
             <div class="model-option-name">Elyon Nova</div>
-            <div class="model-option-desc">Gemini Flash · 25 msg/day</div>
+            <div class="model-option-desc">Smarter responses · 25 msg/day</div>
           </div>
           <span class="model-badge">100₽</span>
         </div>
         <div class="model-option" onclick="selectModel('pro', 'PRO', event)">
           <div>
             <div class="model-option-name">Elyon PRO</div>
-            <div class="model-option-desc">Gemini Thinking · 40 msg/day</div>
+            <div class="model-option-desc">Deep reasoning · 40 msg/day</div>
           </div>
           <span class="model-badge">200₽</span>
         </div>
         <div class="model-option" onclick="selectModel('absolution', 'Absolution', event)">
           <div>
             <div class="model-option-name">Elyon Absolution</div>
-            <div class="model-option-desc">Gemini Pro · 50 msg/day</div>
+            <div class="model-option-desc">Maximum capability · 50 msg/day</div>
           </div>
           <span class="model-badge">300₽</span>
         </div>
@@ -940,28 +1103,39 @@ body {
 <!-- Sidebar overlay -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-<!-- Sidebar -->
+<!-- Top drawer sidebar -->
 <div class="sidebar" id="sidebar">
-  <div class="sidebar-section-label">Recent chats</div>
-  <div id="chat-list">
-    <div class="chat-item active">
-      <span class="chat-item-icon">💬</span>
-      <span class="chat-item-title">New chat</span>
+  <div class="sidebar-inner">
+    <!-- Чаты -->
+    <div class="sidebar-chats">
+      <div class="sidebar-section-label">Recent chats</div>
+      <div class="chat-list-grid" id="chat-list"></div>
+      <button class="sidebar-new-chat" onclick="newChat()">
+        <span style="font-size:16px">+</span> New chat
+      </button>
     </div>
-  </div>
-  <div class="sidebar-nav">
-    <a href="#" class="sidebar-nav-item" onclick="showPanel('profile-panel')">
-      <span class="sidebar-nav-icon">👤</span> Profile
-    </a>
-    <a href="#" class="sidebar-nav-item" onclick="showPanel('pricing-panel')">
-      <span class="sidebar-nav-icon">⭐</span> Pricing
-    </a>
-    <a href="#" class="sidebar-nav-item" onclick="showPanel('settings-panel')">
-      <span class="sidebar-nav-icon">⚙️</span> Settings
-    </a>
-    <a href="auth.html" class="sidebar-nav-item" style="color:#e07070">
-      <span class="sidebar-nav-icon">↩</span> Sign out
-    </a>
+
+    <!-- Навигация -->
+    <div class="sidebar-nav">
+      <div class="sidebar-section-label">Menu</div>
+      <a href="#" class="sidebar-nav-item" onclick="showPanel('profile-panel'); toggleSidebar()">
+        <span class="sidebar-nav-icon">👤</span> Profile
+      </a>
+      <a href="#" class="sidebar-nav-item" onclick="showPanel('pricing-panel'); toggleSidebar()">
+        <span class="sidebar-nav-icon">⭐</span> Pricing
+      </a>
+      <a href="#" class="sidebar-nav-item" onclick="showPanel('settings-panel'); toggleSidebar()">
+        <span class="sidebar-nav-icon">⚙️</span> Settings
+      </a>
+      <div style="height:1px;background:var(--border);margin:8px 0"></div>
+      <a href="#" class="sidebar-nav-item admin-only" id="sidebar-admin-btn" onclick="showAdminPanel(); toggleSidebar()" style="display:none">
+        <span class="sidebar-nav-icon">🛠</span> Admin
+      </a>
+      <div style="height:1px;background:var(--border);margin:8px 0"></div>
+      <a href="auth.html" class="sidebar-nav-item" style="color:#e07070" onclick="localStorage.clear()">
+        <span class="sidebar-nav-icon">↩</span> Sign out
+      </a>
+    </div>
   </div>
 </div>
 
@@ -1025,7 +1199,7 @@ body {
 
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">Theme</div>
+          <div class="settings-row-label" id="label-theme">Theme</div>
         </div>
         <div class="theme-grid">
           <div>
@@ -1045,7 +1219,7 @@ body {
 
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">Font size</div>
+          <div class="settings-row-label" id="label-fontsize">Font size</div>
         </div>
         <div class="segment">
           <button class="seg-btn active" onclick="setFontSize('small', this)">S</button>
@@ -1056,9 +1230,9 @@ body {
     </div>
 
     <div class="settings-group">
-      <div class="settings-group-label">Language</div>
+      <div class="settings-group-label" id="label-lang-group">Language</div>
       <div class="settings-row">
-        <div class="settings-row-label">Interface language</div>
+        <div class="settings-row-label" id="label-lang">Interface language</div>
         <div class="segment">
           <button class="seg-btn active" onclick="setLang('en', this)">EN</button>
           <button class="seg-btn" onclick="setLang('ru', this)">RU</button>
@@ -1067,17 +1241,17 @@ body {
     </div>
 
     <div class="settings-group">
-      <div class="settings-group-label">Chat</div>
+      <div class="settings-group-label" id="label-chat-group">Chat</div>
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">Send with Enter</div>
-          <div class="settings-row-sub">Shift+Enter for new line</div>
+          <div class="settings-row-label" id="label-enter">Send with Enter</div>
+          <div class="settings-row-sub" id="label-enter-sub">Shift+Enter for new line</div>
         </div>
         <div class="toggle on" id="enter-toggle" onclick="this.classList.toggle('on')"></div>
       </div>
       <div class="settings-row">
         <div>
-          <div class="settings-row-label">Show typing indicator</div>
+          <div class="settings-row-label" id="label-typing">Show typing indicator</div>
         </div>
         <div class="toggle on" onclick="this.classList.toggle('on')"></div>
       </div>
@@ -1129,7 +1303,7 @@ body {
         <div class="pricing-name">Elyon Core</div>
         <div class="pricing-price">0 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 15 messages / day</div>
-        <div class="pricing-desc">DeepSeek model. Fast answers for everyday questions.</div>
+        <div class="pricing-desc">Fast and always free. Perfect for everyday questions and quick tasks.</div>
         <button class="pricing-btn">Current plan</button>
       </div>
       <div class="pricing-card featured">
@@ -1137,7 +1311,7 @@ body {
         <div class="pricing-name">Elyon Nova</div>
         <div class="pricing-price">100 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 25 messages / day</div>
-        <div class="pricing-desc">Gemini Flash. Smarter, faster responses for serious work.</div>
+        <div class="pricing-desc">Smarter and faster. Built for work that demands real quality.</div>
         <button class="pricing-btn">Subscribe →</button>
       </div>
       <div class="pricing-card">
@@ -1145,7 +1319,7 @@ body {
         <div class="pricing-name">Elyon PRO</div>
         <div class="pricing-price">200 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 40 messages / day</div>
-        <div class="pricing-desc">Gemini Thinking. Deep reasoning for complex problems.</div>
+        <div class="pricing-desc">Deep reasoning and nuanced analysis for complex challenges.</div>
         <button class="pricing-btn">Subscribe →</button>
       </div>
       <div class="pricing-card">
@@ -1153,9 +1327,22 @@ body {
         <div class="pricing-name">Elyon Absolution</div>
         <div class="pricing-price">300 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 50 messages / day</div>
-        <div class="pricing-desc">Gemini Pro. Maximum capability for the most demanding tasks.</div>
+        <div class="pricing-desc">Maximum capability. The most powerful intelligence Elyon offers.</div>
         <button class="pricing-btn">Subscribe →</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel (owner only) -->
+<div class="panel" id="admin-panel">
+  <div class="panel-header">
+    <button class="panel-back" onclick="hidePanel('admin-panel')">←</button>
+    <h2 class="panel-title">Admin Panel</h2>
+  </div>
+  <div class="admin-body">
+    <div id="admin-content">
+      <div class="admin-loading">Loading stats...</div>
     </div>
   </div>
 </div>
@@ -1289,6 +1476,7 @@ function switchChat(id) {
     document.getElementById('main').classList.add('welcome-mode');
   }
   renderChatList();
+  // Закрываем drawer
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
 }
@@ -1455,9 +1643,325 @@ function setLang(lang, el) {
     if (b.closest('.segment') === el.closest('.segment')) b.classList.remove('active');
   });
   el.classList.add('active');
+  localStorage.setItem('elyon_lang', lang);
+  applyLang(lang);
+}
+
+// ── Переводы ───────────────────────────────────────────────────────
+const TRANSLATIONS = {
+  en: {
+    'welcome_title':    'Hello, I am <em>Elyon.</em><br>How can I help you today?',
+    'welcome_sub':      'Ask me anything — I\'m here to think with you.',
+    'input_placeholder':'Message Elyon...',
+    'input_hint':       'Elyon can make mistakes. Consider checking important information.',
+    'new_chat':         '+ New chat',
+    'recent_chats':     'Recent chats',
+    'menu_label':       'Menu',
+    'profile':          'Profile',
+    'pricing':          'Pricing',
+    'settings':         'Settings',
+    'sign_out':         'Sign out',
+    'panel_settings':   'Settings',
+    'panel_profile':    'Profile',
+    'panel_pricing':    'Plans',
+    'panel_admin':      'Admin Panel',
+    'appearance':       'Appearance',
+    'theme':            'Theme',
+    'font_size':        'Font size',
+    'language':         'Language',
+    'interface_lang':   'Interface language',
+    'chat_section':     'Chat',
+    'send_enter':       'Send with Enter',
+    'send_enter_sub':   'Shift+Enter for new line',
+    'show_typing':      'Show typing indicator',
+    'subscription':     'Subscription',
+    'messages_today':   'Messages today',
+    'resets_midnight':  'Resets at midnight',
+    'member_since':     'Member since',
+    'upgrade_plan':     'Upgrade plan →',
+    'current_plan':     'Current plan',
+    'subscribe':        'Subscribe →',
+    'free_plan':        'Free plan',
+    'chip1': '✦ Explain quantum computing simply',
+    'chip2': '◎ Analyze this document',
+    'chip3': '⌘ Write a Python script',
+    'chip4': '◈ Latest AI news today',
+    'chip5': '❖ Help me brainstorm ideas',
+  },
+  ru: {
+    'welcome_title':    'Привет, я <em>Elyon.</em><br>Чем могу помочь сегодня?',
+    'welcome_sub':      'Спрашивай всё что угодно — я здесь чтобы думать вместе с тобой.',
+    'input_placeholder':'Сообщение Elyon...',
+    'input_hint':       'Elyon может ошибаться. Проверяй важную информацию.',
+    'new_chat':         '+ Новый чат',
+    'recent_chats':     'Последние чаты',
+    'menu_label':       'Меню',
+    'profile':          'Профиль',
+    'pricing':          'Тарифы',
+    'settings':         'Настройки',
+    'sign_out':         'Выйти',
+    'panel_settings':   'Настройки',
+    'panel_profile':    'Профиль',
+    'panel_pricing':    'Тарифы',
+    'panel_admin':      'Панель управления',
+    'appearance':       'Внешний вид',
+    'theme':            'Тема',
+    'font_size':        'Размер шрифта',
+    'language':         'Язык',
+    'interface_lang':   'Язык интерфейса',
+    'chat_section':     'Чат',
+    'send_enter':       'Отправка по Enter',
+    'send_enter_sub':   'Shift+Enter для новой строки',
+    'show_typing':      'Показывать индикатор набора',
+    'subscription':     'Подписка',
+    'messages_today':   'Сообщений сегодня',
+    'resets_midnight':  'Сбрасывается в полночь',
+    'member_since':     'Участник с',
+    'upgrade_plan':     'Улучшить план →',
+    'current_plan':     'Текущий план',
+    'subscribe':        'Подписаться →',
+    'free_plan':        'Бесплатный план',
+    'chip1': '✦ Объясни квантовые вычисления просто',
+    'chip2': '◎ Проанализируй этот документ',
+    'chip3': '⌘ Напиши Python-скрипт',
+    'chip4': '◈ Последние новости AI',
+    'chip5': '❖ Помоги сгенерировать идеи',
+  }
+};
+
+function t(key) {
+  const lang = localStorage.getItem('elyon_lang') || 'en';
+  return TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
+}
+
+function applyLang(lang) {
+  const tr = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+
+  // Welcome
+  const wt = document.querySelector('.welcome h1');
+  if (wt) wt.innerHTML = tr['welcome_title'];
+  const ws = document.querySelector('.welcome-sub');
+  if (ws) ws.textContent = tr['welcome_sub'];
+
+  // Input
+  const inp = document.getElementById('input');
+  if (inp) inp.placeholder = tr['input_placeholder'];
+  const hint = document.querySelector('.input-hint');
+  if (hint) hint.textContent = tr['input_hint'];
+
+  // Sidebar
+  document.querySelectorAll('.sidebar-section-label').forEach((el, i) => {
+    el.textContent = i === 0 ? tr['recent_chats'] : tr['menu_label'];
+  });
+
+  // Sidebar nav items
+  const navItems = document.querySelectorAll('.sidebar-nav-item');
+  const navKeys = ['profile', 'pricing', 'settings', 'sign_out'];
+  navItems.forEach((el, i) => {
+    const icon = el.querySelector('.sidebar-nav-icon');
+    if (icon && navKeys[i]) el.childNodes[el.childNodes.length - 1].textContent = ' ' + tr[navKeys[i]];
+  });
+
+  // New chat button in sidebar
+  const newChatBtn = document.querySelector('.sidebar-new-chat');
+  if (newChatBtn) newChatBtn.innerHTML = `<span style="font-size:16px">+</span> ${tr['new_chat'].replace('+ ', '')}`;
+
+  // Chip suggestions
+  const chips = document.querySelectorAll('.chip');
+  ['chip1','chip2','chip3','chip4','chip5'].forEach((key, i) => {
+    if (chips[i]) chips[i].textContent = tr[key];
+  });
+
+  // Panel titles
+  const panelTitles = {
+    'settings-panel': 'panel_settings',
+    'profile-panel':  'panel_profile',
+    'pricing-panel':  'panel_pricing',
+    'admin-panel':    'panel_admin',
+  };
+  Object.entries(panelTitles).forEach(([id, key]) => {
+    const panel = document.getElementById(id);
+    if (panel) {
+      const title = panel.querySelector('.panel-title');
+      if (title) title.textContent = tr[key];
+    }
+  });
+
+  // Settings rows
+  const settingsMap = [
+    ['.settings-group-label:nth-of-type(1)', 'appearance'],
+    ['#label-theme', 'theme'],
+    ['#label-fontsize', 'font_size'],
+    ['#label-lang-group', 'language'],
+    ['#label-lang', 'interface_lang'],
+    ['#label-chat-group', 'chat_section'],
+    ['#label-enter', 'send_enter'],
+    ['#label-enter-sub', 'send_enter_sub'],
+    ['#label-typing', 'show_typing'],
+  ];
+  settingsMap.forEach(([sel, key]) => {
+    const el = document.querySelector(sel);
+    if (el) el.textContent = tr[key];
+  });
+
+  // Profile cards labels
+  const profLabels = document.querySelectorAll('.profile-card-label');
+  const profKeys = ['subscription', 'messages_today', 'member_since'];
+  profLabels.forEach((el, i) => { if (profKeys[i]) el.textContent = tr[profKeys[i]]; });
+
+  const profSub = document.querySelector('.profile-card-sub');
+  if (profSub) profSub.textContent = tr['resets_midnight'];
+
+  const upgradeBtn = document.querySelector('.btn-upgrade');
+  if (upgradeBtn) upgradeBtn.textContent = tr['upgrade_plan'];
+
+  // Pricing buttons
+  document.querySelectorAll('.pricing-btn').forEach((btn, i) => {
+    btn.textContent = i === 0 ? tr['current_plan'] : tr['subscribe'];
+  });
+
+  // User menu
+  const menuItems = document.querySelectorAll('.user-menu-item');
+  const menuKeys = ['profile', 'pricing', 'settings'];
+  menuItems.forEach((el, i) => { if (menuKeys[i]) el.childNodes[el.childNodes.length - 1].textContent = ' ' + tr[menuKeys[i]]; });
+
+  // New chat topnav button
+  const newChatTop = document.querySelector('.btn-newchat span:last-child');
+  if (newChatTop) newChatTop.textContent = tr['new_chat'].replace('+ ', '');
 }
 
 renderChatList();
+
+// ── Инициализация языка ───────────────────────────────────────────
+(function() {
+  const saved = localStorage.getItem('elyon_lang') || 'en';
+  if (saved === 'ru') {
+    // Активируем RU кнопку в сегменте языка
+    document.querySelectorAll('.seg-btn').forEach(btn => {
+      const seg = btn.closest('.segment');
+      if (!seg) return;
+      // Проверяем что это сегмент языка (содержит EN/RU)
+      const btns = seg.querySelectorAll('.seg-btn');
+      if (btns.length === 2 && btns[0].textContent === 'EN') {
+        btns[0].classList.remove('active');
+        btns[1].classList.add('active');
+      }
+    });
+    applyLang('ru');
+  }
+})();
+
+// ── Admin panel ───────────────────────────────────────────────────
+const OWNER_EMAILS = ['zhenyamiller8@gmail.com'];
+const BACKEND_URL_APP = 'https://elyon-bot.onrender.com';
+
+function isOwner() {
+  try {
+    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
+    return OWNER_EMAILS.includes(u.email) || u.provider === 'telegram';
+  } catch { return false; }
+}
+
+function showAdminPanel() {
+  showPanel('admin-panel');
+  loadAdminStats();
+}
+
+async function loadAdminStats() {
+  const content = document.getElementById('admin-content');
+  content.innerHTML = '<div class="admin-loading">Loading...</div>';
+  try {
+    const res  = await fetch(`${BACKEND_URL_APP}/api/admin/stats`);
+    const data = await res.json();
+    const isRu = localStorage.getItem('elyon_lang') === 'ru';
+    content.innerHTML = `
+      <div class="admin-stat-grid">
+        <div class="admin-stat"><div class="admin-stat-num">${data.total_users ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Пользователей' : 'Total users'}</div></div>
+        <div class="admin-stat"><div class="admin-stat-num">${data.active_subs ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Подписок' : 'Active subs'}</div></div>
+        <div class="admin-stat"><div class="admin-stat-num">${data.new_today ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Новых сегодня' : 'New today'}</div></div>
+        <div class="admin-stat"><div class="admin-stat-num">${data.total_messages ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Сообщений' : 'Messages'}</div></div>
+        <div class="admin-stat"><div class="admin-stat-num">${data.total_payments ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Платежей' : 'Payments'}</div></div>
+        <div class="admin-stat"><div class="admin-stat-num">${data.miniapp_users ?? '—'}</div><div class="admin-stat-label">${isRu ? 'Web-юзеров' : 'Web users'}</div></div>
+      </div>
+      <div class="admin-group-label">${isRu ? 'Действия' : 'Actions'}</div>
+      <div>
+        <button class="btn-admin-action" onclick="loadUserList()">👥 ${isRu ? 'Пользователи' : 'Users'}</button>
+        <button class="btn-admin-action" onclick="loadAdminStats()">🔄 ${isRu ? 'Обновить' : 'Refresh'}</button>
+      </div>
+      <div id="admin-users-wrap"></div>`;
+  } catch {
+    content.innerHTML = '<div class="admin-loading">Server may be sleeping. Try again.</div>';
+  }
+}
+
+async function loadUserList() {
+  const wrap = document.getElementById('admin-users-wrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div class="admin-loading">Loading...</div>';
+  try {
+    const res   = await fetch(`${BACKEND_URL_APP}/api/admin/users`);
+    const data  = await res.json();
+    const users = data.users || [];
+    wrap.innerHTML = `
+      <div class="admin-group-label">Users (${users.length})</div>
+      <div class="admin-user-list">
+        ${users.map(u => `
+          <div class="admin-user-row">
+            <div class="admin-user-avatar">${(u.username||'?')[0].toUpperCase()}</div>
+            <div class="admin-user-name">@${u.username||'unknown'}</div>
+            <div class="admin-user-role">${u.role||'user'}</div>
+            <div class="admin-user-sub">${u.sub_type !== 'none' ? '⭐ '+u.sub_type : '—'}</div>
+          </div>`).join('')}
+      </div>`;
+  } catch {
+    wrap.innerHTML = '<div class="admin-loading">Error loading users.</div>';
+  }
+}
+
+// ── Сессия пользователя ───────────────────────────────────────────
+(function() {
+  if (!localStorage.getItem('elyon_auth')) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  const raw = localStorage.getItem('elyon_user');
+  if (!raw) return;
+  try {
+    const u = JSON.parse(raw);
+    const letter = (u.first_name || u.email || 'U')[0].toUpperCase();
+
+    // Аватар в навбаре
+    const avatarBtn = document.getElementById('user-avatar-btn');
+    const userMenu  = document.getElementById('user-menu');
+    if (u.avatar) {
+      const img = document.createElement('img');
+      img.src = u.avatar;
+      img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
+      img.onerror = () => { avatarBtn.innerHTML = letter; avatarBtn.appendChild(userMenu); };
+      avatarBtn.innerHTML = '';
+      avatarBtn.appendChild(img);
+      avatarBtn.appendChild(userMenu);
+    } else {
+      avatarBtn.innerHTML = letter;
+      avatarBtn.appendChild(userMenu);
+    }
+
+    // Профиль-панель
+    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'User';
+    const nameEl  = document.querySelector('.profile-name');
+    const emailEl = document.querySelector('.profile-email');
+    const bigAv   = document.querySelector('.profile-avatar-big');
+    if (nameEl)  nameEl.textContent  = fullName;
+    if (emailEl) emailEl.textContent = u.email || '';
+    if (bigAv)   bigAv.textContent   = letter;
+
+    // Показываем Admin кнопку для owner
+    if (isOwner()) {
+      const adminBtn = document.getElementById('sidebar-admin-btn');
+      if (adminBtn) adminBtn.style.display = 'flex';
+    }
+  } catch(e) { console.warn('Session load error:', e); }
+})();
 </script>
 </body>
 </html>
