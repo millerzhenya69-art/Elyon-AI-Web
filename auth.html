@@ -246,8 +246,8 @@ body::before {
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Telegram widget (скрытый, нужен для инициализации) -->
-<div id="tg-widget-container"></div>
+<!-- Telegram Login Widget — скрытый контейнер, виджет вставляется JS -->
+<div id="tg-widget-container" style="display:none;min-width:200px"></div>
 
 <div class="auth-wrap">
   <!-- Left brand -->
@@ -477,76 +477,115 @@ async function handleGoogleAccessToken(accessToken) {
 // ══ TELEGRAM AUTH ══════════════════════════════════════════════════
 // Bot ID для @Elyon_by_unkony_bot — получается из getMe
 // Используем имя бота, Telegram сам резолвит ID через oauth.telegram.org
+// ══ TELEGRAM AUTH — встроенный виджет ═════════════════════════════
+// Глобальный callback который вызывает Telegram виджет
+window.onTelegramAuth = async function(user) {
+  showLoading('Verifying with Telegram...');
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/auth/telegram`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ user })
+    });
+    const data = await res.json();
+    hideLoading();
+    if (data.ok) {
+      showToast('Welcome to Elyon!', 'success');
+      setTimeout(() => saveSessionAndRedirect(data.user), 700);
+    } else {
+      showToast(data.error || 'Telegram sign-in failed.', 'error');
+    }
+  } catch (e) {
+    hideLoading();
+    showToast('Network error. Try again.', 'error');
+  }
+};
+
+// Вставляем виджет при загрузке страницы
+(function insertTelegramWidget() {
+  const container = document.getElementById('tg-widget-container');
+  if (!container) return;
+  const script = document.createElement('script');
+  script.src = 'https://telegram.org/js/telegram-widget.js?22';
+  script.setAttribute('data-telegram-login', TG_BOT_NAME);
+  script.setAttribute('data-size', 'large');
+  script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  script.setAttribute('data-request-access', 'write');
+  script.async = true;
+  container.appendChild(script);
+})();
+
 function triggerTelegram() {
-  if (!TG_BOT_ID) {
-    showToast('Loading Telegram auth... please try again in a moment.', '');
-    fetch(`${BACKEND_URL}/api/bot_info`, { signal: AbortSignal.timeout(5000) })
-      .then(r => r.json())
-      .then(d => { if (d.bot_id) { TG_BOT_ID = String(d.bot_id); showToast('Ready! Click Telegram again.', 'success'); } })
-      .catch(() => showToast('Server unavailable. Try email sign-in.', 'error'));
+  // Находим кнопку виджета внутри iframe и кликаем по ней
+  const container = document.getElementById('tg-widget-container');
+  if (!container) return;
+
+  // Ищем iframe виджета
+  const iframe = container.querySelector('iframe');
+  if (iframe) {
+    // Виджет загружен — открываем через postMessage
+    iframe.contentWindow?.postMessage({ type: 'auth_button_clicked' }, '*');
+
+    // Fallback: открываем прямую ссылку для авторизации через Telegram app
+    const authUrl = `https://t.me/${TG_BOT_NAME}?start=auth_${Date.now()}`;
+    window.open(authUrl, '_blank');
+
+    showToast('Open Telegram app and confirm the login request.', '');
+
+    // Слушаем подтверждение от бота через polling
+    startTelegramAuthPolling();
     return;
   }
 
-  const origin    = encodeURIComponent(window.location.origin);
-  const returnTo  = encodeURIComponent(window.location.href.split('#')[0]);
-  const tgAuthUrl = `https://oauth.telegram.org/auth?bot_id=${TG_BOT_ID}&origin=${origin}&embed=1&request_access=write&return_to=${returnTo}`;
+  // Виджет ещё не загрузился — показываем контейнер
+  container.style.display = 'block';
+  container.style.position = 'fixed';
+  container.style.top = '50%';
+  container.style.left = '50%';
+  container.style.transform = 'translate(-50%, -50%)';
+  container.style.zIndex = '999';
+  container.style.background = 'var(--card)';
+  container.style.border = '1px solid var(--border2)';
+  container.style.borderRadius = '16px';
+  container.style.padding = '24px';
+  container.style.textAlign = 'center';
 
-  const width  = 550;
-  const height = 470;
-  const left   = Math.max(0, (screen.width  - width)  / 2);
-  const top    = Math.max(0, (screen.height - height) / 2);
+  showToast('Loading Telegram widget...', '');
+  setTimeout(() => {
+    const newIframe = container.querySelector('iframe');
+    if (!newIframe) {
+      container.style.display = 'none';
+      showToast('Could not load Telegram widget. Try email sign-in.', 'error');
+    }
+  }, 3000);
+}
 
-  const popup = window.open(
-    tgAuthUrl,
-    'telegram_auth',
-    `width=${width},height=${height},left=${left},top=${top},scrollbars=no`
-  );
+// Polling — ждём пока пользователь авторизуется через Telegram bot
+let _tgPollTimer = null;
+function startTelegramAuthPolling() {
+  let attempts = 0;
+  const maxAttempts = 30; // 30 * 3s = 90 секунд ожидания
 
-  if (!popup) {
-    showToast('Allow popups for this site and try again.', 'error');
-    return;
-  }
-
-  const handler = async (event) => {
-    if (event.origin !== 'https://oauth.telegram.org') return;
-    window.removeEventListener('message', handler);
-
-    const user = event.data;
-    if (!user || !user.id) {
-      showToast('Telegram sign-in cancelled.', '');
+  _tgPollTimer = setInterval(async () => {
+    attempts++;
+    if (attempts > maxAttempts) {
+      clearInterval(_tgPollTimer);
+      showToast('Telegram auth timed out. Try again.', 'error');
       return;
     }
-
-    showLoading('Verifying with Telegram...');
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/telegram`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ user })
-      });
+      const res  = await fetch(`${BACKEND_URL}/api/auth/telegram_poll?token=${_tgPendingToken}`);
       const data = await res.json();
-      hideLoading();
-      if (data.ok) {
+      if (data.ok && data.user) {
+        clearInterval(_tgPollTimer);
+        hideLoading();
         showToast('Welcome to Elyon!', 'success');
         setTimeout(() => saveSessionAndRedirect(data.user), 700);
-      } else {
-        showToast(data.error || 'Telegram sign-in failed.', 'error');
       }
-    } catch (e) {
-      hideLoading();
-      showToast('Network error. Try again.', 'error');
-    }
-  };
-
-  window.addEventListener('message', handler);
-
-  const timer = setInterval(() => {
-    if (popup.closed) {
-      clearInterval(timer);
-      window.removeEventListener('message', handler);
-    }
-  }, 1000);
+    } catch {}
+  }, 3000);
 }
+let _tgPendingToken = '';
 
 // ══ EMAIL AUTH ═════════════════════════════════════════════════════
 let currentTab = 'signin';
