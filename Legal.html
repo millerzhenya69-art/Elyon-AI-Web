@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elyon AI — Реквизиты и оферта</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #0e0e0e; --off: #1a1a1a; --border: rgba(255,255,255,0.08);
+  --beige: #e8ddd0; --beige2: #c9bfb3; --white: #f8f5f0;
+  --muted: rgba(248,245,240,0.45);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans:  'DM Sans', sans-serif;
+}
+body { background: var(--black); color: var(--white); font-family: var(--sans); font-size: 15px; line-height: 1.7; }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(14,14,14,0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 100;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo img { width: 26px; height: 26px; }
+.nav-logo span { font-family: var(--serif); font-size: 17px; color: var(--white); }
+.nav-back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--white); }
+
+.container { max-width: 760px; margin: 0 auto; padding: 88px 24px 60px; }
+
+h1 { font-family: var(--serif); font-size: 38px; font-weight: 400; color: var(--white); margin-bottom: 8px; }
+.subtitle { font-size: 14px; color: var(--muted); margin-bottom: 48px; }
+
+h2 { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--white); margin: 36px 0 14px; }
+
+.card {
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: 14px; padding: 20px 24px; margin-bottom: 10px;
+}
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.row:last-child { border-bottom: none; }
+.row-label { font-size: 13px; color: var(--muted); flex-shrink: 0; }
+.row-value { font-size: 14px; color: var(--white); text-align: right; }
+
+p { font-size: 14px; color: rgba(248,245,240,0.7); margin-bottom: 12px; line-height: 1.75; }
+ul { padding-left: 20px; margin-bottom: 12px; }
+li { font-size: 14px; color: rgba(248,245,240,0.7); margin-bottom: 6px; line-height: 1.65; }
+
+.pricing-table {
+  width: 100%; border-collapse: collapse;
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; margin-bottom: 10px;
+}
+.pricing-table th { background: rgba(232,221,208,0.06); padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 500; color: var(--beige2); letter-spacing: 0.06em; text-transform: uppercase; }
+.pricing-table td { padding: 12px 16px; font-size: 14px; color: var(--white); border-top: 1px solid var(--border); }
+
+footer { border-top: 1px solid var(--border); padding: 24px 40px; text-align: center; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="elyon_logo.png" alt="Elyon">
+    <span>Elyon</span>
+  </a>
+  <a href="index.html" class="nav-back">← На главную</a>
+</nav>
+
+<div class="container">
+  <h1>Реквизиты и оферта</h1>
+  <p class="subtitle">Публичная оферта на оказание услуг и реквизиты исполнителя</p>
+
+  <h2>Реквизиты</h2>
+  <div class="card">
+    <div class="row">
+      <span class="row-label">Исполнитель</span>
+      <span class="row-value">Самозанятый Миллер Евгений Максимович</span>
+    </div>
+    <div class="row">
+      <span class="row-label">ИНН</span>
+      <span class="row-value">ИНН самозанятого- 220808474602</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Email</span>
+      <span class="row-value">elyonaiteam@gmail.com</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Сайт</span>
+      <span class="row-value">https://elyon-ai-web.vercel.app</span>
+    </div>
+    <div class="row">
+      <span class="row-label">Telegram</span>
+      <span class="row-value">@Elyon_by_unkony_bot</span>
+    </div>
+  </div>
+
+  <h2>Услуги и цены</h2>
+  <table class="pricing-table">
+    <thead>
+      <tr>
+        <th>Тариф</th>
+        <th>Описание</th>
+        <th>Стоимость</th>
+        <th>Период</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Elyon Core</td>
+        <td>Базовый AI-ассистент, 15 сообщений/день</td>
+        <td>0 ₽</td>
+        <td>Бесплатно</td>
+      </tr>
+      <tr>
+        <td>Elyon Nova</td>
+        <td>Расширенный AI-ассистент, 25 сообщений/день</td>
+        <td>100 ₽</td>
+        <td>Месяц</td>
+      </tr>
+      <tr>
+        <td>Elyon PRO</td>
+        <td>Профессиональный AI с глубоким анализом, 40 сообщений/день</td>
+        <td>200 ₽</td>
+        <td>Месяц</td>
+      </tr>
+      <tr>
+        <td>Elyon Absolution</td>
+        <td>Максимальные возможности AI, 50 сообщений/день</td>
+        <td>300 ₽</td>
+        <td>Месяц</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Публичная оферта</h2>
+
+  <p>Настоящий документ является публичной офертой самозанятого [ФИО] (ИНН: [ИНН]) на оказание услуг доступа к AI-сервису «Elyon AI».</p>
+
+  <h2>1. Предмет договора</h2>
+  <p>Исполнитель предоставляет Пользователю доступ к AI-сервису «Elyon AI» на условиях выбранного тарифа. Услуга оказывается через сайт https://elyon-ai-web.vercel.app и Telegram-бот @Elyon_by_unkony_bot.</p>
+
+  <h2>2. Порядок оплаты</h2>
+  <p>Оплата производится предварительно (до начала оказания услуг) через платёжный сервис ЮКасса. Подписка активируется автоматически после подтверждения оплаты. Период доступа — 30 календарных дней с момента активации.</p>
+
+  <h2>3. Возврат средств</h2>
+  <p>Возврат возможен в течение 3 дней с момента оплаты при условии, что услугой не пользовались (0 сообщений отправлено). Для возврата обратитесь: support@elyon.ai.</p>
+
+  <h2>4. Ограничения</h2>
+  <ul>
+    <li>Сервис предоставляется «как есть» без гарантии непрерывной доступности.</li>
+    <li>Запрещено использование сервиса в противоправных целях.</li>
+    <li>Исполнитель вправе ограничить доступ при нарушении условий использования.</li>
+    <li>Дневные лимиты сообщений сбрасываются в 00:00 по московскому времени.</li>
+  </ul>
+
+  <h2>5. Персональные данные</h2>
+  <p>При регистрации через Google или Telegram передаются: имя, email (или Telegram ID). Данные используются исключительно для идентификации пользователя. Не передаются третьим лицам.</p>
+
+  <h2>6. Акцепт оферты</h2>
+  <p>Оплата услуги является акцептом настоящей оферты. Используя сервис, вы соглашаетесь с условиями.</p>
+
+  <div class="card" style="margin-top:32px">
+    <div class="row">
+      <span class="row-label">Дата последнего обновления</span>
+      <span class="row-value">Май 2026</span>
+    </div>
+    <div class="row">
+      <span class="row-label">По вопросам</span>
+      <span class="row-value">elyonaiteam@gmail.com</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  © 2026 Elyon AI · Самозанятый [Миллер Евгений Максимович], ИНН [220808474602]
+</footer>
+
+</body>
+</html>
