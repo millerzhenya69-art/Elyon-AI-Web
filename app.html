@@ -1092,7 +1092,14 @@ body {
           <span>⚙️</span> Settings
         </a>
         <div class="user-menu-sep"></div>
-        <a href="auth.html" class="user-menu-item danger">
+        <a href="privacy.html" target="_blank" class="user-menu-item">
+          <span>📄</span> Privacy Policy
+        </a>
+        <a href="privacy.html?tab=terms" target="_blank" class="user-menu-item">
+          <span>📋</span> Terms of Service
+        </a>
+        <div class="user-menu-sep"></div>
+        <a href="auth.html" class="user-menu-item danger" onclick="localStorage.clear()">
           <span>↩</span> Sign out
         </a>
       </div>
@@ -1309,26 +1316,26 @@ body {
       <div class="pricing-card featured">
         <div class="pricing-tier">Popular</div>
         <div class="pricing-name">Elyon Nova</div>
-        <div class="pricing-price">100 ₽ <span>/ month</span></div>
+        <div class="pricing-price">91 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 25 messages / day</div>
         <div class="pricing-desc">Smarter and faster. Built for work that demands real quality.</div>
-        <button class="pricing-btn">Subscribe →</button>
+        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 50 ⭐</button>
       </div>
       <div class="pricing-card">
         <div class="pricing-tier">Advanced</div>
         <div class="pricing-name">Elyon PRO</div>
-        <div class="pricing-price">200 ₽ <span>/ month</span></div>
+        <div class="pricing-price">182 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 40 messages / day</div>
         <div class="pricing-desc">Deep reasoning and nuanced analysis for complex challenges.</div>
-        <button class="pricing-btn">Subscribe →</button>
+        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 100 ⭐</button>
       </div>
       <div class="pricing-card">
         <div class="pricing-tier">Ultimate</div>
         <div class="pricing-name">Elyon Absolution</div>
-        <div class="pricing-price">300 ₽ <span>/ month</span></div>
+        <div class="pricing-price">265 ₽ <span>/ month</span></div>
         <div class="pricing-limit">◎ 50 messages / day</div>
         <div class="pricing-desc">Maximum capability. The most powerful intelligence Elyon offers.</div>
-        <button class="pricing-btn">Subscribe →</button>
+        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 150 ⭐</button>
       </div>
     </div>
   </div>
@@ -1369,6 +1376,23 @@ function toggleModelDropdown() {
 }
 function selectModel(id, label, e) {
   e.stopPropagation();
+
+  // Проверяем подписку для платных моделей
+  if (PAID_MODELS.includes(id)) {
+    const sub = getSessionSub();
+    const subMap = {
+      nova:       ['nova','pro','absolution','forever','custom','month','halfyear'],
+      pro:        ['pro','absolution','forever','custom'],
+      absolution: ['absolution','forever'],
+    };
+    const allowed = subMap[id] || [];
+    if (!allowed.includes(sub)) {
+      document.getElementById('model-dropdown').classList.remove('open');
+      showSubscribePrompt(id);
+      return;
+    }
+  }
+
   currentModel = id;
   document.getElementById('model-label').textContent = label;
   document.querySelectorAll('.model-option').forEach(o => o.classList.remove('active'));
@@ -1535,59 +1559,195 @@ function hideTyping() {
   if (el) el.remove();
 }
 
+// ── Получаем user_id из сессии ────────────────────────────────────
+function getSessionUserId() {
+  try {
+    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
+    return u.user_id || u.tg_id || null;
+  } catch { return null; }
+}
+
+function getSessionSub() {
+  try {
+    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
+    return u.sub_type || 'none';
+  } catch { return 'none'; }
+}
+
+// Синхронизируем подписку с сервером при загрузке
+async function syncSubFromServer() {
+  const userId = getSessionUserId();
+  if (!userId) return;
+  try {
+    const res  = await fetch(`https://elyon-bot.onrender.com/api/user/${userId}`);
+    const data = await res.json();
+    if (data.sub_type !== undefined) {
+      const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
+      u.sub_type = data.sub_type;
+      u.has_sub  = data.has_sub;
+      localStorage.setItem('elyon_user', JSON.stringify(u));
+    }
+  } catch {}
+}
+syncSubFromServer();
+
+// Маппинг моделей для API
+const MODEL_API_MAP = {
+  'core':       'gpt',
+  'nova':       'nova',
+  'pro':        'pro',
+  'absolution': 'absolution',
+};
+
+// Модели требующие подписки
+const PAID_MODELS = ['nova', 'pro', 'absolution'];
+
+// Цены для блокировочного экрана
+const MODEL_PRICES = {
+  nova:       { stars: 50,  rub: 91,  label: 'Elyon Nova'       },
+  pro:        { stars: 100, rub: 182, label: 'Elyon PRO'         },
+  absolution: { stars: 150, rub: 265, label: 'Elyon Absolution'  },
+};
+
+const TG_BOT = 'Elyon_by_unkony_bot';
+
+// ── Блокировочный экран подписки ──────────────────────────────────
+function showSubscribePrompt(modelId) {
+  const price = MODEL_PRICES[modelId];
+  if (!price) return;
+
+  // Удаляем старый если есть
+  document.getElementById('sub-prompt')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'sub-prompt';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,0.7);
+    display:flex;align-items:center;justify-content:center;
+    z-index:500;padding:24px;backdrop-filter:blur(8px);
+    animation:fadeIn 0.2s ease;
+  `;
+  overlay.innerHTML = `
+    <div style="
+      background:var(--off);border:1px solid var(--border2);
+      border-radius:20px;padding:32px 28px;max-width:380px;width:100%;
+      text-align:center;position:relative;
+    ">
+      <button onclick="document.getElementById('sub-prompt').remove()"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;
+               color:var(--muted);font-size:20px;cursor:pointer;line-height:1">✕</button>
+      <img src="elyon_logo.png" style="width:48px;height:48px;margin-bottom:16px;opacity:0.9">
+      <div style="font-family:var(--serif);font-size:22px;color:var(--white);margin-bottom:8px">
+        ${price.label}
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
+        Для использования этой модели необходима подписка.
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="https://t.me/${TG_BOT}" target="_blank"
+          style="display:flex;align-items:center;justify-content:space-between;
+                 padding:13px 18px;background:var(--beige);color:var(--black);
+                 border-radius:12px;text-decoration:none;font-weight:500;font-size:14px;
+                 transition:background 0.2s"
+          onmouseover="this.style.background='var(--white)'"
+          onmouseout="this.style.background='var(--beige)'">
+          <span>⭐ Оплатить звёздами</span>
+          <span>${price.stars} звёзд / мес</span>
+        </a>
+        <a href="https://t.me/${TG_BOT}" target="_blank"
+          style="display:flex;align-items:center;justify-content:space-between;
+                 padding:13px 18px;background:var(--off);color:var(--white);
+                 border:1px solid var(--border2);border-radius:12px;text-decoration:none;
+                 font-size:14px;transition:background 0.2s"
+          onmouseover="this.style.background='var(--card2)'"
+          onmouseout="this.style.background='var(--off)'">
+          <span>💳 Оплатить через CryptoBot</span>
+          <span>${price.rub} ₽ / мес</span>
+        </a>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5">
+        После оплаты в боте подписка применится автоматически.<br>
+        Обнови страницу если подписка не появилась.
+      </div>
+    </div>
+  `;
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.remove();
+  });
+  document.body.appendChild(overlay);
+}
+
 async function sendMessage() {
   const input = document.getElementById('input');
-  const text = input.value.trim();
+  const text  = input.value.trim();
   if (!text) return;
 
-  // First message — transition from welcome to chat
-  if (!chatStarted) {
-    chatStarted = true;
-    const welcome = document.getElementById('welcome-screen');
-    const msgs = document.getElementById('messages');
-    welcome.style.display = 'none';
-    msgs.classList.add('show');
-    document.getElementById('main').classList.remove('welcome-mode');
-
-    // Update chat title
-    const chat = chats.find(c => c.id === activeChatId);
-    if (chat) {
-      chat.title = text.slice(0, 30);
-      renderChatList();
+  // Проверяем подписку для платных моделей
+  if (PAID_MODELS.includes(currentModel)) {
+    const sub = getSessionSub();
+    const subMap = { nova: ['nova','pro','absolution','forever'], pro: ['pro','absolution','forever'], absolution: ['absolution','forever'] };
+    const allowed = subMap[currentModel] || [];
+    if (!allowed.includes(sub) && sub !== 'forever') {
+      showSubscribePrompt(currentModel);
+      return;
     }
   }
 
-  // Clear input
+  // Получаем user_id
+  const userId = getSessionUserId();
+  if (!userId) {
+    appendMessage('assistant', 'Session error. Please sign out and sign in again.');
+    return;
+  }
+
+  // First message — переход из welcome в чат
+  if (!chatStarted) {
+    chatStarted = true;
+    document.getElementById('welcome-screen').style.display = 'none';
+    document.getElementById('messages').classList.add('show');
+    document.getElementById('main').classList.remove('welcome-mode');
+    const chat = chats.find(c => c.id === activeChatId);
+    if (chat) { chat.title = text.slice(0, 30); renderChatList(); }
+  }
+
   input.value = '';
   input.style.height = '';
   updateSendBtn();
 
-  // Add user message
   const chat = chats.find(c => c.id === activeChatId);
   chat?.messages.push({ role: 'user', content: text });
   appendMessage('user', text);
-
-  // Show typing
   showTyping();
   document.getElementById('send-btn').disabled = true;
 
   try {
-    const BACKEND = 'https://elyon-bot.onrender.com';
-    const history = (chat?.messages || []).map(m => ({ role: m.role, content: m.content }));
-    history.push({ role: 'user', content: text });
+    const BACKEND  = 'https://elyon-bot.onrender.com';
+    const apiModel = MODEL_API_MAP[currentModel] || 'gpt';
+    const history  = (chat?.messages || [])
+      .slice(0, -1) // убираем только что добавленное
+      .map(m => ({ role: m.role, content: m.content }));
 
     const res = await fetch(`${BACKEND}/api/chat`, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: 0, model: currentModel === 'core' ? 'gpt' : 'gemini', messages: history })
+      body:    JSON.stringify({
+        user_id:  userId,
+        model:    apiModel,
+        messages: [...history, { role: 'user', content: text }],
+      })
     });
 
-    const data = await res.json();
+    const data  = await res.json();
     const reply = data.reply || data.error || 'No response.';
 
-    hideTyping();
-    chat?.messages.push({ role: 'assistant', content: reply });
-    appendMessage('assistant', reply);
+    if (data.error === 'daily_limit') {
+      hideTyping();
+      appendMessage('assistant', `Достигнут дневной лимит сообщений. Лимит сбросится в 00:00.`);
+    } else {
+      hideTyping();
+      chat?.messages.push({ role: 'assistant', content: reply });
+      appendMessage('assistant', reply);
+    }
   } catch (err) {
     hideTyping();
     appendMessage('assistant', 'Connection error. Please try again.');
