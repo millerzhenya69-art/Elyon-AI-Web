@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elyon AI — Privacy Policy & Terms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #0e0e0e; --off: #1a1a1a; --border: rgba(255,255,255,0.08);
+  --beige: #e8ddd0; --beige2: #c9bfb3; --white: #f8f5f0;
+  --muted: rgba(248,245,240,0.45);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans:  'DM Sans', sans-serif;
+}
+body { background: var(--black); color: var(--white); font-family: var(--sans); font-size: 15px; line-height: 1.7; }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(14,14,14,0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 100;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo img { width: 26px; height: 26px; }
+.nav-logo span { font-family: var(--serif); font-size: 17px; color: var(--white); }
+.nav-back { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.nav-back:hover { color: var(--white); }
+
+/* Tabs */
+.tabs {
+  position: sticky; top: 52px; z-index: 90;
+  background: rgba(14,14,14,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 0; padding: 0 40px;
+}
+.tab {
+  padding: 14px 20px; font-size: 13px; font-weight: 500;
+  color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s; text-decoration: none;
+}
+.tab.active { color: var(--white); border-bottom-color: var(--beige); }
+
+.container { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
+
+/* Badge from Vercel */
+.trust-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: 100px; padding: 6px 14px;
+  font-size: 12px; color: var(--muted); margin-bottom: 32px;
+}
+.trust-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+
+h1 { font-family: var(--serif); font-size: 36px; font-weight: 400; color: var(--white); margin-bottom: 8px; line-height: 1.15; }
+.doc-meta { font-size: 13px; color: var(--muted); margin-bottom: 40px; }
+
+h2 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 15px; font-weight: 500; color: var(--beige); margin: 20px 0 8px; }
+
+p { font-size: 14px; color: rgba(248,245,240,0.72); margin-bottom: 12px; line-height: 1.75; }
+ul, ol { padding-left: 20px; margin-bottom: 12px; }
+li { font-size: 14px; color: rgba(248,245,240,0.72); margin-bottom: 6px; line-height: 1.65; }
+
+.highlight {
+  background: rgba(232,221,208,0.06); border: 1px solid rgba(232,221,208,0.12);
+  border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+  font-size: 13px; color: var(--beige2); line-height: 1.65;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+footer {
+  border-top: 1px solid var(--border); padding: 24px 40px;
+  text-align: center; font-size: 12px; color: var(--muted);
+}
+footer a { color: var(--beige2); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <img src="elyon_logo.png" alt="Elyon">
+    <span>Elyon</span>
+  </a>
+  <a href="index.html" class="nav-back">← Back</a>
+</nav>
+
+<div class="tabs">
+  <a class="tab active" onclick="switchTab('privacy', this)">Privacy Policy</a>
+  <a class="tab" onclick="switchTab('terms', this)">Terms of Service</a>
+</div>
+
+<!-- ══ PRIVACY POLICY ══════════════════════════════════════════════ -->
+<div class="container">
+
+<div id="privacy" class="section active">
+  <div class="trust-badge">
+    <span class="trust-dot"></span>
+    Hosted on Vercel · SSL secured · No tracking cookies
+  </div>
+  <h1>Privacy Policy</h1>
+  <p class="doc-meta">Last updated: May 2026 · Elyon AI</p>
+
+  <div class="highlight">
+    We built Elyon AI with privacy in mind. We collect the minimum data needed to provide the service, and we never sell your information to anyone.
+  </div>
+
+  <h2>1. What we collect</h2>
+  <h3>Account data</h3>
+  <p>When you sign in with Google, we receive your name and email address. When you sign in with Telegram, we receive your Telegram ID, username, and first name. We store this to identify your account.</p>
+
+  <h3>Conversation data</h3>
+  <p>Your messages are sent to our AI backend to generate responses. We store recent conversation history to maintain context within a session. We do not use your conversations to train AI models.</p>
+
+  <h3>Usage data</h3>
+  <p>We log the number of messages sent per day to enforce daily limits. We do not log your IP address or device fingerprint.</p>
+
+  <h2>2. What we don't collect</h2>
+  <ul>
+    <li>We don't use advertising trackers or analytics cookies</li>
+    <li>We don't sell or share your data with third parties</li>
+    <li>We don't store payment card details (payments handled by CryptoBot / Telegram Stars)</li>
+    <li>We don't track your activity outside of Elyon AI</li>
+  </ul>
+
+  <h2>3. Third-party services</h2>
+  <p>Elyon AI uses the following third-party services to operate:</p>
+  <ul>
+    <li><strong>Vercel</strong> — hosting for this website (privacy.vercel.com)</li>
+    <li><strong>Render</strong> — backend server hosting</li>
+    <li><strong>Google OAuth</strong> — optional sign-in method</li>
+    <li><strong>Telegram</strong> — bot platform and optional sign-in</li>
+    <li><strong>Google AI / DeepSeek</strong> — AI model providers (your messages are processed by these services per their privacy policies)</li>
+    <li><strong>CryptoBot</strong> — cryptocurrency payments</li>
+  </ul>
+
+  <h2>4. Data retention</h2>
+  <p>Conversation history is retained for 30 days and then automatically deleted. Account data is retained as long as your account is active. You can request deletion at any time by contacting us.</p>
+
+  <h2>5. Your rights</h2>
+  <ul>
+    <li>Access your data — contact us and we'll provide what we store</li>
+    <li>Delete your account and all associated data</li>
+    <li>Export your conversation history</li>
+  </ul>
+
+  <h2>6. Contact</h2>
+  <p>For privacy questions: <strong>@unkonyy</strong> on Telegram or through our bot <strong>@Elyon_by_unkony_bot</strong>.</p>
+</div>
+
+<!-- ══ TERMS OF SERVICE ════════════════════════════════════════════ -->
+<div id="terms" class="section">
+  <div class="trust-badge">
+    <span class="trust-dot"></span>
+    Plain language · No legal traps · Updated May 2026
+  </div>
+  <h1>Terms of Service</h1>
+  <p class="doc-meta">Last updated: May 2026 · Elyon AI</p>
+
+  <div class="highlight">
+    By using Elyon AI, you agree to these terms. We've written them in plain language — no legal traps.
+  </div>
+
+  <h2>1. The service</h2>
+  <p>Elyon AI provides access to AI assistants through a web interface, mobile app, and Telegram bot. The service is provided "as is" — we do our best to keep it running but cannot guarantee 100% uptime.</p>
+
+  <h2>2. Accounts</h2>
+  <ul>
+    <li>You must be 13 or older to use Elyon AI</li>
+    <li>One person, one account — don't share subscriptions</li>
+    <li>You're responsible for keeping your login secure</li>
+  </ul>
+
+  <h2>3. Acceptable use</h2>
+  <p>You agree not to use Elyon AI to:</p>
+  <ul>
+    <li>Generate harmful, illegal, or abusive content</li>
+    <li>Spam, scrape, or abuse the API</li>
+    <li>Attempt to bypass usage limits or access restrictions</li>
+    <li>Impersonate other people or organisations</li>
+    <li>Generate content that violates intellectual property rights</li>
+  </ul>
+
+  <h2>4. Subscriptions and payments</h2>
+  <p>Paid plans are billed monthly through Telegram Stars or CryptoBot. Subscriptions renew automatically — cancel anytime by stopping renewal in the bot.</p>
+  <p>Refunds are available within 3 days of purchase if the feature hasn't been used. Contact us through the bot to request a refund.</p>
+
+  <h2>5. Daily limits</h2>
+  <p>Each plan includes a daily message limit that resets at midnight Moscow time. Unused messages don't carry over.</p>
+
+  <h2>6. Content ownership</h2>
+  <p>You own the content you create using Elyon AI. We don't claim rights to your conversations or outputs.</p>
+
+  <h2>7. Service changes</h2>
+  <p>We may update features, pricing, or these terms with reasonable notice. Major changes will be announced in our Telegram channel <strong>@AI_Elyon</strong>.</p>
+
+  <h2>8. Limitation of liability</h2>
+  <p>AI responses may be inaccurate. Always verify important information. Elyon AI is not liable for decisions made based on AI output.</p>
+
+  <h2>9. Contact</h2>
+  <p>Questions? Reach us at <strong>@unkonyy</strong> on Telegram or through <strong>@Elyon_by_unkony_bot</strong>.</p>
+</div>
+
+</div><!-- /container -->
+
+<footer>
+  © 2026 Elyon AI ·
+  <a href="index.html">Home</a> ·
+  <a href="auth.html">Sign in</a> ·
+  Hosted on <a href="https://vercel.com" target="_blank">Vercel</a>
+</footer>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// Поддержка ?tab=terms в URL
+const urlTab = new URLSearchParams(window.location.search).get('tab');
+if (urlTab) {
+  const tabEl = document.querySelector(`.tab:nth-child(${urlTab === 'terms' ? 2 : 1})`);
+  if (tabEl) switchTab(urlTab, tabEl);
+}
+</script>
+</body>
+</html>
