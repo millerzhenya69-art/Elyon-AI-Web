@@ -1017,6 +1017,58 @@ body {
   .input-hint { display: none; }
   .msg-user-bubble { max-width: 88%; }
 }
+
+/* ══ MARKDOWN STYLES ══════════════════════════════════════════════ */
+.md-body { line-height: 1.75; }
+.md-body .md-p { margin: 0 0 12px; color: rgba(248,245,240,0.88); font-size: 14px; line-height: 1.75; }
+.md-body .md-p:last-child { margin-bottom: 0; }
+
+.md-body .md-h1 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin: 20px 0 10px; }
+.md-body .md-h2 { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--white); margin: 16px 0 8px; }
+.md-body .md-h3 { font-size: 14px; font-weight: 600; color: var(--beige); margin: 14px 0 6px; letter-spacing: 0.01em; }
+
+.md-body strong { font-weight: 600; color: var(--white); }
+.md-body em     { font-style: italic; color: rgba(248,245,240,0.8); }
+
+.md-body .md-ul, .md-body .md-ol {
+  margin: 8px 0 12px 4px; padding-left: 18px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.md-body .md-li { font-size: 14px; color: rgba(248,245,240,0.82); line-height: 1.65; }
+
+.md-body .md-quote {
+  border-left: 2px solid var(--beige2); padding: 8px 14px;
+  margin: 10px 0; color: var(--muted); font-style: italic; font-size: 14px;
+  background: rgba(232,221,208,0.04); border-radius: 0 8px 8px 0;
+}
+.md-body .md-hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+.md-body .inline-code {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px; padding: 1px 6px;
+  font-family: 'Courier New', monospace; font-size: 12.5px;
+  color: var(--beige); white-space: nowrap;
+}
+.md-body .code-block {
+  background: #111118; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; margin: 12px 0; overflow: hidden;
+}
+.md-body .code-block .code-lang {
+  display: block; padding: 6px 14px 5px;
+  font-size: 11px; font-weight: 500; color: var(--beige2);
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.md-body .code-block pre {
+  margin: 0; padding: 14px 16px; overflow-x: auto;
+  scrollbar-width: thin;
+}
+.md-body .code-block code {
+  font-family: 'Courier New', 'SF Mono', monospace;
+  font-size: 13px; line-height: 1.6;
+  color: rgba(248,245,240,0.9); white-space: pre;
+}
 </style>
 </head>
 <body>
@@ -1517,7 +1569,7 @@ function deleteChat(id) {
 
 function appendMessage(role, content, scroll = true) {
   const msgs = document.getElementById('messages');
-  const el = document.createElement('div');
+  const el   = document.createElement('div');
   el.className = 'msg-group';
 
   if (role === 'user') {
@@ -1526,7 +1578,7 @@ function appendMessage(role, content, scroll = true) {
     el.innerHTML = `
       <div class="msg-ai">
         <div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div>
-        <div class="msg-ai-content">${escapeHtml(content)}</div>
+        <div class="msg-ai-content md-body">${renderMarkdown(content)}</div>
       </div>`;
   }
   msgs.appendChild(el);
@@ -1536,6 +1588,62 @@ function appendMessage(role, content, scroll = true) {
 
 function escapeHtml(text) {
   return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Markdown рендерер для AI ответов ──────────────────────────────
+function renderMarkdown(text) {
+  if (!text) return '';
+  let html = escapeHtml(text);
+
+  // Блоки кода ```lang\ncode```
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const label = lang ? `<span class="code-lang">${lang}</span>` : '';
+    return `<div class="code-block">${label}<pre><code>${code.trim()}</code></pre></div>`;
+  });
+
+  // Инлайн код `code`
+  html = html.replace(/`([^`\n]+)`/g, '<code class="inline-code">$1</code>');
+
+  // Заголовки ### ## #
+  html = html.replace(/^### (.+)$/gm, '<h4 class="md-h3">$1</h4>');
+  html = html.replace(/^## (.+)$/gm,  '<h3 class="md-h2">$1</h3>');
+  html = html.replace(/^# (.+)$/gm,   '<h2 class="md-h1">$1</h2>');
+
+  // Жирный **text** и __text__
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/__(.+?)__/g,     '<strong>$1</strong>');
+
+  // Курсив *text* и _text_
+  html = html.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  html = html.replace(/_([^_\n]+)_/g,   '<em>$1</em>');
+
+  // Горизонтальная линия ---
+  html = html.replace(/^---+$/gm, '<hr class="md-hr">');
+
+  // Блочные цитаты > text
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote class="md-quote">$1</blockquote>');
+
+  // Маркированные списки - item или * item
+  html = html.replace(/^[\-\*] (.+)$/gm, '<li class="md-li">$1</li>');
+  html = html.replace(/(<li class="md-li">.*<\/li>\n?)+/g, m => `<ul class="md-ul">${m}</ul>`);
+
+  // Нумерованные списки 1. item
+  html = html.replace(/^\d+\. (.+)$/gm, '<li class="md-li md-oli">$1</li>');
+  html = html.replace(/(<li class="md-li md-oli">.*<\/li>\n?)+/g, m => `<ol class="md-ol">${m}</ol>`);
+
+  // Параграфы — двойной перенос строки
+  html = html.replace(/\n\n+/g, '</p><p class="md-p">');
+  html = '<p class="md-p">' + html + '</p>';
+
+  // Одиночные переносы внутри параграфов
+  html = html.replace(/(?<!>)\n(?!<)/g, '<br>');
+
+  // Убираем пустые параграфы
+  html = html.replace(/<p class="md-p"><\/p>/g, '');
+  html = html.replace(/<p class="md-p">(<(?:ul|ol|h[234]|div|hr|blockquote))/g, '$1');
+  html = html.replace(/(<\/(?:ul|ol|h[234]|div|hr|blockquote)>)<\/p>/g, '$1');
+
+  return html;
 }
 
 function showTyping() {
@@ -1616,8 +1724,10 @@ function showSubscribePrompt(modelId) {
   const price = MODEL_PRICES[modelId];
   if (!price) return;
 
-  // Удаляем старый если есть
   document.getElementById('sub-prompt')?.remove();
+
+  const tierCmd = { nova: 'nova', pro: 'pro', absolution: 'abs' }[modelId] || modelId;
+  const botPayUrl = `https://t.me/${TG_BOT}?start=pay_${tierCmd}`;
 
   const overlay = document.createElement('div');
   overlay.id = 'sub-prompt';
@@ -1641,46 +1751,44 @@ function showSubscribePrompt(modelId) {
         ${price.label}
       </div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
-        Для использования этой модели необходима подписка.
+        Subscribe to unlock this model.<br>Payment is processed securely through our Telegram bot.
       </div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <a href="https://t.me/${TG_BOT}" target="_blank"
+        <a href="${botPayUrl}" target="_blank"
           style="display:flex;align-items:center;justify-content:space-between;
                  padding:13px 18px;background:var(--beige);color:var(--black);
                  border-radius:12px;text-decoration:none;font-weight:500;font-size:14px;
                  transition:background 0.2s"
           onmouseover="this.style.background='var(--white)'"
           onmouseout="this.style.background='var(--beige)'">
-          <span>⭐ Оплатить звёздами</span>
-          <span>${price.stars} звёзд / мес</span>
+          <span>⭐ Pay with Stars</span>
+          <span>${price.stars} stars / month</span>
         </a>
-        <a href="https://t.me/${TG_BOT}" target="_blank"
+        <a href="${botPayUrl}" target="_blank"
           style="display:flex;align-items:center;justify-content:space-between;
                  padding:13px 18px;background:var(--off);color:var(--white);
                  border:1px solid var(--border2);border-radius:12px;text-decoration:none;
                  font-size:14px;transition:background 0.2s"
           onmouseover="this.style.background='var(--card2)'"
           onmouseout="this.style.background='var(--off)'">
-          <span>💳 Оплатить через CryptoBot</span>
-          <span>${price.rub} ₽ / мес</span>
+          <span>💳 Pay via CryptoBot</span>
+          <span>${price.rub} ₽ / month</span>
         </a>
       </div>
       <div style="font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5">
-        После оплаты в боте подписка применится автоматически.<br>
-        Обнови страницу если подписка не появилась.
+        After payment in the bot, your subscription activates automatically.<br>
+        Refresh the page if it doesn't appear.
       </div>
     </div>
   `;
-  overlay.addEventListener('click', e => {
-    if (e.target === overlay) overlay.remove();
-  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
 async function sendMessage() {
   const input = document.getElementById('input');
   const text  = input.value.trim();
-  if (!text) return;
+  if (!text && !pendingFile) return;
 
   // Проверяем подписку для платных моделей
   if (PAID_MODELS.includes(currentModel)) {
@@ -1714,30 +1822,42 @@ async function sendMessage() {
   input.style.height = '';
   updateSendBtn();
 
+  // Убираем file badge
+  document.getElementById('file-badge')?.remove();
+
   const chat = chats.find(c => c.id === activeChatId);
-  chat?.messages.push({ role: 'user', content: text });
-  appendMessage('user', text);
+  const displayText = text || (pendingFile ? `📎 ${pendingFile.name}` : '');
+  chat?.messages.push({ role: 'user', content: displayText });
+  appendMessage('user', displayText);
   showTyping();
   document.getElementById('send-btn').disabled = true;
 
   try {
     const BACKEND  = 'https://elyon-bot.onrender.com';
     const apiModel = MODEL_API_MAP[currentModel] || 'gpt';
-    const history  = (chat?.messages || [])
-      .slice(0, -1) // убираем только что добавленное
-      .map(m => ({ role: m.role, content: m.content }));
+    let data;
 
-    const res = await fetch(`${BACKEND}/api/chat`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        user_id:  userId,
-        model:    apiModel,
-        messages: [...history, { role: 'user', content: text }],
-      })
-    });
+    if (pendingFile) {
+      // Отправка файла через base64 API
+      data = await sendMessageWithFile(userId, text, apiModel, chat);
+      pendingFile = null;
+    } else {
+      const history = (chat?.messages || [])
+        .slice(0, -1)
+        .map(m => ({ role: m.role, content: m.content }));
 
-    const data  = await res.json();
+      const res = await fetch(`${BACKEND}/api/chat`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          user_id:  userId,
+          model:    apiModel,
+          messages: [...history, { role: 'user', content: text }],
+        })
+      });
+      data = await res.json();
+    }
+
     const reply = data.reply || data.error || 'No response.';
 
     if (data.error === 'daily_limit') {
@@ -1756,11 +1876,127 @@ async function sendMessage() {
   document.getElementById('send-btn').disabled = false;
 }
 
+// ── Файлы ──────────────────────────────────────────────────────────
+// Все поддерживаемые MIME типы (как у Claude)
+const SUPPORTED_MIMES = new Set([
+  'image/jpeg','image/png','image/gif','image/webp','image/svg+xml',
+  'video/mp4','video/mpeg','video/webm','video/quicktime',
+  'audio/mp3','audio/mpeg','audio/wav','audio/ogg','audio/flac','audio/webm',
+  'application/pdf',
+  'text/plain','text/html','text/css','text/javascript','text/csv','text/xml',
+  'text/x-python','text/x-c','text/x-c++','text/x-java',
+  'application/json','application/xml',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]);
+
+const EXT_MIME = {
+  '.py':'text/x-python','.js':'text/javascript','.ts':'text/javascript',
+  '.cpp':'text/x-c++','.c':'text/x-c','.java':'text/x-java',
+  '.cs':'text/plain','.go':'text/plain','.rs':'text/plain',
+  '.sh':'text/plain','.md':'text/plain','.txt':'text/plain',
+  '.sql':'text/plain','.yaml':'text/plain','.yml':'text/plain',
+  '.toml':'text/plain','.env':'text/plain','.json':'application/json',
+  '.xml':'text/xml','.html':'text/html','.css':'text/css',
+  '.csv':'text/csv','.svg':'image/svg+xml',
+};
+
+let pendingFile = null; // {file, base64, mime}
+
 function handleFile(e) {
   const file = e.target.files[0];
   if (!file) return;
-  document.getElementById('input').value = `[File: ${file.name}]`;
+
+  // Определяем mime
+  let mime = file.type;
+  if (!mime || mime === 'application/octet-stream') {
+    const ext = '.' + file.name.split('.').pop().toLowerCase();
+    mime = EXT_MIME[ext] || 'text/plain';
+  }
+
+  if (file.size > 20 * 1024 * 1024) {
+    showFileError('File too large. Maximum 20 MB.'); return;
+  }
+
+  // Читаем файл в base64
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const base64 = ev.target.result.split(',')[1];
+    pendingFile  = { file, base64, mime, name: file.name };
+
+    // Показываем превью в поле ввода
+    const input = document.getElementById('input');
+    input.value = '';
+    updateSendBtn();
+
+    // Показываем badge файла
+    showFileBadge(file.name, file.size);
+  };
+  reader.onerror = () => showFileError('Could not read file.');
+  reader.readAsDataURL(file);
+
+  // Сбрасываем input чтобы можно было выбрать тот же файл повторно
+  e.target.value = '';
+}
+
+function showFileBadge(name, size) {
+  document.getElementById('file-badge')?.remove();
+  const badge = document.createElement('div');
+  badge.id = 'file-badge';
+  badge.style.cssText = `
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;margin:0 0 8px;
+    background:rgba(232,221,208,0.07);
+    border:1px solid rgba(232,221,208,0.15);
+    border-radius:10px;font-size:13px;color:var(--beige2);
+  `;
+  const kb = (size / 1024).toFixed(1);
+  badge.innerHTML = `
+    <span style="font-size:16px">📎</span>
+    <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+    <span style="color:var(--muted);font-size:11px">${kb} KB</span>
+    <button onclick="clearFile()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px">✕</button>
+  `;
+  const inputArea = document.querySelector('.input-box');
+  inputArea.parentNode.insertBefore(badge, inputArea);
+}
+
+function clearFile() {
+  pendingFile = null;
+  document.getElementById('file-badge')?.remove();
+  document.getElementById('input').value = '';
   updateSendBtn();
+}
+
+function showFileError(msg) {
+  appendMessage('assistant', msg);
+}
+
+// ── Обновляем sendMessage для поддержки файлов ────────────────────
+async function sendMessageWithFile(userId, text, apiModel, chat) {
+  const BACKEND = 'https://elyon-bot.onrender.com';
+  const history = (chat?.messages || [])
+    .slice(0, -1)
+    .map(m => ({ role: m.role, content: m.content }));
+
+  const res = await fetch(`${BACKEND}/api/file_b64`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({
+      user_id:   userId,
+      model:     apiModel,
+      prompt:    text || 'Analyze this file',
+      file_name: pendingFile.name,
+      file_type: pendingFile.mime,
+      file_data: pendingFile.base64,
+      history,
+    })
+  });
+  return await res.json();
 }
 
 // ── Settings ───────────────────────────────────────────────────────
