@@ -8,449 +8,94 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --black:   #0e0e0e;
-    --off:     #1a1a1a;
-    --card:    #232320;
-    --border:  rgba(255,255,255,0.08);
-    --beige:   #e8ddd0;
-    --beige2:  #c9bfb3;
-    --white:   #f8f5f0;
+    --black:   #0e0e0e; --off: #1a1a1a; --card: #232320;
+    --border:  rgba(255,255,255,0.08); --beige: #e8ddd0;
+    --beige2:  #c9bfb3; --white: #f8f5f0;
     --muted:   rgba(248,245,240,0.45);
     --serif:   'Instrument Serif', Georgia, serif;
     --sans:    'DM Sans', sans-serif;
   }
-
   html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.6;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── Grain overlay ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.6;
-  }
-
-  /* ── Nav ── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 48px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(14,14,14,0.82);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-  }
-
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .nav-logo img {
-    width: 32px;
-    height: 32px;
-  }
-
-  .nav-logo span {
-    font-family: var(--serif);
-    font-size: 20px;
-    color: var(--white);
-    letter-spacing: 0.01em;
-  }
-
-  .nav-cta {
-    background: var(--beige);
-    color: var(--black);
-    border: none;
-    padding: 9px 22px;
-    border-radius: 100px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.15s;
-    letter-spacing: 0.02em;
-  }
+  body { background: var(--black); color: var(--white); font-family: var(--sans); font-size: 15px; line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: 0.6; }
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(14,14,14,0.82); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { width: 32px; height: 32px; }
+  .nav-logo span { font-family: var(--serif); font-size: 20px; color: var(--white); letter-spacing: 0.01em; }
+  .nav-cta { background: var(--beige); color: var(--black); border: none; padding: 9px 22px; border-radius: 100px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; letter-spacing: 0.02em; }
   .nav-cta:hover { background: var(--white); transform: translateY(-1px); }
 
-  /* ── Hero ── */
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 24px 80px;
-    z-index: 1;
-  }
-
-  .hero-eyebrow {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--beige2);
-    margin-bottom: 28px;
-    opacity: 0;
-    animation: fadeUp 0.8s 0.1s forwards;
-  }
-
-  .hero-title {
-    font-family: var(--serif);
-    font-size: clamp(52px, 8vw, 96px);
-    font-weight: 400;
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    color: var(--white);
-    margin-bottom: 28px;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.2s forwards;
-  }
-
-  .hero-title em {
-    font-style: italic;
-    color: var(--beige);
-  }
-
-  .hero-sub {
-    max-width: 480px;
-    font-size: 16px;
-    font-weight: 300;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-bottom: 52px;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.35s forwards;
-  }
-
-  /* ── Орбитальное кольцо вокруг лого ── */
-  .logo-orbit {
-    position: relative;
-    width: 140px;
-    height: 140px;
-    margin: 0 auto 48px;
-    opacity: 0;
-    animation: fadeUp 0.9s 0.05s forwards;
-  }
-
-  .logo-orbit img {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 72px;
-    height: 72px;
-  }
-
-  .orbit-ring {
-    position: absolute;
-    inset: 0;
-    border: 1px solid rgba(232,221,208,0.18);
-    border-radius: 50%;
-    animation: spin 18s linear infinite;
-  }
-
-  .orbit-dot {
-    position: absolute;
-    top: -3px; left: 50%;
-    transform: translateX(-50%);
-    width: 6px; height: 6px;
-    background: var(--beige);
-    border-radius: 50%;
-  }
-
+  /* Hero */
+  .hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; z-index: 1; }
+  .hero-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--beige2); margin-bottom: 28px; opacity: 0; animation: fadeUp 0.8s 0.1s forwards; }
+  .hero-title { font-family: var(--serif); font-size: clamp(52px, 8vw, 96px); font-weight: 400; line-height: 1.05; letter-spacing: -0.02em; color: var(--white); margin-bottom: 28px; opacity: 0; animation: fadeUp 0.9s 0.2s forwards; }
+  .hero-title em { font-style: italic; color: var(--beige); }
+  .hero-sub { max-width: 480px; font-size: 16px; font-weight: 300; color: var(--muted); line-height: 1.7; margin-bottom: 52px; opacity: 0; animation: fadeUp 0.9s 0.35s forwards; }
+  .logo-orbit { position: relative; width: 140px; height: 140px; margin: 0 auto 48px; opacity: 0; animation: fadeUp 0.9s 0.05s forwards; }
+  .logo-orbit img { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 72px; height: 72px; }
+  .orbit-ring { position: absolute; inset: 0; border: 1px solid rgba(232,221,208,0.18); border-radius: 50%; animation: spin 18s linear infinite; }
+  .orbit-dot { position: absolute; top: -3px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: var(--beige); border-radius: 50%; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Features grid ── */
-  .section {
-    position: relative;
-    z-index: 1;
-    padding: 100px 48px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--beige2);
-    margin-bottom: 20px;
-  }
-
-  .section-title {
-    font-family: var(--serif);
-    font-size: clamp(32px, 4vw, 52px);
-    font-weight: 400;
-    line-height: 1.15;
-    color: var(--white);
-    margin-bottom: 60px;
-    max-width: 540px;
-  }
-
+  /* Sections */
+  .section { position: relative; z-index: 1; padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--beige2); margin-bottom: 20px; }
+  .section-title { font-family: var(--serif); font-size: clamp(32px, 4vw, 52px); font-weight: 400; line-height: 1.15; color: var(--white); margin-bottom: 60px; max-width: 540px; }
   .section-title em { font-style: italic; color: var(--beige); }
-
-  .features {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-
-  .feature {
-    background: var(--off);
-    padding: 36px 32px;
-    transition: background 0.25s;
-  }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .feature { background: var(--off); padding: 36px 32px; transition: background 0.25s; }
   .feature:hover { background: var(--card); }
+  .feature-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(232,221,208,0.08); border: 1px solid rgba(232,221,208,0.14); display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 18px; }
+  .feature h3 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin-bottom: 10px; }
+  .feature p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .divider { position: relative; z-index: 1; border: none; border-top: 1px solid var(--border); margin: 0 48px; }
 
-  .feature-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    background: rgba(232,221,208,0.08);
-    border: 1px solid rgba(232,221,208,0.14);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-    font-size: 18px;
-  }
-
-  .feature h3 {
-    font-family: var(--serif);
-    font-size: 20px;
-    font-weight: 400;
-    color: var(--white);
-    margin-bottom: 10px;
-  }
-
-  .feature p {
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 1.65;
-  }
-
-  /* ── Divider ── */
-  .divider {
-    position: relative;
-    z-index: 1;
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0 48px;
-  }
-
-  /* ── Socials ── */
-  .socials-section {
-    position: relative;
-    z-index: 1;
-    padding: 80px 48px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .socials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-    margin-top: 48px;
-  }
-
-  .social-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 20px 24px;
-    background: var(--off);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    text-decoration: none;
-    color: var(--white);
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
-  }
-  .social-card:hover {
-    border-color: rgba(232,221,208,0.3);
-    background: var(--card);
-    transform: translateY(-2px);
-  }
-
-  .social-icon {
-    width: 38px; height: 38px;
-    border-radius: 9px;
-    background: rgba(232,221,208,0.07);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 17px;
-    flex-shrink: 0;
-  }
-
+  /* Socials — ОБНОВЛЕНО: 6 карточек */
+  .socials-section { position: relative; z-index: 1; padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
+  .socials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 48px; }
+  .social-card { display: flex; align-items: center; gap: 14px; padding: 20px 24px; background: var(--off); border: 1px solid var(--border); border-radius: 14px; text-decoration: none; color: var(--white); transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+  .social-card:hover { border-color: rgba(232,221,208,0.3); background: var(--card); transform: translateY(-2px); }
+  .social-icon { width: 38px; height: 38px; border-radius: 9px; background: rgba(232,221,208,0.07); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  /* Иконки X и Instagram */
+  .social-icon-svg { width: 38px; height: 38px; border-radius: 9px; background: rgba(232,221,208,0.07); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .social-icon-svg svg { width: 18px; height: 18px; fill: var(--beige2); }
   .social-info { min-width: 0; }
+  .social-name { font-size: 14px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .social-handle { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-  .social-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--white);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .social-handle {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* ── CTA block ── */
-  .cta-section {
-    position: relative;
-    z-index: 1;
-    padding: 80px 48px 120px;
-    text-align: center;
-  }
-
-  .cta-box {
-    max-width: 620px;
-    margin: 0 auto;
-    padding: 64px 48px;
-    background: var(--off);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .cta-box::before {
-    content: '';
-    position: absolute;
-    top: -60px; left: 50%;
-    transform: translateX(-50%);
-    width: 240px; height: 240px;
-    background: radial-gradient(circle, rgba(232,221,208,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .cta-box h2 {
-    font-family: var(--serif);
-    font-size: clamp(28px, 4vw, 44px);
-    font-weight: 400;
-    color: var(--white);
-    margin-bottom: 16px;
-    line-height: 1.2;
-  }
-
+  /* CTA */
+  .cta-section { position: relative; z-index: 1; padding: 80px 48px 120px; text-align: center; }
+  .cta-box { max-width: 620px; margin: 0 auto; padding: 64px 48px; background: var(--off); border: 1px solid var(--border); border-radius: 24px; position: relative; overflow: hidden; }
+  .cta-box::before { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 240px; height: 240px; background: radial-gradient(circle, rgba(232,221,208,0.06) 0%, transparent 70%); pointer-events: none; }
+  .cta-box h2 { font-family: var(--serif); font-size: clamp(28px, 4vw, 44px); font-weight: 400; color: var(--white); margin-bottom: 16px; line-height: 1.2; }
   .cta-box h2 em { font-style: italic; color: var(--beige); }
-
-  .cta-box p {
-    font-size: 15px;
-    color: var(--muted);
-    margin-bottom: 36px;
-    line-height: 1.7;
-  }
-
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--beige);
-    color: var(--black);
-    border: none;
-    padding: 14px 36px;
-    border-radius: 100px;
-    font-family: var(--sans);
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.15s;
-    letter-spacing: 0.02em;
-  }
+  .cta-box p { font-size: 15px; color: var(--muted); margin-bottom: 36px; line-height: 1.7; }
+  .btn-primary { display: inline-flex; align-items: center; gap: 8px; background: var(--beige); color: var(--black); border: none; padding: 14px 36px; border-radius: 100px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; letter-spacing: 0.02em; }
   .btn-primary:hover { background: var(--white); transform: translateY(-2px); }
-
-  .btn-arrow {
-    display: inline-block;
-    transition: transform 0.2s;
-  }
+  .btn-arrow { display: inline-block; transition: transform 0.2s; }
   .btn-primary:hover .btn-arrow { transform: translateX(3px); }
 
-  /* ── Footer ── */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid var(--border);
-    padding: 28px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  footer .foot-logo { font-family: var(--serif); font-size: 15px; color: var(--muted); text-decoration: none; }
+  footer .foot-copy { font-size: 12px; color: rgba(248,245,240,0.25); }
 
-  footer .foot-logo {
-    font-family: var(--serif);
-    font-size: 15px;
-    color: var(--muted);
-    text-decoration: none;
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  footer .foot-copy {
-    font-size: 12px;
-    color: rgba(248,245,240,0.25);
-  }
-
-  /* ── Animations ── */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(22px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .reveal {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* ── Mobile ── */
   @media (max-width: 600px) {
     nav { padding: 16px 20px; }
     .section, .socials-section, .cta-section { padding-left: 20px; padding-right: 20px; }
     .divider { margin: 0 20px; }
     footer { padding: 24px 20px; flex-direction: column; text-align: center; }
     .cta-box { padding: 40px 24px; }
+    .socials-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
 <body>
 
-<!-- Nav -->
 <nav>
   <a href="#" class="nav-logo">
     <img src="elyon_logo.png" alt="Elyon logo">
@@ -459,7 +104,6 @@
   <a href="auth.html" class="nav-cta">Get started →</a>
 </nav>
 
-<!-- Hero -->
 <section class="hero">
   <div class="logo-orbit">
     <img src="elyon_logo.png" alt="Elyon AI">
@@ -474,11 +118,9 @@
 
 <hr class="divider">
 
-<!-- Features -->
 <section class="section">
   <p class="section-label reveal">What Elyon does</p>
   <h2 class="section-title reveal">Built for <em>real</em> thinking — not just answers.</h2>
-
   <div class="features reveal">
     <div class="feature">
       <div class="feature-icon">✦</div>
@@ -515,7 +157,7 @@
 
 <hr class="divider">
 
-<!-- Socials -->
+<!-- SOCIALS — обновлено: добавлены X и Instagram -->
 <section class="socials-section">
   <p class="section-label reveal">Find us</p>
   <h2 class="section-title reveal">Stay in the <em>loop.</em></h2>
@@ -526,13 +168,6 @@
       <div class="social-info">
         <div class="social-name">Elyon AI Channel</div>
         <div class="social-handle">@AI_Elyon</div>
-      </div>
-    </a>
-    <a href="#" target="_blank" class="social-card">
-      <div class="social-icon">◎</div>
-      <div class="social-info">
-        <div class="social-name">Elyon Web</div>
-        <div class="social-handle">Coming soon</div>
       </div>
     </a>
     <a href="https://t.me/Elyon_by_unkony_bot" target="_blank" class="social-card">
@@ -549,12 +184,54 @@
         <div class="social-handle">@unkonyy</div>
       </div>
     </a>
+    <!-- X (Twitter) -->
+    <a href="https://x.com/CEOElyonAI" target="_blank" class="social-card">
+      <div class="social-icon-svg">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.854L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </div>
+      <div class="social-info">
+        <div class="social-name">Elyon on X</div>
+        <div class="social-handle">@CEOElyonAI</div>
+      </div>
+    </a>
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/elyon_ai_/" target="_blank" class="social-card">
+      <div class="social-icon-svg">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>
+      </div>
+      <div class="social-info">
+        <div class="social-name">Elyon Instagram</div>
+        <div class="social-handle">@elyon_ai_</div>
+      </div>
+    </a>
+    <!-- Reddit -->
+    <a href="https://www.reddit.com/user/Rude-Feature2431/" target="_blank" class="social-card">
+      <div class="social-icon-svg">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
+        </svg>
+      </div>
+      <div class="social-info">
+        <div class="social-name">Elyon Reddit</div>
+        <div class="social-handle">u/Rude-Feature2431</div>
+      </div>
+    </a>
+    <a href="auth.html" class="social-card">
+      <div class="social-icon">◎</div>
+      <div class="social-info">
+        <div class="social-name">Elyon Web App</div>
+        <div class="social-handle">elyon-ai-web.vercel.app</div>
+      </div>
+    </a>
   </div>
 </section>
 
 <hr class="divider">
 
-<!-- CTA -->
 <section class="cta-section">
   <div class="cta-box reveal">
     <h2>Ready to think <em>differently?</em></h2>
@@ -565,11 +242,10 @@
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
   <a href="#" class="foot-logo">Elyon AI</a>
   <span class="foot-copy">
-    © 2026 Elyon. 
+    © 2026 Elyon.
     <a href="privacy.html" style="color:rgba(248,245,240,0.35);text-decoration:none;margin-left:8px">Privacy Policy</a>
     <a href="privacy.html?tab=terms" style="color:rgba(248,245,240,0.35);text-decoration:none;margin-left:8px">Terms of Service</a>
   </span>
@@ -581,6 +257,5 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
-
 </body>
 </html>
