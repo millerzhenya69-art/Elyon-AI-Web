@@ -9,7 +9,9 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ══ THEME VARIABLES — все темы управляются здесь ══ */
 :root {
+  /* Dark (default) */
   --black:   #0e0e0e;
   --off:     #181818;
   --card:    #202020;
@@ -20,17 +22,62 @@
   --beige2:  #c9bfb3;
   --white:   #f8f5f0;
   --muted:   rgba(248,245,240,0.4);
+  /* Текст явно задаём — важно для светлой темы */
+  --text-primary:   #f8f5f0;
+  --text-secondary: rgba(248,245,240,0.72);
+  --text-muted:     rgba(248,245,240,0.4);
+  --text-label:     #c9bfb3;
+  --bg-input:       #181818;
+  --bg-topnav:      rgba(14,14,14,0.88);
+  --shadow-card:    0 4px 24px rgba(0,0,0,0.4);
+
   --serif:   'Instrument Serif', Georgia, serif;
   --sans:    'DM Sans', sans-serif;
   --sidebar: 260px;
   --radius:  14px;
 }
 
+/* ── AMOLED theme ── */
+:root[data-theme="amoled"] {
+  --black:  #000000;
+  --off:    #0a0a0a;
+  --card:   #111111;
+  --card2:  #141414;
+  --text-primary:   #f8f5f0;
+  --text-secondary: rgba(248,245,240,0.72);
+  --text-muted:     rgba(248,245,240,0.4);
+  --text-label:     #c9bfb3;
+  --bg-input:       #0a0a0a;
+  --bg-topnav:      rgba(0,0,0,0.95);
+}
+
+/* ── LIGHT theme — полностью переопределяем все цвета ── */
+:root[data-theme="light"] {
+  --black:   #f5f4f0;
+  --off:     #ffffff;
+  --card:    #f0ede8;
+  --card2:   #e8e4de;
+  --border:  rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.14);
+  --beige:   #7a6a5a;
+  --beige2:  #9a8a7a;
+  --white:   #1a1814;
+  --muted:   rgba(30,24,20,0.5);
+  /* Явные цвета текста для светлой темы */
+  --text-primary:   #1a1814;
+  --text-secondary: rgba(30,24,20,0.82);
+  --text-muted:     rgba(30,24,20,0.5);
+  --text-label:     #6a5a4a;
+  --bg-input:       #ffffff;
+  --bg-topnav:      rgba(245,244,240,0.92);
+  --shadow-card:    0 4px 24px rgba(0,0,0,0.12);
+}
+
 html, body { height: 100%; overflow: hidden; }
 
 body {
   background: var(--black);
-  color: var(--white);
+  color: var(--text-primary);
   font-family: var(--sans);
   font-size: 15px;
   display: flex;
@@ -39,19 +86,14 @@ body {
 
 /* ══ TOP NAV ══════════════════════════════════════════════════════ */
 .topnav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
+  position: fixed; top: 0; left: 0; right: 0;
   height: 52px;
-  background: rgba(14,14,14,0.88);
+  background: var(--bg-topnav);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 200;
-  gap: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; z-index: 200; gap: 12px;
 }
 .topnav-left { display: flex; align-items: center; gap: 12px; }
 .nav-trigger {
@@ -59,52 +101,51 @@ body {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; border-radius: 9px; transition: background 0.18s; flex-shrink: 0;
 }
-.nav-trigger:hover { background: rgba(255,255,255,0.06); }
-.nav-trigger svg { width: 18px; height: 18px; opacity: 0.7; }
+.nav-trigger:hover { background: rgba(128,128,128,0.1); }
+.nav-trigger svg { width: 18px; height: 18px; opacity: 0.7; color: var(--text-primary); }
 .topnav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .topnav-logo img { width: 26px; height: 26px; }
-.topnav-logo span { font-family: var(--serif); font-size: 17px; color: var(--white); }
+.topnav-logo span { font-family: var(--serif); font-size: 17px; color: var(--text-primary); }
 
 /* Model selector */
 .model-select {
   display: flex; align-items: center; gap: 6px;
-  padding: 6px 12px;
-  background: var(--off); border: 1px solid var(--border);
+  padding: 6px 12px; background: var(--off); border: 1px solid var(--border);
   border-radius: 100px; cursor: pointer;
   transition: border-color 0.18s, background 0.18s;
-  font-size: 13px; font-weight: 500; color: var(--beige2);
+  font-size: 13px; font-weight: 500; color: var(--text-muted);
   font-family: var(--sans); position: relative;
 }
-.model-select:hover { border-color: var(--border2); color: var(--white); }
+.model-select:hover { border-color: var(--border2); color: var(--text-primary); }
 .model-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--beige); flex-shrink: 0; }
 .model-dropdown {
   position: absolute; top: calc(100% + 8px); left: 0;
   background: var(--card); border: 1px solid var(--border2);
   border-radius: var(--radius); padding: 6px; min-width: 200px;
-  display: none; z-index: 300; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: none; z-index: 300; box-shadow: var(--shadow-card);
 }
 .model-dropdown.open { display: block; }
 .model-option {
   padding: 10px 12px; border-radius: 8px; cursor: pointer;
   transition: background 0.15s; display: flex; align-items: center; gap: 10px;
 }
-.model-option:hover { background: rgba(255,255,255,0.05); }
-.model-option.active { background: rgba(232,221,208,0.07); }
-.model-option-name { font-size: 13px; font-weight: 500; color: var(--white); }
-.model-option-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.model-option:hover { background: rgba(128,128,128,0.07); }
+.model-option.active { background: rgba(128,128,128,0.1); }
+.model-option-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.model-option-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 .model-badge {
   margin-left: auto; font-size: 10px; font-weight: 600;
   padding: 2px 7px; border-radius: 100px;
-  background: rgba(232,221,208,0.1); color: var(--beige2); letter-spacing: 0.04em;
+  background: rgba(128,128,128,0.12); color: var(--text-label); letter-spacing: 0.04em;
 }
 .topnav-right { display: flex; align-items: center; gap: 8px; }
 .btn-newchat {
   display: flex; align-items: center; gap: 6px;
   padding: 7px 14px; background: none; border: 1px solid var(--border);
-  border-radius: 100px; color: var(--muted); font-family: var(--sans);
+  border-radius: 100px; color: var(--text-muted); font-family: var(--sans);
   font-size: 13px; cursor: pointer; transition: border-color 0.18s, color 0.18s;
 }
-.btn-newchat:hover { border-color: var(--border2); color: var(--white); }
+.btn-newchat:hover { border-color: var(--border2); color: var(--text-primary); }
 .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   background: linear-gradient(135deg, var(--beige2), var(--beige));
@@ -112,26 +153,27 @@ body {
   font-size: 13px; font-weight: 600; color: var(--black);
   cursor: pointer; flex-shrink: 0; position: relative;
 }
+[data-theme="light"] .user-avatar { color: #f5f4f0; }
 .user-menu {
   position: absolute; top: calc(100% + 8px); right: 0;
   background: var(--card); border: 1px solid var(--border2);
   border-radius: var(--radius); padding: 6px; min-width: 180px;
-  display: none; z-index: 300; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: none; z-index: 300; box-shadow: var(--shadow-card);
 }
 .user-menu.open { display: block; }
 .user-menu-item {
   padding: 10px 12px; border-radius: 8px; cursor: pointer;
-  font-size: 13px; color: var(--white); transition: background 0.15s;
+  font-size: 13px; color: var(--text-primary); transition: background 0.15s;
   display: flex; align-items: center; gap: 8px; text-decoration: none;
 }
-.user-menu-item:hover { background: rgba(255,255,255,0.05); }
+.user-menu-item:hover { background: rgba(128,128,128,0.07); }
 .user-menu-item.danger { color: #e07070; }
 .user-menu-sep { height: 1px; background: var(--border); margin: 4px 0; }
 
 /* ══ SIDEBAR ══════════════════════════════════════════════════════ */
 .sidebar {
   position: fixed; top: 52px; left: 0; right: 0;
-  background: rgba(16,16,16,0.97);
+  background: var(--bg-topnav);
   backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border2);
   z-index: 150; transform: translateY(-100%);
@@ -147,7 +189,7 @@ body {
 .sidebar-chats { flex: 1; min-width: 0; }
 .sidebar-section-label {
   font-size: 10px; font-weight: 500; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;
 }
 .chat-list-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -156,14 +198,14 @@ body {
 .chat-item {
   display: flex; align-items: center; gap: 8px; padding: 10px 12px;
   border-radius: 10px; cursor: pointer; transition: background 0.15s;
-  font-size: 13px; color: var(--muted); position: relative; border: 1px solid transparent;
+  font-size: 13px; color: var(--text-muted); position: relative; border: 1px solid transparent;
 }
-.chat-item:hover { background: rgba(255,255,255,0.04); color: var(--white); border-color: var(--border); }
-.chat-item.active { background: rgba(232,221,208,0.07); color: var(--white); border-color: rgba(232,221,208,0.12); }
+.chat-item:hover { background: rgba(128,128,128,0.06); color: var(--text-primary); border-color: var(--border); }
+.chat-item.active { background: rgba(128,128,128,0.1); color: var(--text-primary); border-color: var(--border2); }
 .chat-item-icon { font-size: 13px; flex-shrink: 0; opacity: 0.5; }
 .chat-item-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 .chat-item-del {
-  opacity: 0; background: none; border: none; color: var(--muted);
+  opacity: 0; background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 13px; padding: 2px 4px; border-radius: 4px;
   transition: opacity 0.15s, color 0.15s; flex-shrink: 0;
 }
@@ -171,22 +213,22 @@ body {
 .chat-item-del:hover { color: #e07070; }
 .sidebar-new-chat {
   display: flex; align-items: center; gap: 8px; padding: 10px 14px;
-  background: none; border: 1px dashed rgba(255,255,255,0.12);
-  border-radius: 10px; color: var(--muted); font-family: var(--sans);
+  background: none; border: 1px dashed rgba(128,128,128,0.2);
+  border-radius: 10px; color: var(--text-muted); font-family: var(--sans);
   font-size: 13px; cursor: pointer; transition: border-color 0.18s, color 0.18s, background 0.18s;
   width: 100%; margin-top: 4px;
 }
-.sidebar-new-chat:hover { border-color: rgba(232,221,208,0.25); color: var(--white); background: rgba(255,255,255,0.03); }
+.sidebar-new-chat:hover { border-color: rgba(128,128,128,0.4); color: var(--text-primary); background: rgba(128,128,128,0.04); }
 .sidebar-nav {
   display: flex; flex-direction: column; gap: 2px; width: 180px; flex-shrink: 0;
   padding-left: 20px; border-left: 1px solid var(--border);
 }
 .sidebar-nav-item {
   display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-  border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--muted);
+  border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--text-muted);
   transition: background 0.15s, color 0.15s; text-decoration: none; white-space: nowrap;
 }
-.sidebar-nav-item:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.sidebar-nav-item:hover { background: rgba(128,128,128,0.06); color: var(--text-primary); }
 .sidebar-nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
 .sidebar-overlay {
   position: fixed; inset: 52px 0 0 0; background: rgba(0,0,0,0.45);
@@ -194,81 +236,62 @@ body {
 }
 .sidebar-overlay.show { opacity: 1; pointer-events: all; }
 
-/* ══ MAIN AREA — ФИХ 2: правильные flex-высоты ══════════════════ */
+/* ══ MAIN AREA ══════════════════════════════════════════════════════ */
 .main {
-  margin-top: 52px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 52px);
-  position: relative;
-  /* УБРАЛИ overflow: hidden — он блокировал скролл */
-  overflow: hidden;
+  margin-top: 52px; flex: 1; display: flex; flex-direction: column;
+  height: calc(100vh - 52px); position: relative; overflow: hidden;
 }
 
-/* ── Welcome screen ── */
+/* Welcome screen */
 .welcome {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 24px 120px;
-  text-align: center;
-  transition: opacity 0.3s, transform 0.3s;
-  z-index: 2;
-  background: var(--black);
-  pointer-events: all;
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 40px 24px 120px; text-align: center;
+  transition: opacity 0.3s, transform 0.3s; z-index: 2;
+  background: var(--black); pointer-events: all;
 }
-.welcome.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-10px);
-}
-.welcome-logo {
-  width: 56px; height: 56px; margin-bottom: 24px; opacity: 0.9;
-  animation: float 4s ease-in-out infinite;
-}
+.welcome.hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
+.welcome-logo { width: 56px; height: 56px; margin-bottom: 24px; opacity: 0.9; animation: float 4s ease-in-out infinite; }
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .welcome h1 {
   font-family: var(--serif); font-size: clamp(28px, 4vw, 44px); font-weight: 400;
-  line-height: 1.15; color: var(--white); margin-bottom: 10px;
+  line-height: 1.15; color: var(--text-primary); margin-bottom: 10px;
 }
 .welcome h1 em { font-style: italic; color: var(--beige); }
-.welcome-sub { font-size: 14px; color: var(--muted); margin-bottom: 40px; font-weight: 300; }
+.welcome-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; font-weight: 300; }
 .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 560px; }
 .chip {
   padding: 9px 16px; background: var(--off); border: 1px solid var(--border);
-  border-radius: 100px; font-size: 13px; color: var(--muted); cursor: pointer;
+  border-radius: 100px; font-size: 13px; color: var(--text-muted); cursor: pointer;
   transition: border-color 0.18s, color 0.18s, background 0.18s; font-family: var(--sans);
 }
-.chip:hover { border-color: rgba(232,221,208,0.25); color: var(--white); background: var(--card); }
+.chip:hover { border-color: var(--border2); color: var(--text-primary); background: var(--card); }
 
-/* ── ФИХ 2: Messages — правильный скролл ── */
+/* ══ MESSAGES ══════════════════════════════════════════════════════ */
 .messages {
-  position: absolute;
-  inset: 0 0 0 0;
-  overflow-y: auto;
-  padding: 24px 0 140px;   /* нижний отступ под input */
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.08) transparent;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s;
+  position: absolute; inset: 0 0 0 0; overflow-y: auto;
+  padding: 24px 0 140px; display: flex; flex-direction: column; gap: 0;
+  scrollbar-width: thin; scrollbar-color: rgba(128,128,128,0.15) transparent;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
 }
-.messages.show {
-  opacity: 1;
-  pointer-events: all;
-}
+.messages.show { opacity: 1; pointer-events: all; }
 .messages::-webkit-scrollbar { width: 4px; }
-.messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+.messages::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.15); border-radius: 2px; }
 
-.msg-group {
-  max-width: 720px; width: 100%; margin: 0 auto; padding: 6px 24px;
+.msg-group { max-width: 720px; width: 100%; margin: 0 auto; padding: 6px 24px; }
+
+/* ── Анимация появления сообщений ── */
+@keyframes msgSlideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes msgSlideInRight {
+  from { opacity: 0; transform: translateX(8px) translateY(4px); }
+  to   { opacity: 1; transform: translateX(0) translateY(0); }
+}
+@keyframes fadeInLine {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* User message */
@@ -277,51 +300,64 @@ body {
   max-width: 72%; padding: 12px 16px;
   background: var(--card2); border: 1px solid var(--border);
   border-radius: 18px 18px 4px 18px;
-  font-size: 14px; line-height: 1.65; color: var(--white);
+  font-size: 14px; line-height: 1.65; color: var(--text-primary);
   white-space: pre-wrap; word-break: break-word;
+  animation: msgSlideInRight 0.28s cubic-bezier(0.22,1,0.36,1) both;
 }
 
-/* ── ФИХ 7: Файл в пузыре пользователя ── */
+/* Файл в пузыре */
 .msg-file-card {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 12px; margin-bottom: 8px;
-  background: rgba(232,221,208,0.06);
-  border: 1px solid rgba(232,221,208,0.14);
+  background: rgba(128,128,128,0.07); border: 1px solid rgba(128,128,128,0.14);
   border-radius: 10px;
 }
 .msg-file-icon {
   width: 32px; height: 32px; border-radius: 7px;
-  background: rgba(232,221,208,0.1);
+  background: rgba(128,128,128,0.1);
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; flex-shrink: 0;
 }
-.msg-file-name { font-size: 13px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-.msg-file-size { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.msg-file-name { font-size: 13px; font-weight: 500; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+.msg-file-size { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 .msg-file-check { margin-left: auto; font-size: 14px; color: #4ade80; flex-shrink: 0; }
 
-/* AI message */
-.msg-ai { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 20px; }
+/* ── AI message — улучшенное оформление ── */
+.msg-ai { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 24px; }
 .msg-ai-avatar {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: rgba(232,221,208,0.08); border: 1px solid rgba(232,221,208,0.12);
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--card2);
+  border: 1px solid var(--border2);
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; margin-top: 2px;
+  flex-shrink: 0; margin-top: 2px; overflow: hidden;
 }
-.msg-ai-avatar img { width: 16px; height: 16px; opacity: 0.85; }
+.msg-ai-avatar img { width: 17px; height: 17px; opacity: 0.9; }
 .msg-ai-content {
-  flex: 1; font-size: 14px; line-height: 1.75;
-  color: rgba(248,245,240,0.88); word-break: break-word; padding-top: 4px;
+  flex: 1; font-size: 14px; line-height: 1.8;
+  color: var(--text-secondary); word-break: break-word; padding-top: 4px;
 }
 
-/* ── ФИХ 9: Thinking-шаги (как в референсе) ── */
+/* Анимация AI ответа — абзацы появляются последовательно */
+.msg-ai-content .anim-block {
+  animation: fadeInLine 0.35s cubic-bezier(0.22,1,0.36,1) both;
+}
+.msg-ai-content .anim-block:nth-child(1)  { animation-delay: 0.03s; }
+.msg-ai-content .anim-block:nth-child(2)  { animation-delay: 0.09s; }
+.msg-ai-content .anim-block:nth-child(3)  { animation-delay: 0.15s; }
+.msg-ai-content .anim-block:nth-child(4)  { animation-delay: 0.21s; }
+.msg-ai-content .anim-block:nth-child(5)  { animation-delay: 0.27s; }
+.msg-ai-content .anim-block:nth-child(6)  { animation-delay: 0.33s; }
+.msg-ai-content .anim-block:nth-child(7)  { animation-delay: 0.39s; }
+.msg-ai-content .anim-block:nth-child(8)  { animation-delay: 0.44s; }
+.msg-ai-content .anim-block:nth-child(n+9){ animation-delay: 0.48s; }
+
+/* ── Thinking steps ── */
 .thinking-step {
   display: flex; align-items: center; gap: 8px;
   padding: 7px 12px; margin-bottom: 6px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 100px;
-  font-size: 12px; color: var(--muted);
-  animation: fadeInStep 0.3s ease;
+  background: rgba(128,128,128,0.04); border: 1px solid rgba(128,128,128,0.1);
+  border-radius: 100px; font-size: 12px; color: var(--text-muted);
+  animation: fadeInLine 0.3s ease;
   max-width: fit-content;
 }
 .thinking-step-dot {
@@ -332,39 +368,40 @@ body {
 @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
 @keyframes fadeInStep { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ── ФИХ 9: AI response card (структурированный ответ) ── */
+/* ── AI response card (структурированный ответ) — УЛУЧШЕННЫЙ ── */
 .ai-response-card {
   background: var(--card);
   border: 1px solid var(--border2);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   margin-bottom: 4px;
+  box-shadow: var(--shadow-card);
 }
 .ai-response-card-header {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px;
-  background: rgba(232,221,208,0.05);
+  padding: 10px 16px;
+  background: rgba(128,128,128,0.05);
   border-bottom: 1px solid var(--border);
   font-size: 11px; font-weight: 600;
   letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--beige2);
+  color: var(--text-label);
 }
 .ai-response-card-header-dot {
   width: 5px; height: 5px; border-radius: 50%; background: var(--beige2);
 }
-.ai-response-card-body { padding: 14px 16px; }
+.ai-response-card-body { padding: 16px 18px; }
 
-/* Typing indicator */
+/* ── Typing indicator ── */
 .typing-indicator {
   display: flex; gap: 12px; align-items: flex-start;
   padding: 6px 24px; max-width: 720px; margin: 0 auto; width: 100%;
 }
 .typing-logo {
-  width: 28px; height: 28px; border-radius: 8px;
-  background: rgba(232,221,208,0.08); border: 1px solid rgba(232,221,208,0.12);
+  width: 30px; height: 30px; border-radius: 9px;
+  background: var(--card2); border: 1px solid var(--border2);
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.typing-logo img { width: 16px; height: 16px; opacity: 0.85; animation: spin-slow 3s linear infinite; }
+.typing-logo img { width: 17px; height: 17px; opacity: 0.9; animation: spin-slow 3s linear infinite; }
 @keyframes spin-slow { to { transform: rotate(360deg); } }
 .typing-dots { display: flex; gap: 5px; align-items: center; padding-top: 8px; }
 .typing-dot {
@@ -375,82 +412,69 @@ body {
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
 @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); opacity: 0.4; } 40% { transform: translateY(-5px); opacity: 1; } }
 
-/* ══ INPUT AREA ═══════════════════════════════════════════════════ */
+/* ══ INPUT AREA ══════════════════════════════════════════════════= */
 .input-area {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
+  position: absolute; bottom: 0; left: 0; right: 0;
   padding: 12px 24px 24px;
   background: linear-gradient(to top, var(--black) 65%, transparent);
   z-index: 10;
 }
-
-/* Welcome mode — по центру */
 .welcome-mode .input-area {
-  position: absolute;
-  bottom: 0; left: 50%;
-  transform: translateX(-50%);
-  width: min(680px, 100%);
-  padding: 20px 24px 32px;
-  background: none;
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%); width: min(680px, 100%);
+  padding: 20px 24px 32px; background: none;
 }
-
 .input-box {
   display: flex; align-items: flex-end; gap: 10px;
-  background: var(--off); border: 1px solid var(--border2);
+  background: var(--bg-input); border: 1px solid var(--border2);
   border-radius: 18px; padding: 12px 12px 12px 18px;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  box-shadow: var(--shadow-card);
 }
 .input-box:focus-within {
-  border-color: rgba(232,221,208,0.28);
-  box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+  border-color: rgba(128,128,128,0.35);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.15);
 }
-
-/* ── ФИХ 7: превью файла над инпутом ── */
 .file-preview-bar {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; margin-bottom: 8px;
-  background: rgba(232,221,208,0.06);
-  border: 1px solid rgba(232,221,208,0.14);
-  border-radius: 12px; font-size: 13px; color: var(--beige2);
+  background: rgba(128,128,128,0.06); border: 1px solid rgba(128,128,128,0.14);
+  border-radius: 12px; font-size: 13px; color: var(--text-label);
 }
 .file-preview-bar .fp-icon { font-size: 15px; flex-shrink: 0; }
 .file-preview-bar .fp-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-preview-bar .fp-size { color: var(--muted); font-size: 11px; flex-shrink: 0; }
-.file-preview-bar .fp-del {
-  background: none; border: none; color: var(--muted);
-  cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0;
-  transition: color 0.15s;
-}
+.file-preview-bar .fp-size { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
+.file-preview-bar .fp-del { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; padding: 0 2px; flex-shrink: 0; transition: color 0.15s; }
 .file-preview-bar .fp-del:hover { color: #e07070; }
-
 .input-textarea {
   flex: 1; background: none; border: none; outline: none;
-  color: var(--white); font-family: var(--sans); font-size: 15px;
+  color: var(--text-primary); font-family: var(--sans); font-size: 15px;
   line-height: 1.55; resize: none; max-height: 160px; min-height: 24px;
   overflow-y: auto; scrollbar-width: none;
 }
 .input-textarea::-webkit-scrollbar { display: none; }
-.input-textarea::placeholder { color: rgba(248,245,240,0.28); }
+.input-textarea::placeholder { color: var(--text-muted); }
 .input-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .input-btn {
   width: 34px; height: 34px; border-radius: 10px; border: none;
-  background: none; color: var(--muted); cursor: pointer;
+  background: none; color: var(--text-muted); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; transition: background 0.15s, color 0.15s; flex-shrink: 0;
 }
-.input-btn:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+.input-btn:hover { background: rgba(128,128,128,0.1); color: var(--text-primary); }
 .input-send {
   width: 34px; height: 34px; border-radius: 10px; border: none;
   background: var(--beige); color: var(--black); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; transition: background 0.18s, transform 0.15s, opacity 0.18s; flex-shrink: 0;
 }
+[data-theme="light"] .input-send { color: #f5f4f0; }
 .input-send:hover { background: var(--white); transform: scale(1.05); }
+[data-theme="light"] .input-send:hover { background: #3a2a1a; }
 .input-send:disabled { opacity: 0.35; cursor: default; transform: none; }
-.input-hint { text-align: center; font-size: 11px; color: rgba(248,245,240,0.2); margin-top: 10px; }
+.input-hint { text-align: center; font-size: 11px; color: var(--text-muted); opacity: 0.6; margin-top: 10px; }
 
-/* ══ PANELS ═══════════════════════════════════════════════════════ */
+/* ══ PANELS ════════════════════════════════════════════════════════ */
 .panel {
   position: fixed; inset: 52px 0 0 0; background: var(--black);
   z-index: 120; display: none; flex-direction: column; overflow-y: auto;
@@ -461,119 +485,205 @@ body {
   padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0;
 }
 .panel-back {
-  background: none; border: none; color: var(--muted);
+  background: none; border: none; color: var(--text-muted);
   cursor: pointer; font-size: 20px; padding: 4px; transition: color 0.15s; line-height: 1;
 }
-.panel-back:hover { color: var(--white); }
-.panel-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); }
+.panel-back:hover { color: var(--text-primary); }
+.panel-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--text-primary); }
 
 /* Settings */
 .settings-body { padding: 24px; max-width: 560px; }
 .settings-group { margin-bottom: 32px; }
-.settings-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--beige2); margin-bottom: 14px; }
-.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.settings-group-label {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-label); margin-bottom: 14px;
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
 .settings-row:last-child { border-bottom: none; }
-.settings-row-label { font-size: 14px; color: var(--white); }
-.settings-row-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.toggle { width: 42px; height: 24px; background: var(--off); border: 1px solid var(--border2); border-radius: 100px; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+.settings-row-label { font-size: 14px; color: var(--text-primary); }
+.settings-row-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.toggle {
+  width: 42px; height: 24px; background: var(--off); border: 1px solid var(--border2);
+  border-radius: 100px; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0;
+}
 .toggle.on { background: var(--beige); border-color: var(--beige); }
-.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 0.2s, background 0.2s; }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text-muted); transition: transform 0.2s, background 0.2s;
+}
 .toggle.on::after { transform: translateX(18px); background: var(--black); }
-.segment { display: flex; background: var(--off); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
-.seg-btn { padding: 6px 14px; border-radius: 7px; border: none; background: none; color: var(--muted); font-family: var(--sans); font-size: 13px; cursor: pointer; transition: background 0.15s, color 0.15s; }
-.seg-btn.active { background: var(--card2); color: var(--white); }
+[data-theme="light"] .toggle.on::after { background: #f5f4f0; }
+.segment {
+  display: flex; background: var(--off); border: 1px solid var(--border);
+  border-radius: 10px; padding: 3px; gap: 2px;
+}
+.seg-btn {
+  padding: 6px 14px; border-radius: 7px; border: none; background: none;
+  color: var(--text-muted); font-family: var(--sans); font-size: 13px;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.seg-btn.active { background: var(--card2); color: var(--text-primary); }
 .theme-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-.theme-swatch { width: 56px; height: 40px; border-radius: 9px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s; position: relative; overflow: hidden; }
+.theme-swatch {
+  width: 56px; height: 40px; border-radius: 9px; cursor: pointer;
+  border: 2px solid transparent; transition: border-color 0.15s, transform 0.15s;
+  position: relative; overflow: hidden;
+}
 .theme-swatch:hover { transform: scale(1.05); }
 .theme-swatch.active { border-color: var(--beige); }
-.theme-swatch-label { font-size: 10px; color: var(--muted); text-align: center; margin-top: 5px; }
+.theme-swatch-label { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 5px; }
 
 /* Profile */
 .profile-body { padding: 24px; max-width: 480px; }
-.profile-avatar-big { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--beige2), var(--beige)); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 600; color: var(--black); margin-bottom: 16px; }
-.profile-name { font-family: var(--serif); font-size: 24px; color: var(--white); margin-bottom: 4px; }
-.profile-email { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-.profile-card { background: var(--off); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px; }
-.profile-card-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
-.profile-card-value { font-size: 15px; color: var(--white); font-weight: 500; }
-.profile-card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
-.btn-upgrade { width: 100%; padding: 13px; background: var(--beige); color: var(--black); border: none; border-radius: var(--radius); font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.18s; margin-top: 6px; }
-.btn-upgrade:hover { background: var(--white); }
+.profile-avatar-big {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--beige2), var(--beige));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 600; color: var(--black); margin-bottom: 16px;
+}
+[data-theme="light"] .profile-avatar-big { color: #f5f4f0; }
+.profile-name { font-family: var(--serif); font-size: 24px; color: var(--text-primary); margin-bottom: 4px; }
+.profile-email { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; }
+.profile-card {
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px; margin-bottom: 10px;
+}
+.profile-card-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+.profile-card-value { font-size: 15px; color: var(--text-primary); font-weight: 500; }
+.profile-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+.btn-upgrade {
+  width: 100%; padding: 13px; background: var(--beige); color: var(--black);
+  border: none; border-radius: var(--radius); font-family: var(--sans);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.18s; margin-top: 6px;
+}
+[data-theme="light"] .btn-upgrade { color: #f5f4f0; }
+.btn-upgrade:hover { filter: brightness(1.08); }
 
 /* Pricing */
 .pricing-body { padding: 24px; max-width: 640px; }
 .pricing-grid { display: flex; flex-direction: column; gap: 10px; }
-.pricing-card { background: var(--off); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; position: relative; overflow: hidden; }
-.pricing-card:hover { border-color: rgba(232,221,208,0.2); }
-.pricing-card.featured { border-color: rgba(232,221,208,0.25); background: var(--card); }
-.pricing-card.featured::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--beige2), var(--beige)); }
-.pricing-tier { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--beige2); margin-bottom: 8px; }
-.pricing-name { font-family: var(--serif); font-size: 22px; color: var(--white); margin-bottom: 4px; }
-.pricing-price { font-size: 28px; font-weight: 300; color: var(--white); margin-bottom: 12px; }
-.pricing-price span { font-size: 14px; color: var(--muted); }
-.pricing-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
-.pricing-limit { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--beige2); background: rgba(232,221,208,0.07); padding: 4px 10px; border-radius: 100px; margin-bottom: 16px; }
-.pricing-btn { width: 100%; padding: 11px; border-radius: 10px; border: 1px solid var(--border2); background: none; color: var(--white); font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.18s, border-color 0.18s; }
-.pricing-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.pricing-card {
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; position: relative; overflow: hidden;
+}
+.pricing-card:hover { border-color: var(--border2); }
+.pricing-card.featured { border-color: var(--border2); background: var(--card); }
+.pricing-card.featured::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--beige2), var(--beige));
+}
+.pricing-tier { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-label); margin-bottom: 8px; }
+.pricing-name { font-family: var(--serif); font-size: 22px; color: var(--text-primary); margin-bottom: 4px; }
+.pricing-price { font-size: 28px; font-weight: 300; color: var(--text-primary); margin-bottom: 12px; }
+.pricing-price span { font-size: 14px; color: var(--text-muted); }
+.pricing-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+.pricing-limit {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+  color: var(--text-label); background: rgba(128,128,128,0.08);
+  padding: 4px 10px; border-radius: 100px; margin-bottom: 16px;
+}
+.pricing-btn {
+  width: 100%; padding: 11px; border-radius: 10px; border: 1px solid var(--border2);
+  background: none; color: var(--text-primary); font-family: var(--sans);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.18s, border-color 0.18s;
+}
+.pricing-btn:hover { background: rgba(128,128,128,0.07); border-color: var(--border2); }
 .pricing-card.featured .pricing-btn { background: var(--beige); color: var(--black); border-color: transparent; }
-.pricing-card.featured .pricing-btn:hover { background: var(--white); }
+[data-theme="light"] .pricing-card.featured .pricing-btn { color: #f5f4f0; }
+.pricing-card.featured .pricing-btn:hover { filter: brightness(1.08); }
+
+/* DonatePay button */
+.pricing-btn-donatepay {
+  width: 100%; padding: 11px; border-radius: 10px; border: 1px solid rgba(255,140,0,0.3);
+  background: rgba(255,140,0,0.06); color: var(--text-primary); font-family: var(--sans);
+  font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.18s, border-color 0.18s;
+  margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.pricing-btn-donatepay:hover { background: rgba(255,140,0,0.12); border-color: rgba(255,140,0,0.5); }
+.pricing-btn-donatepay-icon { font-size: 14px; }
 
 /* Admin */
 .admin-body { padding: 24px; max-width: 680px; }
 .admin-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 24px; }
 .admin-stat { background: var(--off); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
 .admin-stat-num { font-family: var(--serif); font-size: 28px; color: var(--beige); line-height: 1; margin-bottom: 4px; }
-.admin-stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.admin-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--beige2); margin-bottom: 10px; margin-top: 20px; }
+.admin-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.admin-group-label { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-label); margin-bottom: 10px; margin-top: 20px; }
 .admin-user-list { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow-y: auto; scrollbar-width: thin; }
 .admin-user-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--off); border: 1px solid var(--border); border-radius: 10px; font-size: 13px; }
-.admin-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(232,221,208,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--beige); flex-shrink: 0; }
-.admin-user-name { flex: 1; color: var(--white); }
-.admin-user-role { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: rgba(232,221,208,0.07); color: var(--beige2); }
-.admin-user-sub { font-size: 11px; color: var(--muted); }
-.admin-loading { text-align: center; padding: 32px; color: var(--muted); font-size: 14px; }
-.btn-admin-action { padding: 10px 18px; background: none; border: 1px solid var(--border2); border-radius: 10px; color: var(--white); font-family: var(--sans); font-size: 13px; cursor: pointer; transition: background 0.15s, border-color 0.15s; margin-right: 8px; margin-bottom: 8px; }
-.btn-admin-action:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
+.admin-user-avatar { width: 28px; height: 28px; border-radius: 50%; background: rgba(128,128,128,0.12); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--beige); flex-shrink: 0; }
+.admin-user-name { flex: 1; color: var(--text-primary); }
+.admin-user-role { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: rgba(128,128,128,0.08); color: var(--text-label); }
+.admin-user-sub { font-size: 11px; color: var(--text-muted); }
+.admin-loading { text-align: center; padding: 32px; color: var(--text-muted); font-size: 14px; }
+.btn-admin-action { padding: 10px 18px; background: none; border: 1px solid var(--border2); border-radius: 10px; color: var(--text-primary); font-family: var(--sans); font-size: 13px; cursor: pointer; transition: background 0.15s, border-color 0.15s; margin-right: 8px; margin-bottom: 8px; }
+.btn-admin-action:hover { background: rgba(128,128,128,0.07); border-color: var(--border2); }
 .btn-admin-action.danger { color: #e07070; border-color: rgba(224,112,112,0.3); }
 .btn-admin-action.danger:hover { background: rgba(224,112,112,0.08); }
 
-@media (max-width: 600px) {
-  :root { --sidebar: 80vw; }
-  .btn-newchat span { display: none; }
-  .input-hint { display: none; }
-  .msg-user-bubble { max-width: 88%; }
+/* ══ MARKDOWN STYLES ══════════════════════════════════════════════ */
+.md-body { line-height: 1.8; }
+.md-body .md-p { margin: 0 0 14px; color: var(--text-secondary); font-size: 14px; line-height: 1.8; }
+.md-body .md-p:last-child { margin-bottom: 0; }
+.md-body .md-h1 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--text-primary); margin: 22px 0 10px; }
+.md-body .md-h2 { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--text-primary); margin: 18px 0 8px; }
+.md-body .md-h3 { font-size: 14px; font-weight: 600; color: var(--beige); margin: 14px 0 6px; letter-spacing: 0.01em; }
+[data-theme="light"] .md-body .md-h3 { color: #7a6a5a; }
+.md-body strong { font-weight: 600; color: var(--text-primary); }
+.md-body em { font-style: italic; color: var(--text-secondary); }
+.md-body .md-ul, .md-body .md-ol { margin: 8px 0 14px 4px; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; }
+.md-body .md-li { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.md-body .md-quote {
+  border-left: 2px solid var(--beige2); padding: 8px 14px; margin: 12px 0;
+  color: var(--text-muted); font-style: italic; font-size: 14px;
+  background: rgba(128,128,128,0.04); border-radius: 0 8px 8px 0;
+}
+.md-body .md-hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.md-body .inline-code {
+  background: rgba(128,128,128,0.1); border: 1px solid rgba(128,128,128,0.15);
+  border-radius: 5px; padding: 1px 6px;
+  font-family: 'Courier New', monospace; font-size: 12.5px; color: var(--beige);
+  white-space: nowrap;
+}
+[data-theme="light"] .md-body .inline-code { color: #7a6a5a; background: rgba(0,0,0,0.07); }
+.md-body .code-block {
+  background: var(--off); border: 1px solid var(--border2);
+  border-radius: 12px; margin: 14px 0; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+[data-theme="light"] .md-body .code-block { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.md-body .code-block .code-lang {
+  display: block; padding: 7px 14px 6px;
+  font-size: 11px; font-weight: 500; color: var(--text-label);
+  background: rgba(128,128,128,0.05); border-bottom: 1px solid var(--border);
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.md-body .code-block pre { margin: 0; padding: 14px 16px; overflow-x: auto; scrollbar-width: thin; }
+.md-body .code-block code {
+  font-family: 'Courier New', 'SF Mono', monospace; font-size: 13px;
+  line-height: 1.6; color: var(--text-secondary); white-space: pre;
 }
 
-/* ══ MARKDOWN STYLES ══════════════════════════════════════════════ */
-.md-body { line-height: 1.75; }
-.md-body .md-p { margin: 0 0 12px; color: rgba(248,245,240,0.88); font-size: 14px; line-height: 1.75; }
-.md-body .md-p:last-child { margin-bottom: 0; }
-.md-body .md-h1 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin: 20px 0 10px; }
-.md-body .md-h2 { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--white); margin: 16px 0 8px; }
-.md-body .md-h3 { font-size: 14px; font-weight: 600; color: var(--beige); margin: 14px 0 6px; letter-spacing: 0.01em; }
-.md-body strong { font-weight: 600; color: var(--white); }
-.md-body em { font-style: italic; color: rgba(248,245,240,0.8); }
-.md-body .md-ul, .md-body .md-ol { margin: 8px 0 12px 4px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
-.md-body .md-li { font-size: 14px; color: rgba(248,245,240,0.82); line-height: 1.65; }
-.md-body .md-quote { border-left: 2px solid var(--beige2); padding: 8px 14px; margin: 10px 0; color: var(--muted); font-style: italic; font-size: 14px; background: rgba(232,221,208,0.04); border-radius: 0 8px 8px 0; }
-.md-body .md-hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-.md-body .inline-code { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 5px; padding: 1px 6px; font-family: 'Courier New', monospace; font-size: 12.5px; color: var(--beige); white-space: nowrap; }
-.md-body .code-block { background: #111118; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin: 12px 0; overflow: hidden; }
-.md-body .code-block .code-lang { display: block; padding: 6px 14px 5px; font-size: 11px; font-weight: 500; color: var(--beige2); background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); letter-spacing: 0.05em; text-transform: uppercase; }
-.md-body .code-block pre { margin: 0; padding: 14px 16px; overflow-x: auto; scrollbar-width: thin; }
-.md-body .code-block code { font-family: 'Courier New', 'SF Mono', monospace; font-size: 13px; line-height: 1.6; color: rgba(248,245,240,0.9); white-space: pre; }
-
-/* ── ФИХ 8: синк-индикатор ── */
+/* Sync indicator */
 .sync-indicator {
   position: fixed; bottom: 16px; right: 16px;
-  font-size: 11px; color: var(--muted);
+  font-size: 11px; color: var(--text-muted);
   display: flex; align-items: center; gap: 5px;
-  opacity: 0; transition: opacity 0.3s; pointer-events: none;
-  z-index: 50;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 50;
 }
 .sync-indicator.show { opacity: 1; }
 .sync-dot { width: 5px; height: 5px; border-radius: 50%; background: #4ade80; }
 .sync-dot.saving { background: var(--beige2); animation: pulse 1s infinite; }
+
+@media (max-width: 600px) {
+  .btn-newchat span { display: none; }
+  .input-hint { display: none; }
+  .msg-user-bubble { max-width: 88%; }
+}
 </style>
 </head>
 <body>
@@ -596,7 +706,7 @@ body {
       <span class="model-dot"></span>
       <span id="model-label">Core</span>
       <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="opacity:0.5">
-        <path d="M2 3.5 L5 6.5 L8 3.5"/>
+        <path d="M2 3.5 L5 6.5 L8 3.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
       </svg>
       <div class="model-dropdown" id="model-dropdown">
         <div class="model-option active" onclick="selectModel('core', 'Core', event)">
@@ -609,23 +719,23 @@ body {
         <div class="model-option" onclick="selectModel('nova', 'Nova', event)">
           <div>
             <div class="model-option-name">Elyon Nova</div>
-            <div class="model-option-desc">Smarter responses · 25 msg/day</div>
+            <div class="model-option-desc">Smarter responses · 30 msg/day</div>
           </div>
-          <span class="model-badge">100₽</span>
+          <span class="model-badge">91₽</span>
         </div>
         <div class="model-option" onclick="selectModel('pro', 'PRO', event)">
           <div>
             <div class="model-option-name">Elyon PRO</div>
-            <div class="model-option-desc">Deep reasoning · 40 msg/day</div>
+            <div class="model-option-desc">Deep reasoning · 30 msg/day</div>
           </div>
-          <span class="model-badge">200₽</span>
+          <span class="model-badge">182₽</span>
         </div>
         <div class="model-option" onclick="selectModel('absolution', 'Absolution', event)">
           <div>
             <div class="model-option-name">Elyon Absolution</div>
-            <div class="model-option-desc">Maximum capability · 50 msg/day</div>
+            <div class="model-option-desc">Maximum capability · 30 msg/day</div>
           </div>
-          <span class="model-badge">300₽</span>
+          <span class="model-badge">265₽</span>
         </div>
       </div>
     </div>
@@ -689,8 +799,6 @@ body {
 
 <!-- Main -->
 <main class="main welcome-mode" id="main">
-
-  <!-- Welcome screen -->
   <div class="welcome" id="welcome-screen">
     <img src="elyon_logo.png" alt="Elyon" class="welcome-logo">
     <h1>Hello, I am <em>Elyon.</em><br>How can I help you today?</h1>
@@ -704,12 +812,9 @@ body {
     </div>
   </div>
 
-  <!-- Messages — ФИХ 2: всегда в DOM, управляем через opacity/pointer-events -->
   <div class="messages" id="messages"></div>
 
-  <!-- Input -->
   <div class="input-area" id="input-area">
-    <!-- ФИХ 7: превью файла -->
     <div id="file-preview-bar" style="display:none" class="file-preview-bar">
       <span class="fp-icon" id="fp-icon">📎</span>
       <span class="fp-name" id="fp-name"></span>
@@ -718,12 +823,9 @@ body {
     </div>
     <div class="input-box">
       <textarea
-        class="input-textarea"
-        id="input"
-        placeholder="Message Elyon..."
-        rows="1"
-        onkeydown="handleKey(event)"
-        oninput="autoResize(this); updateSendBtn()"
+        class="input-textarea" id="input"
+        placeholder="Message Elyon..." rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this); updateSendBtn()"
       ></textarea>
       <div class="input-actions">
         <button class="input-btn" title="Attach file" onclick="document.getElementById('file-input').click()">📎</button>
@@ -737,10 +839,8 @@ body {
     </div>
     <p class="input-hint">Elyon can make mistakes. Consider checking important information.</p>
   </div>
-
 </main>
 
-<!-- Sync indicator (ФИХ 8) -->
 <div class="sync-indicator" id="sync-indicator">
   <span class="sync-dot" id="sync-dot"></span>
   <span id="sync-text">Saved</span>
@@ -754,27 +854,27 @@ body {
   </div>
   <div class="settings-body">
     <div class="settings-group">
-      <div class="settings-group-label">Appearance</div>
+      <div class="settings-group-label" id="label-appearance">Appearance</div>
       <div class="settings-row">
         <div><div class="settings-row-label" id="label-theme">Theme</div></div>
         <div class="theme-grid">
           <div>
-            <div class="theme-swatch active" style="background:#0e0e0e;border:1px solid #333" onclick="setTheme('dark', this)"></div>
+            <div class="theme-swatch active" style="background:#0e0e0e;border:1px solid #333" onclick="setTheme('dark', this)" id="swatch-dark"></div>
             <div class="theme-swatch-label">Dark</div>
           </div>
           <div>
-            <div class="theme-swatch" style="background:#000000" onclick="setTheme('amoled', this)"></div>
+            <div class="theme-swatch" style="background:#000000" onclick="setTheme('amoled', this)" id="swatch-amoled"></div>
             <div class="theme-swatch-label">AMOLED</div>
           </div>
           <div>
-            <div class="theme-swatch" style="background:#f5f5f0;border:1px solid #ddd" onclick="setTheme('light', this)"></div>
+            <div class="theme-swatch" style="background:#f5f4f0;border:1px solid #ddd" onclick="setTheme('light', this)" id="swatch-light"></div>
             <div class="theme-swatch-label">Light</div>
           </div>
         </div>
       </div>
       <div class="settings-row">
         <div><div class="settings-row-label" id="label-fontsize">Font size</div></div>
-        <div class="segment">
+        <div class="segment" id="seg-fontsize">
           <button class="seg-btn active" onclick="setFontSize('small', this)">S</button>
           <button class="seg-btn" onclick="setFontSize('medium', this)">M</button>
           <button class="seg-btn" onclick="setFontSize('large', this)">L</button>
@@ -785,7 +885,7 @@ body {
       <div class="settings-group-label" id="label-lang-group">Language</div>
       <div class="settings-row">
         <div class="settings-row-label" id="label-lang">Interface language</div>
-        <div class="segment">
+        <div class="segment" id="seg-lang">
           <button class="seg-btn active" onclick="setLang('en', this)">EN</button>
           <button class="seg-btn" onclick="setLang('ru', this)">RU</button>
         </div>
@@ -856,25 +956,34 @@ body {
         <div class="pricing-tier">Popular</div>
         <div class="pricing-name">Elyon Nova</div>
         <div class="pricing-price">91 ₽ <span>/ month</span></div>
-        <div class="pricing-limit">◎ 25 messages / day</div>
+        <div class="pricing-limit">◎ 30 messages / day</div>
         <div class="pricing-desc">Smarter and faster. Built for work that demands real quality.</div>
-        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 50 ⭐</button>
+        <button class="pricing-btn" onclick="openDonatePay('nova')">Оплатить 91 ₽</button>
+        <button class="pricing-btn-donatepay" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">
+          <span class="pricing-btn-donatepay-icon">⭐</span> Оплатить 50 Stars в Telegram
+        </button>
       </div>
       <div class="pricing-card">
         <div class="pricing-tier">Advanced</div>
         <div class="pricing-name">Elyon PRO</div>
         <div class="pricing-price">182 ₽ <span>/ month</span></div>
-        <div class="pricing-limit">◎ 40 messages / day</div>
+        <div class="pricing-limit">◎ 30 messages / day</div>
         <div class="pricing-desc">Deep reasoning and nuanced analysis for complex challenges.</div>
-        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 100 ⭐</button>
+        <button class="pricing-btn" onclick="openDonatePay('pro')">Оплатить 182 ₽</button>
+        <button class="pricing-btn-donatepay" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">
+          <span class="pricing-btn-donatepay-icon">⭐</span> Оплатить 100 Stars в Telegram
+        </button>
       </div>
       <div class="pricing-card">
         <div class="pricing-tier">Ultimate</div>
         <div class="pricing-name">Elyon Absolution</div>
         <div class="pricing-price">265 ₽ <span>/ month</span></div>
-        <div class="pricing-limit">◎ 50 messages / day</div>
+        <div class="pricing-limit">◎ 30 messages / day</div>
         <div class="pricing-desc">Maximum capability. The most powerful intelligence Elyon offers.</div>
-        <button class="pricing-btn" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">Subscribe → 150 ⭐</button>
+        <button class="pricing-btn" onclick="openDonatePay('absolution')">Оплатить 265 ₽</button>
+        <button class="pricing-btn-donatepay" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">
+          <span class="pricing-btn-donatepay-icon">⭐</span> Оплатить 150 Stars в Telegram
+        </button>
       </div>
     </div>
   </div>
@@ -894,52 +1003,57 @@ body {
 // ════════════════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════════════════
-let chatStarted    = false;
-let currentModel   = 'core';
-let chats          = [{ id: 'default', title: 'New chat', messages: [], model: 'core' }];
-let activeChatId   = 'default';
-let enterToSend    = true;
-let pendingFile    = null; // { file, base64, mime, name }
-let saveTimer      = null;
+let chatStarted  = false;
+let currentModel = 'core';
+let chats        = [{ id: 'default', title: 'New chat', messages: [], model: 'core' }];
+let activeChatId = 'default';
+let pendingFile  = null;
+let saveTimer    = null;
 
-const BACKEND      = 'https://elyon-bot.onrender.com';
+const BACKEND       = 'https://elyon-bot.onrender.com';
 const MODEL_API_MAP = { core: 'gpt', nova: 'nova', pro: 'pro', absolution: 'absolution' };
-const PAID_MODELS  = ['nova', 'pro', 'absolution'];
-const MODEL_PRICES = {
-  nova:       { stars: 50,  rub: 91,  label: 'Elyon Nova'      },
-  pro:        { stars: 100, rub: 182, label: 'Elyon PRO'        },
-  absolution: { stars: 150, rub: 265, label: 'Elyon Absolution' },
+const PAID_MODELS   = ['nova', 'pro', 'absolution'];
+const MODEL_PRICES  = {
+  nova:       { rub: 91,  dp_id: 'nova',       label: 'Elyon Nova' },
+  pro:        { rub: 182, dp_id: 'pro',        label: 'Elyon PRO' },
+  absolution: { rub: 265, dp_id: 'absolution', label: 'Elyon Absolution' },
 };
 const TG_BOT = 'Elyon_by_unkony_bot';
 
+// ── DonatePay — открывает форму оплаты ──────────────────────────
+// ЗАМЕНИТЕ ваш реальный URL DonatePay после подключения
+const DONATEPAY_URLS = {
+  nova:       'https://donatepay.ru/don/YOUR_ID?preset=91',
+  pro:        'https://donatepay.ru/don/YOUR_ID?preset=182',
+  absolution: 'https://donatepay.ru/don/YOUR_ID?preset=265',
+};
+function openDonatePay(tier) {
+  const url = DONATEPAY_URLS[tier];
+  if (!url || url.includes('YOUR_ID')) {
+    showSubscribePrompt(tier);
+    return;
+  }
+  window.open(url, '_blank');
+}
+
 // ════════════════════════════════════════════════════════════════
-// SIDEBAR
+// SIDEBAR / MENUS
 // ════════════════════════════════════════════════════════════════
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebar-overlay').classList.toggle('show');
 }
-
-// ════════════════════════════════════════════════════════════════
-// MODEL DROPDOWN
-// ════════════════════════════════════════════════════════════════
 function toggleModelDropdown() {
   document.getElementById('model-dropdown').classList.toggle('open');
 }
-
 function selectModel(id, label, e) {
   e.stopPropagation();
   if (PAID_MODELS.includes(id)) {
     const sub = getSessionSub();
-    const subMap = {
-      nova:       ['nova','pro','absolution','forever','custom','month','halfyear'],
-      pro:        ['pro','absolution','forever','custom'],
-      absolution: ['absolution','forever'],
-    };
+    const subMap = { nova:['nova','pro','absolution','forever','custom','month','halfyear'], pro:['pro','absolution','forever','custom'], absolution:['absolution','forever'] };
     if (!(subMap[id]||[]).includes(sub)) {
       document.getElementById('model-dropdown').classList.remove('open');
-      showSubscribePrompt(id);
-      return;
+      showSubscribePrompt(id); return;
     }
   }
   currentModel = id;
@@ -948,13 +1062,7 @@ function selectModel(id, label, e) {
   e.currentTarget.classList.add('active');
   document.getElementById('model-dropdown').classList.remove('open');
 }
-
-// ════════════════════════════════════════════════════════════════
-// USER MENU
-// ════════════════════════════════════════════════════════════════
-function toggleUserMenu() {
-  document.getElementById('user-menu').classList.toggle('open');
-}
+function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('open'); }
 document.addEventListener('click', e => {
   if (!document.getElementById('model-select-btn').contains(e.target))
     document.getElementById('model-dropdown').classList.remove('open');
@@ -971,35 +1079,25 @@ function showPanel(id) {
   document.getElementById('sidebar-overlay').classList.remove('show');
   document.getElementById(id).classList.add('show');
 }
-function hidePanel(id) {
-  document.getElementById(id).classList.remove('show');
-}
+function hidePanel(id) { document.getElementById(id).classList.remove('show'); }
 
 // ════════════════════════════════════════════════════════════════
 // SESSION
 // ════════════════════════════════════════════════════════════════
 function getSessionUserId() {
-  try {
-    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
-    return u.user_id || u.tg_id || null;
-  } catch { return null; }
+  try { const u = JSON.parse(localStorage.getItem('elyon_user')||'{}'); return u.user_id||u.tg_id||null; } catch { return null; }
 }
 function getSessionSub() {
-  try {
-    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
-    return u.sub_type || 'none';
-  } catch { return 'none'; }
+  try { const u = JSON.parse(localStorage.getItem('elyon_user')||'{}'); return u.sub_type||'none'; } catch { return 'none'; }
 }
 async function syncSubFromServer() {
-  const userId = getSessionUserId();
-  if (!userId) return;
+  const userId = getSessionUserId(); if (!userId) return;
   try {
     const res  = await fetch(`${BACKEND}/api/user/${userId}`);
     const data = await res.json();
     if (data.sub_type !== undefined) {
-      const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
-      u.sub_type = data.sub_type;
-      u.has_sub  = data.has_sub;
+      const u = JSON.parse(localStorage.getItem('elyon_user')||'{}');
+      u.sub_type = data.sub_type; u.has_sub = data.has_sub;
       localStorage.setItem('elyon_user', JSON.stringify(u));
     }
   } catch {}
@@ -1007,102 +1105,58 @@ async function syncSubFromServer() {
 syncSubFromServer();
 
 // ════════════════════════════════════════════════════════════════
-// ФИХ 8: СОХРАНЕНИЕ ЧАТОВ НА СЕРВЕРЕ
+// CHAT SAVE/LOAD
 // ════════════════════════════════════════════════════════════════
-
 function showSync(saving) {
-  const ind  = document.getElementById('sync-indicator');
-  const dot  = document.getElementById('sync-dot');
+  const ind = document.getElementById('sync-indicator');
+  const dot = document.getElementById('sync-dot');
   const text = document.getElementById('sync-text');
-  if (saving) {
-    dot.className  = 'sync-dot saving';
-    text.textContent = 'Saving...';
-  } else {
-    dot.className  = 'sync-dot';
-    text.textContent = 'Saved';
-  }
+  dot.className = saving ? 'sync-dot saving' : 'sync-dot';
+  text.textContent = saving ? 'Saving...' : 'Saved';
   ind.classList.add('show');
   if (!saving) setTimeout(() => ind.classList.remove('show'), 2000);
 }
-
 async function saveChatToServer(chat) {
-  const userId = getSessionUserId();
-  if (!userId) return;
+  const userId = getSessionUserId(); if (!userId) return;
   showSync(true);
   try {
     await fetch(`${BACKEND}/api/chats/${userId}`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        chat_id:  chat.id,
-        title:    chat.title,
-        model:    chat.model || currentModel,
-        messages: chat.messages,
-      })
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ chat_id: chat.id, title: chat.title, model: chat.model||currentModel, messages: chat.messages })
     });
     showSync(false);
-  } catch {
-    showSync(false);
-  }
-  // Кэш в localStorage
+  } catch { showSync(false); }
   try { localStorage.setItem('elyon_chats', JSON.stringify(chats)); } catch {}
 }
-
-function scheduleSave(chat) {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => saveChatToServer(chat), 800);
-}
-
+function scheduleSave(chat) { clearTimeout(saveTimer); saveTimer = setTimeout(() => saveChatToServer(chat), 800); }
 async function deleteChatFromServer(chatId) {
-  const userId = getSessionUserId();
-  if (!userId) return;
-  try {
-    await fetch(`${BACKEND}/api/chats/${userId}/${chatId}`, { method: 'DELETE' });
-  } catch {}
+  const userId = getSessionUserId(); if (!userId) return;
+  try { await fetch(`${BACKEND}/api/chats/${userId}/${chatId}`, {method:'DELETE'}); } catch {}
 }
-
-// Загрузка чатов при старте
 async function loadChatsFromServer() {
   const userId = getSessionUserId();
-  // Сначала загружаем из localStorage как кэш
   try {
     const cached = localStorage.getItem('elyon_chats');
     if (cached) {
       const parsed = JSON.parse(cached);
       if (Array.isArray(parsed) && parsed.length) {
-        chats = parsed;
-        renderChatList();
-        // Восстанавливаем последний активный чат
+        chats = parsed; renderChatList();
         const lastId = localStorage.getItem('elyon_active_chat');
-        if (lastId && chats.find(c => c.id === lastId)) {
-          activeChatId = lastId;
-          switchChat(activeChatId, false);
-        }
+        if (lastId && chats.find(c=>c.id===lastId)) { activeChatId = lastId; switchChat(activeChatId, false); }
       }
     }
   } catch {}
-
   if (!userId) return;
-
   try {
     const res  = await fetch(`${BACKEND}/api/chats/${userId}`);
     const data = await res.json();
     if (data.chats && data.chats.length) {
-      // Мержим: сервер авторитетен
-      chats = data.chats.map(c => ({
-        id:       c.id,
-        title:    c.title || 'Chat',
-        model:    c.model || 'core',
-        messages: Array.isArray(c.messages) ? c.messages : [],
-      }));
-      if (!chats.length) chats = [{ id: 'default', title: 'New chat', messages: [], model: 'core' }];
-      localStorage.setItem('elyon_chats', JSON.stringify(chats));
-      renderChatList();
-
+      chats = data.chats.map(c=>({id:c.id, title:c.title||'Chat', model:c.model||'core', messages:Array.isArray(c.messages)?c.messages:[]}));
+      if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'core'}];
+      localStorage.setItem('elyon_chats', JSON.stringify(chats)); renderChatList();
       const lastId = localStorage.getItem('elyon_active_chat');
-      const target = (lastId && chats.find(c => c.id === lastId)) ? lastId : chats[0].id;
-      activeChatId = target;
-      switchChat(target, false);
+      const target = (lastId && chats.find(c=>c.id===lastId)) ? lastId : chats[0].id;
+      activeChatId = target; switchChat(target, false);
     }
   } catch {}
 }
@@ -1113,262 +1167,176 @@ async function loadChatsFromServer() {
 function fillInput(chip) {
   const text = chip.textContent.replace(/^[✦◎⌘◈❖]\s/, '');
   document.getElementById('input').value = text;
-  document.getElementById('input').focus();
-  updateSendBtn();
+  document.getElementById('input').focus(); updateSendBtn();
 }
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
-}
-
+function autoResize(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,160)+'px'; }
 function updateSendBtn() {
-  const val = document.getElementById('input').value.trim();
-  document.getElementById('send-btn').disabled = (val.length === 0 && !pendingFile);
+  document.getElementById('send-btn').disabled = (document.getElementById('input').value.trim().length===0 && !pendingFile);
 }
-
 function handleKey(e) {
   const useEnter = document.getElementById('enter-toggle').classList.contains('on');
-  if (e.key === 'Enter' && !e.shiftKey && useEnter) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key==='Enter' && !e.shiftKey && useEnter) { e.preventDefault(); sendMessage(); }
 }
-
 function newChat() {
   const id = 'chat_' + Date.now();
-  chats.unshift({ id, title: 'New chat', messages: [], model: currentModel });
-  activeChatId = id;
-  chatStarted  = false;
+  chats.unshift({id, title:'New chat', messages:[], model:currentModel});
+  activeChatId = id; chatStarted = false;
   localStorage.setItem('elyon_active_chat', id);
-  document.getElementById('messages').innerHTML = '';
+  document.getElementById('messages').innerHTML='';
   document.getElementById('messages').classList.remove('show');
   document.getElementById('welcome-screen').classList.remove('hidden');
   document.getElementById('main').classList.add('welcome-mode');
-  document.getElementById('input').value = '';
-  document.getElementById('input').style.height = '';
-  updateSendBtn();
-  renderChatList();
+  document.getElementById('input').value='';
+  document.getElementById('input').style.height='';
+  updateSendBtn(); renderChatList();
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
 }
-
 function renderChatList() {
   const list = document.getElementById('chat-list');
-  list.innerHTML = chats.map(c => `
-    <div class="chat-item ${c.id === activeChatId ? 'active' : ''}" onclick="switchChat('${c.id}')">
+  list.innerHTML = chats.map(c=>`
+    <div class="chat-item ${c.id===activeChatId?'active':''}" onclick="switchChat('${c.id}')">
       <span class="chat-item-icon">💬</span>
       <span class="chat-item-title">${escapeHtml(c.title)}</span>
-      ${chats.length > 1 ? `<button class="chat-item-del" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>` : ''}
-    </div>
-  `).join('');
+      ${chats.length>1?`<button class="chat-item-del" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>`:''}
+    </div>`).join('');
 }
-
-function switchChat(id, closeSidebar = true) {
-  activeChatId = id;
-  localStorage.setItem('elyon_active_chat', id);
-  const chat = chats.find(c => c.id === id);
+function switchChat(id, closeSidebar=true) {
+  activeChatId = id; localStorage.setItem('elyon_active_chat', id);
+  const chat = chats.find(c=>c.id===id);
   const msgs = document.getElementById('messages');
-  msgs.innerHTML = '';
-
-  if (chat && chat.messages.length > 0) {
-    chatStarted = true;
-    chat.messages.forEach(m => appendMessage(m.role, m.content, false, m.fileInfo));
+  msgs.innerHTML='';
+  if (chat && chat.messages.length>0) {
+    chatStarted=true;
+    chat.messages.forEach(m=>appendMessage(m.role, m.content, false, m.fileInfo));
     msgs.classList.add('show');
     document.getElementById('welcome-screen').classList.add('hidden');
     document.getElementById('main').classList.remove('welcome-mode');
-    // Скролл вниз
-    setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 50);
+    setTimeout(()=>{msgs.scrollTop=msgs.scrollHeight;}, 50);
   } else {
-    chatStarted = false;
-    msgs.classList.remove('show');
+    chatStarted=false; msgs.classList.remove('show');
     document.getElementById('welcome-screen').classList.remove('hidden');
     document.getElementById('main').classList.add('welcome-mode');
   }
-
   renderChatList();
-  if (closeSidebar) {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebar-overlay').classList.remove('show');
-  }
+  if (closeSidebar) { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('show'); }
 }
-
 function deleteChat(id) {
-  deleteChatFromServer(id);
-  chats = chats.filter(c => c.id !== id);
-  if (!chats.length) chats = [{ id: 'default', title: 'New chat', messages: [], model: 'core' }];
-  if (activeChatId === id) switchChat(chats[0].id, false);
-  renderChatList();
-  localStorage.setItem('elyon_chats', JSON.stringify(chats));
+  deleteChatFromServer(id); chats=chats.filter(c=>c.id!==id);
+  if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'core'}];
+  if (activeChatId===id) switchChat(chats[0].id, false);
+  renderChatList(); localStorage.setItem('elyon_chats', JSON.stringify(chats));
 }
 
 // ════════════════════════════════════════════════════════════════
-// ФИХ 7: ФАЙЛЫ
+// FILES
 // ════════════════════════════════════════════════════════════════
-const EXT_MIME = {
-  '.py':'text/x-python','.js':'text/javascript','.ts':'text/javascript',
-  '.cpp':'text/x-c++','.c':'text/x-c','.java':'text/x-java',
-  '.cs':'text/plain','.go':'text/plain','.rs':'text/plain',
-  '.sh':'text/plain','.md':'text/plain','.txt':'text/plain',
-  '.sql':'text/plain','.yaml':'text/plain','.yml':'text/plain',
-  '.toml':'text/plain','.env':'text/plain','.json':'application/json',
-  '.xml':'text/xml','.html':'text/html','.css':'text/css',
-  '.csv':'text/csv','.svg':'image/svg+xml',
-};
-
+const EXT_MIME = {'.py':'text/x-python','.js':'text/javascript','.ts':'text/javascript','.cpp':'text/x-c++','.c':'text/x-c','.java':'text/x-java','.cs':'text/plain','.go':'text/plain','.rs':'text/plain','.sh':'text/plain','.md':'text/plain','.txt':'text/plain','.sql':'text/plain','.yaml':'text/plain','.yml':'text/plain','.toml':'text/plain','.env':'text/plain','.json':'application/json','.xml':'text/xml','.html':'text/html','.css':'text/css','.csv':'text/csv','.svg':'image/svg+xml'};
 function getMimeIcon(mime, name) {
   if (!mime) return '📎';
   if (mime.startsWith('image/')) return '🖼';
   if (mime.startsWith('video/')) return '🎬';
   if (mime.startsWith('audio/')) return '🎵';
-  if (mime === 'application/pdf') return '📄';
-  if (mime.includes('python') || name?.endsWith('.py')) return '🐍';
-  if (mime.includes('javascript') || name?.endsWith('.js')) return '⚡';
+  if (mime==='application/pdf') return '📄';
+  if (mime.includes('python')||name?.endsWith('.py')) return '🐍';
+  if (mime.includes('javascript')||name?.endsWith('.js')) return '⚡';
   if (mime.includes('json')) return '{}';
   if (mime.includes('html')) return '🌐';
   if (mime.includes('css')) return '🎨';
   return '📎';
 }
-
 function formatSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
-  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  if (bytes<1024) return bytes+' B';
+  if (bytes<1024*1024) return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/(1024*1024)).toFixed(1)+' MB';
 }
-
 function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
+  const file = e.target.files[0]; if (!file) return;
   let mime = file.type;
-  if (!mime || mime === 'application/octet-stream') {
-    const ext = '.' + file.name.split('.').pop().toLowerCase();
-    mime = EXT_MIME[ext] || 'text/plain';
-  }
-
-  if (file.size > 20 * 1024 * 1024) {
-    appendMessage('assistant', 'File too large. Maximum 20 MB.'); return;
-  }
-
+  if (!mime||mime==='application/octet-stream') { const ext='.'+file.name.split('.').pop().toLowerCase(); mime=EXT_MIME[ext]||'text/plain'; }
+  if (file.size>20*1024*1024) { appendMessage('assistant','File too large. Maximum 20 MB.'); return; }
   const reader = new FileReader();
-  reader.onload = (ev) => {
+  reader.onload = ev => {
     const base64 = ev.target.result.split(',')[1];
-    pendingFile  = { file, base64, mime, name: file.name, size: file.size };
-
-    // Показываем превью
+    pendingFile = {file, base64, mime, name:file.name, size:file.size};
     const bar = document.getElementById('file-preview-bar');
     document.getElementById('fp-icon').textContent = getMimeIcon(mime, file.name);
     document.getElementById('fp-name').textContent = file.name;
     document.getElementById('fp-size').textContent = formatSize(file.size);
-    bar.style.display = 'flex';
-    updateSendBtn();
+    bar.style.display='flex'; updateSendBtn();
   };
-  reader.onerror = () => appendMessage('assistant', 'Could not read file.');
-  reader.readAsDataURL(file);
-  e.target.value = '';
+  reader.onerror = () => appendMessage('assistant','Could not read file.');
+  reader.readAsDataURL(file); e.target.value='';
 }
-
-function clearFile() {
-  pendingFile = null;
-  document.getElementById('file-preview-bar').style.display = 'none';
-  updateSendBtn();
-}
+function clearFile() { pendingFile=null; document.getElementById('file-preview-bar').style.display='none'; updateSendBtn(); }
 
 // ════════════════════════════════════════════════════════════════
-// ФИХ 9: РЕНДЕР СООБЩЕНИЙ
+// RENDER MESSAGES — с анимацией по блокам
 // ════════════════════════════════════════════════════════════════
 function escapeHtml(text) {
   if (!text) return '';
   return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function appendMessage(role, content, scroll = true, fileInfo = null) {
+function appendMessage(role, content, scroll=true, fileInfo=null) {
   const msgs = document.getElementById('messages');
   const el   = document.createElement('div');
   el.className = 'msg-group';
 
-  if (role === 'user') {
-    // ФИХ 7: карточка файла внутри пузыря
-    let fileCardHtml = '';
+  if (role==='user') {
+    let fileCardHtml='';
     if (fileInfo) {
       const icon = getMimeIcon(fileInfo.mime, fileInfo.name);
-      fileCardHtml = `
-        <div class="msg-file-card">
-          <div class="msg-file-icon">${icon}</div>
-          <div>
-            <div class="msg-file-name">${escapeHtml(fileInfo.name)}</div>
-            <div class="msg-file-size">${formatSize(fileInfo.size)}</div>
-          </div>
-          <span class="msg-file-check">✓</span>
-        </div>`;
+      fileCardHtml=`<div class="msg-file-card"><div class="msg-file-icon">${icon}</div><div><div class="msg-file-name">${escapeHtml(fileInfo.name)}</div><div class="msg-file-size">${formatSize(fileInfo.size)}</div></div><span class="msg-file-check">✓</span></div>`;
     }
-    const textHtml = content
-      ? `<div style="white-space:pre-wrap;word-break:break-word">${escapeHtml(content)}</div>`
-      : '';
-    el.innerHTML = `
-      <div class="msg-user">
-        <div class="msg-user-bubble">${fileCardHtml}${textHtml}</div>
-      </div>`;
+    const textHtml = content ? `<div style="white-space:pre-wrap;word-break:break-word">${escapeHtml(content)}</div>` : '';
+    el.innerHTML = `<div class="msg-user"><div class="msg-user-bubble">${fileCardHtml}${textHtml}</div></div>`;
   } else {
-    // ФИХ 9: AI ответ — определяем нужна ли карточка
     const rendered = renderAIContent(content);
-    el.innerHTML = `
-      <div class="msg-ai">
-        <div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div>
-        <div class="msg-ai-content">${rendered}</div>
-      </div>`;
+    el.innerHTML = `<div class="msg-ai"><div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div><div class="msg-ai-content">${rendered}</div></div>`;
   }
 
   msgs.appendChild(el);
-
-  // ФИХ 2: надёжный скролл
-  if (scroll) {
-    requestAnimationFrame(() => {
-      msgs.scrollTop = msgs.scrollHeight;
-    });
-  }
+  if (scroll) requestAnimationFrame(()=>{ msgs.scrollTop=msgs.scrollHeight; });
   return el;
 }
 
-// ФИХ 9: умный рендер AI контента
+// Умный рендер AI контента — разбиваем на блоки с анимацией
 function renderAIContent(content) {
   if (!content) return '';
-
-  // Проверяем есть ли явная структура: заголовок + список результатов
-  // (когда ИИ анализировал файл или вернул структурированный ответ)
-  const lines = content.split('\n').filter(l => l.trim());
-
-  // Если первая строка — заголовок в верхнем регистре или короткая
-  const firstLine = lines[0] || '';
+  const lines = content.split('\n').filter(l=>l.trim());
+  const firstLine = lines[0]||'';
   const looksLikeCard = (
-    lines.length >= 3 &&
-    firstLine.length < 60 &&
-    (firstLine === firstLine.toUpperCase() || /^(Analysis|Result|Summary|Report|Done|Complete)/i.test(firstLine))
+    lines.length>=3 && firstLine.length<60 &&
+    (firstLine===firstLine.toUpperCase() || /^(Analysis|Result|Summary|Report|Done|Complete)/i.test(firstLine))
   );
-
   if (looksLikeCard && !content.includes('```')) {
-    // Рендерим как карточку
     const header = escapeHtml(firstLine);
-    const body   = renderMarkdown(lines.slice(1).join('\n'));
-    return `
-      <div class="ai-response-card">
-        <div class="ai-response-card-header">
-          <span class="ai-response-card-header-dot"></span>
-          ${header}
-        </div>
-        <div class="ai-response-card-body md-body">${body}</div>
-      </div>`;
+    const body   = renderMarkdownAnimated(lines.slice(1).join('\n'));
+    return `<div class="ai-response-card anim-block"><div class="ai-response-card-header"><span class="ai-response-card-header-dot"></span>${header}</div><div class="ai-response-card-body md-body">${body}</div></div>`;
   }
-
-  // Обычный markdown
-  return `<div class="md-body">${renderMarkdown(content)}</div>`;
+  return `<div class="md-body">${renderMarkdownAnimated(content)}</div>`;
 }
 
-// Markdown рендерер (тот же что был + улучшения)
+// Markdown с анимацией — каждый "блок" получает класс anim-block
+function renderMarkdownAnimated(text) {
+  if (!text) return '';
+  // Сначала делаем обычный markdown
+  let html = renderMarkdown(text);
+  // Оборачиваем верхние блоки в anim-block
+  // Заменяем теги параграфов, заголовков, блоков кода, списков
+  html = html.replace(/<p class="md-p">/g, '<p class="md-p anim-block">');
+  html = html.replace(/<h([234]) class="md-h([234])">/g, '<h$1 class="md-h$2 anim-block">');
+  html = html.replace(/<ul class="md-ul">/g, '<ul class="md-ul anim-block">');
+  html = html.replace(/<ol class="md-ol">/g, '<ol class="md-ol anim-block">');
+  html = html.replace(/<div class="code-block">/g, '<div class="code-block anim-block">');
+  html = html.replace(/<blockquote class="md-quote">/g, '<blockquote class="md-quote anim-block">');
+  return html;
+}
+
 function renderMarkdown(text) {
   if (!text) return '';
   let html = escapeHtml(text);
-
   html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
     const label = lang ? `<span class="code-lang">${lang}</span>` : '';
     return `<div class="code-block">${label}<pre><code>${code.trim()}</code></pre></div>`;
@@ -1384,9 +1352,9 @@ function renderMarkdown(text) {
   html = html.replace(/^---+$/gm, '<hr class="md-hr">');
   html = html.replace(/^&gt; (.+)$/gm, '<blockquote class="md-quote">$1</blockquote>');
   html = html.replace(/^[\-\*] (.+)$/gm, '<li class="md-li">$1</li>');
-  html = html.replace(/(<li class="md-li">.*<\/li>\n?)+/g, m => `<ul class="md-ul">${m}</ul>`);
+  html = html.replace(/(<li class="md-li">.*<\/li>\n?)+/g, m=>`<ul class="md-ul">${m}</ul>`);
   html = html.replace(/^\d+\. (.+)$/gm, '<li class="md-li md-oli">$1</li>');
-  html = html.replace(/(<li class="md-li md-oli">.*<\/li>\n?)+/g, m => `<ol class="md-ol">${m}</ol>`);
+  html = html.replace(/(<li class="md-li md-oli">.*<\/li>\n?)+/g, m=>`<ol class="md-ol">${m}</ol>`);
   html = html.replace(/\n\n+/g, '</p><p class="md-p">');
   html = '<p class="md-p">' + html + '</p>';
   html = html.replace(/(?<!>)\n(?!<)/g, '<br>');
@@ -1402,35 +1370,19 @@ function renderMarkdown(text) {
 function showTyping() {
   const msgs = document.getElementById('messages');
   const el   = document.createElement('div');
-  el.className = 'typing-indicator';
-  el.id = 'typing';
-  el.innerHTML = `
-    <div class="typing-logo"><img src="elyon_logo.png" alt=""></div>
-    <div class="typing-dots">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    </div>`;
+  el.className='typing-indicator'; el.id='typing';
+  el.innerHTML=`<div class="typing-logo"><img src="elyon_logo.png" alt=""></div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
   msgs.appendChild(el);
-  requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  requestAnimationFrame(()=>{msgs.scrollTop=msgs.scrollHeight;});
 }
-
-function hideTyping() {
-  document.getElementById('typing')?.remove();
-}
-
-// ФИХ 9: thinking-шаги
+function hideTyping() { document.getElementById('typing')?.remove(); }
 function addThinkingStep(text) {
   const msgs = document.getElementById('messages');
   const el   = document.createElement('div');
-  el.style.cssText = 'max-width:720px;width:100%;margin:0 auto;padding:2px 24px';
-  el.innerHTML = `
-    <div class="thinking-step">
-      <span class="thinking-step-dot"></span>
-      <span>${escapeHtml(text)}</span>
-    </div>`;
+  el.style.cssText='max-width:720px;width:100%;margin:0 auto;padding:2px 24px';
+  el.innerHTML=`<div class="thinking-step"><span class="thinking-step-dot"></span><span>${escapeHtml(text)}</span></div>`;
   msgs.appendChild(el);
-  requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  requestAnimationFrame(()=>{msgs.scrollTop=msgs.scrollHeight;});
   return el;
 }
 
@@ -1438,31 +1390,28 @@ function addThinkingStep(text) {
 // SUBSCRIBE PROMPT
 // ════════════════════════════════════════════════════════════════
 function showSubscribePrompt(modelId) {
-  const price = MODEL_PRICES[modelId];
-  if (!price) return;
+  const price = MODEL_PRICES[modelId]; if (!price) return;
   document.getElementById('sub-prompt')?.remove();
-  const tierCmd = { nova:'nova', pro:'pro', absolution:'abs' }[modelId] || modelId;
-  const botPayUrl = `https://t.me/${TG_BOT}?start=pay_${tierCmd}`;
   const overlay = document.createElement('div');
-  overlay.id = 'sub-prompt';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:500;padding:24px;backdrop-filter:blur(8px);';
-  overlay.innerHTML = `
-    <div style="background:var(--off);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;max-width:380px;width:100%;text-align:center;position:relative;">
-      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer">✕</button>
+  overlay.id='sub-prompt';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:500;padding:24px;backdrop-filter:blur(8px);';
+  overlay.innerHTML=`
+    <div style="background:var(--off);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;text-align:center;position:relative;">
+      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button>
       <img src="elyon_logo.png" style="width:48px;height:48px;margin-bottom:16px;opacity:0.9">
-      <div style="font-family:var(--serif);font-size:22px;color:var(--white);margin-bottom:8px">${price.label}</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">Subscribe to unlock this model.<br>Payment via our Telegram bot.</div>
+      <div style="font-family:var(--serif);font-size:22px;color:var(--text-primary);margin-bottom:8px">${price.label}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">Оформи подписку для доступа к этой модели.</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <a href="${botPayUrl}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--beige);color:var(--black);border-radius:12px;text-decoration:none;font-weight:500;font-size:14px;">
-          <span>⭐ Pay with Stars</span><span>${price.stars} stars / month</span>
-        </a>
-        <a href="${botPayUrl}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--off);color:var(--white);border:1px solid var(--border2);border-radius:12px;text-decoration:none;font-size:14px;">
-          <span>💳 Pay via CryptoBot</span><span>${price.rub} ₽ / month</span>
+        <button onclick="openDonatePay('${modelId}');document.getElementById('sub-prompt').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--beige);color:var(--black);border-radius:12px;border:none;cursor:pointer;font-weight:500;font-size:14px;font-family:var(--sans);">
+          <span>💳 Оплатить картой / СБП</span><span>${price.rub} ₽ / мес</span>
+        </button>
+        <a href="https://t.me/${TG_BOT}?start=pay_${modelId==='absolution'?'abs':modelId}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--off);color:var(--text-primary);border:1px solid var(--border2);border-radius:12px;text-decoration:none;font-size:14px;">
+          <span>⭐ Telegram Stars</span>
         </a>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:16px;line-height:1.5">After payment, subscription activates automatically.<br>Refresh if it doesn't appear.</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.5">После оплаты подписка активируется автоматически.</div>
     </div>`;
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
@@ -1470,466 +1419,196 @@ function showSubscribePrompt(modelId) {
 // SEND MESSAGE
 // ════════════════════════════════════════════════════════════════
 async function sendMessage() {
-  const input   = document.getElementById('input');
-  const text    = input.value.trim();
+  const input = document.getElementById('input');
+  const text  = input.value.trim();
   if (!text && !pendingFile) return;
-
-  // Проверяем подписку
   if (PAID_MODELS.includes(currentModel)) {
-    const sub     = getSessionSub();
-    const subMap  = { nova:['nova','pro','absolution','forever'], pro:['pro','absolution','forever'], absolution:['absolution','forever'] };
-    const allowed = subMap[currentModel] || [];
-    if (!allowed.includes(sub) && sub !== 'forever') {
-      showSubscribePrompt(currentModel);
-      return;
-    }
+    const sub = getSessionSub();
+    const subMap = {nova:['nova','pro','absolution','forever'],pro:['pro','absolution','forever'],absolution:['absolution','forever']};
+    if (!(subMap[currentModel]||[]).includes(sub)) { showSubscribePrompt(currentModel); return; }
   }
-
   const userId = getSessionUserId();
-  if (!userId) {
-    appendMessage('assistant', 'Session error. Please sign out and sign in again.');
-    return;
-  }
-
-  // Первое сообщение — переходим из welcome в чат
+  if (!userId) { appendMessage('assistant','Session error. Please sign out and sign in again.'); return; }
   if (!chatStarted) {
-    chatStarted = true;
+    chatStarted=true;
     document.getElementById('welcome-screen').classList.add('hidden');
     document.getElementById('messages').classList.add('show');
     document.getElementById('main').classList.remove('welcome-mode');
-    const chat = chats.find(c => c.id === activeChatId);
-    if (chat) { chat.title = (text || pendingFile?.name || 'Chat').slice(0, 32); renderChatList(); }
+    const chat = chats.find(c=>c.id===activeChatId);
+    if (chat) { chat.title=(text||pendingFile?.name||'Chat').slice(0,32); renderChatList(); }
   }
-
-  // Сохраняем fileInfo для истории
-  const fileInfoForHistory = pendingFile
-    ? { name: pendingFile.name, size: pendingFile.size, mime: pendingFile.mime }
-    : null;
-
-  input.value = '';
-  input.style.height = '';
-  clearFile();
-  updateSendBtn();
-
-  const chat        = chats.find(c => c.id === activeChatId);
-  const displayText = text || (pendingFile ? `Analyze this file: ${pendingFile?.name}` : '');
-
-  // Сохраняем в историю чата с fileInfo
-  chat?.messages.push({ role: 'user', content: displayText, fileInfo: fileInfoForHistory });
+  const fileInfoForHistory = pendingFile ? {name:pendingFile.name, size:pendingFile.size, mime:pendingFile.mime} : null;
+  input.value=''; input.style.height=''; clearFile(); updateSendBtn();
+  const chat = chats.find(c=>c.id===activeChatId);
+  const displayText = text||(pendingFile?`Analyze this file: ${pendingFile?.name}`:'');
+  chat?.messages.push({role:'user', content:displayText, fileInfo:fileInfoForHistory});
   appendMessage('user', displayText, true, fileInfoForHistory);
-
-  // ФИХ 9: thinking-шаги для платных моделей
-  let thinkSteps = [];
-  if (currentModel !== 'core') {
+  let thinkSteps=[];
+  if (currentModel!=='core') {
     thinkSteps.push(addThinkingStep('Processing your request...'));
-    if (fileInfoForHistory) {
-      setTimeout(() => thinkSteps.push(addThinkingStep(`Analyzing ${fileInfoForHistory.name}...`)), 400);
-    }
-  } else {
-    showTyping();
-  }
-
-  document.getElementById('send-btn').disabled = true;
-
+    if (fileInfoForHistory) setTimeout(()=>thinkSteps.push(addThinkingStep(`Analyzing ${fileInfoForHistory.name}...`)), 400);
+  } else { showTyping(); }
+  document.getElementById('send-btn').disabled=true;
   try {
-    const apiModel = MODEL_API_MAP[currentModel] || 'gpt';
+    const apiModel = MODEL_API_MAP[currentModel]||'gpt';
     let data;
-
     if (pendingFile) {
       data = await sendMessageWithFile(userId, text, apiModel, chat);
     } else {
-      const history = (chat?.messages || [])
-        .slice(0, -1)
-        .map(m => ({ role: m.role, content: m.content }));
-
+      const history=(chat?.messages||[]).slice(0,-1).map(m=>({role:m.role, content:m.content}));
       const res = await fetch(`${BACKEND}/api/chat`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          user_id:  userId,
-          model:    apiModel,
-          messages: [...history, { role: 'user', content: text }],
-        })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({user_id:userId, model:apiModel, messages:[...history,{role:'user',content:text}]})
       });
       data = await res.json();
     }
-
-    // Убираем thinking steps / typing
-    thinkSteps.forEach(s => s.remove());
-    hideTyping();
-
-    const reply = data.reply || data.error || 'No response.';
-
-    if (data.error === 'daily_limit') {
-      appendMessage('assistant', 'Daily message limit reached. Resets at midnight.');
+    thinkSteps.forEach(s=>s.remove()); hideTyping();
+    const reply = data.reply||data.error||'No response.';
+    if (data.error==='daily_limit') {
+      appendMessage('assistant','Daily message limit reached. Resets at midnight.');
     } else {
-      chat?.messages.push({ role: 'assistant', content: reply });
+      chat?.messages.push({role:'assistant', content:reply});
       appendMessage('assistant', reply);
-      // ФИХ 8: сохраняем после каждого ответа
       scheduleSave(chat);
     }
-
-  } catch (err) {
-    thinkSteps.forEach(s => s.remove());
-    hideTyping();
-    appendMessage('assistant', 'Connection error. Please try again.');
+  } catch(err) {
+    thinkSteps.forEach(s=>s.remove()); hideTyping();
+    appendMessage('assistant','Connection error. Please try again.');
   }
-
-  document.getElementById('send-btn').disabled = false;
+  document.getElementById('send-btn').disabled=false;
 }
 
 async function sendMessageWithFile(userId, text, apiModel, chat) {
-  const history = (chat?.messages || [])
-    .slice(0, -1)
-    .map(m => ({ role: m.role, content: m.content }));
-
+  const history=(chat?.messages||[]).slice(0,-1).map(m=>({role:m.role, content:m.content}));
   const res = await fetch(`${BACKEND}/api/file_b64`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({
-      user_id:   userId,
-      model:     apiModel,
-      prompt:    text || 'Analyze this file',
-      file_name: pendingFile.name,
-      file_type: pendingFile.mime,
-      file_data: pendingFile.base64,
-      history,
-    })
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user_id:userId, model:apiModel, prompt:text||'Analyze this file', file_name:pendingFile.name, file_type:pendingFile.mime, file_data:pendingFile.base64, history})
   });
   return await res.json();
 }
 
 // ════════════════════════════════════════════════════════════════
-// SETTINGS
+// SETTINGS — THEME с data-theme на :root
 // ════════════════════════════════════════════════════════════════
 function setTheme(theme, el) {
-  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
-  const root = document.documentElement;
-  if (theme === 'amoled') {
-    root.style.setProperty('--black','#000000'); root.style.setProperty('--off','#0a0a0a'); root.style.setProperty('--card','#111111');
-  } else if (theme === 'light') {
-    root.style.setProperty('--black','#f5f5f0'); root.style.setProperty('--off','#ffffff'); root.style.setProperty('--card','#ebebeb');
-    root.style.setProperty('--white','#111118'); root.style.setProperty('--muted','rgba(17,17,24,0.5)'); root.style.setProperty('--border','rgba(0,0,0,0.08)');
-  } else {
-    root.style.setProperty('--black','#0e0e0e'); root.style.setProperty('--off','#181818'); root.style.setProperty('--card','#202020');
-    root.style.setProperty('--white','#f8f5f0'); root.style.setProperty('--muted','rgba(248,245,240,0.4)'); root.style.setProperty('--border','rgba(255,255,255,0.07)');
-  }
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('elyon_theme', theme);
 }
 
 function setFontSize(size, el) {
-  document.querySelectorAll('.seg-btn').forEach(b => { if (b.closest('.segment') === el.closest('.segment')) b.classList.remove('active'); });
+  const seg = el.closest('.segment');
+  seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  document.body.style.fontSize = { small:'13px', medium:'15px', large:'17px' }[size];
+  document.body.style.fontSize = {small:'13px', medium:'15px', large:'17px'}[size];
 }
-
 function setLang(lang, el) {
-  document.querySelectorAll('.seg-btn').forEach(b => { if (b.closest('.segment') === el.closest('.segment')) b.classList.remove('active'); });
+  const seg = el.closest('.segment');
+  seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  localStorage.setItem('elyon_lang', lang);
-  applyLang(lang);
+  localStorage.setItem('elyon_lang', lang); applyLang(lang);
 }
 
 // ════════════════════════════════════════════════════════════════
 // TRANSLATIONS
 // ════════════════════════════════════════════════════════════════
 const TRANSLATIONS = {
-  en: {
-    'welcome_title':    'Hello, I am <em>Elyon.</em><br>How can I help you today?',
-    'welcome_sub':      'Ask me anything — I\'m here to think with you.',
-    'input_placeholder':'Message Elyon...',
-    'input_hint':       'Elyon can make mistakes. Consider checking important information.',
-    'new_chat':         '+ New chat',
-    'recent_chats':     'Recent chats',
-    'menu_label':       'Menu',
-    'profile':          'Profile',
-    'pricing':          'Pricing',
-    'settings':         'Settings',
-    'sign_out':         'Sign out',
-    'panel_settings':   'Settings',
-    'panel_profile':    'Profile',
-    'panel_pricing':    'Plans',
-    'panel_admin':      'Admin Panel',
-    'appearance':       'Appearance',
-    'theme':            'Theme',
-    'font_size':        'Font size',
-    'language':         'Language',
-    'interface_lang':   'Interface language',
-    'chat_section':     'Chat',
-    'send_enter':       'Send with Enter',
-    'send_enter_sub':   'Shift+Enter for new line',
-    'show_typing':      'Show typing indicator',
-    'subscription':     'Subscription',
-    'messages_today':   'Messages today',
-    'resets_midnight':  'Resets at midnight',
-    'member_since':     'Member since',
-    'upgrade_plan':     'Upgrade plan →',
-    'current_plan':     'Current plan',
-    'subscribe':        'Subscribe →',
-    'free_plan':        'Free plan',
-    'chip1':'✦ Explain quantum computing simply','chip2':'◎ Analyze this document',
-    'chip3':'⌘ Write a Python script','chip4':'◈ Latest AI news today','chip5':'❖ Help me brainstorm ideas',
-  },
-  ru: {
-    'welcome_title':    'Привет, я <em>Elyon.</em><br>Чем могу помочь сегодня?',
-    'welcome_sub':      'Спрашивай всё что угодно — я здесь чтобы думать вместе с тобой.',
-    'input_placeholder':'Сообщение Elyon...',
-    'input_hint':       'Elyon может ошибаться. Проверяй важную информацию.',
-    'new_chat':         '+ Новый чат',
-    'recent_chats':     'Последние чаты',
-    'menu_label':       'Меню',
-    'profile':          'Профиль',
-    'pricing':          'Тарифы',
-    'settings':         'Настройки',
-    'sign_out':         'Выйти',
-    'panel_settings':   'Настройки',
-    'panel_profile':    'Профиль',
-    'panel_pricing':    'Тарифы',
-    'panel_admin':      'Панель управления',
-    'appearance':       'Внешний вид',
-    'theme':            'Тема',
-    'font_size':        'Размер шрифта',
-    'language':         'Язык',
-    'interface_lang':   'Язык интерфейса',
-    'chat_section':     'Чат',
-    'send_enter':       'Отправка по Enter',
-    'send_enter_sub':   'Shift+Enter для новой строки',
-    'show_typing':      'Показывать индикатор набора',
-    'subscription':     'Подписка',
-    'messages_today':   'Сообщений сегодня',
-    'resets_midnight':  'Сбрасывается в полночь',
-    'member_since':     'Участник с',
-    'upgrade_plan':     'Улучшить план →',
-    'current_plan':     'Текущий план',
-    'subscribe':        'Подписаться →',
-    'free_plan':        'Бесплатный план',
-    'chip1':'✦ Объясни квантовые вычисления просто','chip2':'◎ Проанализируй этот документ',
-    'chip3':'⌘ Напиши Python-скрипт','chip4':'◈ Последние новости AI','chip5':'❖ Помоги сгенерировать идеи',
-  }
+  en: { welcome_title:'Hello, I am <em>Elyon.</em><br>How can I help you today?', welcome_sub:"Ask me anything — I'm here to think with you.", input_placeholder:'Message Elyon...', input_hint:'Elyon can make mistakes. Consider checking important information.', new_chat:'+ New chat', recent_chats:'Recent chats', menu_label:'Menu', profile:'Profile', pricing:'Pricing', settings:'Settings', sign_out:'Sign out', panel_settings:'Settings', panel_profile:'Profile', panel_pricing:'Plans', panel_admin:'Admin Panel', appearance:'Appearance', theme:'Theme', font_size:'Font size', language:'Language', interface_lang:'Interface language', chat_section:'Chat', send_enter:'Send with Enter', send_enter_sub:'Shift+Enter for new line', show_typing:'Show typing indicator', subscription:'Subscription', messages_today:'Messages today', resets_midnight:'Resets at midnight', member_since:'Member since', upgrade_plan:'Upgrade plan →', current_plan:'Current plan', free_plan:'Free plan', chip1:'✦ Explain quantum computing simply', chip2:'◎ Analyze this document', chip3:'⌘ Write a Python script', chip4:'◈ Latest AI news today', chip5:'❖ Help me brainstorm ideas' },
+  ru: { welcome_title:'Привет, я <em>Elyon.</em><br>Чем могу помочь сегодня?', welcome_sub:'Спрашивай всё что угодно — я здесь чтобы думать вместе с тобой.', input_placeholder:'Сообщение Elyon...', input_hint:'Elyon может ошибаться. Проверяй важную информацию.', new_chat:'+ Новый чат', recent_chats:'Последние чаты', menu_label:'Меню', profile:'Профиль', pricing:'Тарифы', settings:'Настройки', sign_out:'Выйти', panel_settings:'Настройки', panel_profile:'Профиль', panel_pricing:'Тарифы', panel_admin:'Панель управления', appearance:'Внешний вид', theme:'Тема', font_size:'Размер шрифта', language:'Язык', interface_lang:'Язык интерфейса', chat_section:'Чат', send_enter:'Отправка по Enter', send_enter_sub:'Shift+Enter для новой строки', show_typing:'Показывать индикатор набора', subscription:'Подписка', messages_today:'Сообщений сегодня', resets_midnight:'Сбрасывается в полночь', member_since:'Участник с', upgrade_plan:'Улучшить план →', current_plan:'Текущий план', free_plan:'Бесплатный план', chip1:'✦ Объясни квантовые вычисления просто', chip2:'◎ Проанализируй этот документ', chip3:'⌘ Напиши Python-скрипт', chip4:'◈ Последние новости AI', chip5:'❖ Помоги сгенерировать идеи' }
 };
-
-function t(key) {
-  const lang = localStorage.getItem('elyon_lang') || 'en';
-  return TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en'][key] || key;
-}
-
+function t(key) { const lang=localStorage.getItem('elyon_lang')||'en'; return TRANSLATIONS[lang]?.[key]||TRANSLATIONS['en'][key]||key; }
 function applyLang(lang) {
-  const tr = TRANSLATIONS[lang] || TRANSLATIONS['en'];
-
-  // Welcome
-  const wt = document.querySelector('.welcome h1');
-  if (wt) wt.innerHTML = tr['welcome_title'];
-  const ws = document.querySelector('.welcome-sub');
-  if (ws) ws.textContent = tr['welcome_sub'];
-
-  // Input
-  const inp = document.getElementById('input');
-  if (inp) inp.placeholder = tr['input_placeholder'];
-  const hint = document.querySelector('.input-hint');
-  if (hint) hint.textContent = tr['input_hint'];
-
-  // Sidebar section labels
-  document.querySelectorAll('.sidebar-section-label').forEach((el, i) => {
-    el.textContent = i === 0 ? tr['recent_chats'] : tr['menu_label'];
+  const tr = TRANSLATIONS[lang]||TRANSLATIONS['en'];
+  const wt=document.querySelector('.welcome h1'); if(wt) wt.innerHTML=tr.welcome_title;
+  const ws=document.querySelector('.welcome-sub'); if(ws) ws.textContent=tr.welcome_sub;
+  const inp=document.getElementById('input'); if(inp) inp.placeholder=tr.input_placeholder;
+  const hint=document.querySelector('.input-hint'); if(hint) hint.textContent=tr.input_hint;
+  document.querySelectorAll('.sidebar-section-label').forEach((el,i)=>{ el.textContent=i===0?tr.recent_chats:tr.menu_label; });
+  const chips=document.querySelectorAll('.chip');
+  ['chip1','chip2','chip3','chip4','chip5'].forEach((key,i)=>{ if(chips[i]) chips[i].textContent=tr[key]; });
+  const labels={appearance:'label-appearance',theme:'label-theme',font_size:'label-fontsize',language:'label-lang',interface_lang:'label-lang',chat_section:'label-chat-group',send_enter:'label-enter',send_enter_sub:'label-enter-sub',show_typing:'label-typing'};
+  Object.entries(labels).forEach(([key,id])=>{ const el=document.getElementById(id); if(el) el.textContent=tr[key]; });
+  ['settings-panel','profile-panel','pricing-panel','admin-panel'].forEach((id,i)=>{
+    const p=document.getElementById(id); if(!p) return;
+    const titles=['panel_settings','panel_profile','panel_pricing','panel_admin'];
+    const t2=p.querySelector('.panel-title'); if(t2) t2.textContent=tr[titles[i]];
   });
-
-  // Sidebar nav items (Profile, Pricing, Settings, Sign out)
-  const navItems = document.querySelectorAll('.sidebar-nav-item');
-  const navKeys  = ['profile', 'pricing', 'settings', 'sign_out'];
-  navItems.forEach((el, i) => {
-    if (navKeys[i]) {
-      const icon = el.querySelector('.sidebar-nav-icon');
-      const iconHtml = icon ? icon.outerHTML : '';
-      if (icon) el.innerHTML = iconHtml + ' ' + tr[navKeys[i]];
-    }
-  });
-
-  // New chat button in sidebar
-  const newChatBtn = document.querySelector('.sidebar-new-chat');
-  if (newChatBtn) newChatBtn.innerHTML = `<span style="font-size:16px">+</span> ${tr['new_chat'].replace('+ ', '')}`;
-
-  // Chip suggestions
-  const chips = document.querySelectorAll('.chip');
-  ['chip1','chip2','chip3','chip4','chip5'].forEach((key, i) => {
-    if (chips[i]) chips[i].textContent = tr[key];
-  });
-
-  // Panel titles
-  const panelTitles = {
-    'settings-panel': 'panel_settings',
-    'profile-panel':  'panel_profile',
-    'pricing-panel':  'panel_pricing',
-    'admin-panel':    'panel_admin',
-  };
-  Object.entries(panelTitles).forEach(([id, key]) => {
-    const panel = document.getElementById(id);
-    if (panel) {
-      const title = panel.querySelector('.panel-title');
-      if (title) title.textContent = tr[key];
-    }
-  });
-
-  // Settings rows
-  const settingsMap = [
-    ['#label-theme',      'theme'],
-    ['#label-fontsize',   'font_size'],
-    ['#label-lang',       'interface_lang'],
-    ['#label-enter',      'send_enter'],
-    ['#label-enter-sub',  'send_enter_sub'],
-    ['#label-typing',     'show_typing'],
-  ];
-  settingsMap.forEach(([sel, key]) => {
-    const el = document.querySelector(sel);
-    if (el) el.textContent = tr[key];
-  });
-  // Settings group labels
-  const groupLabels = document.querySelectorAll('.settings-group-label');
-  const groupKeys   = ['appearance', 'language', 'chat_section'];
-  groupLabels.forEach((el, i) => { if (groupKeys[i]) el.textContent = tr[groupKeys[i]]; });
-
-  // Profile cards labels
-  const profLabels = document.querySelectorAll('.profile-card-label');
-  const profKeys   = ['subscription', 'messages_today', 'member_since'];
-  profLabels.forEach((el, i) => { if (profKeys[i]) el.textContent = tr[profKeys[i]]; });
-  const profSubs = document.querySelectorAll('.profile-card-sub');
-  if (profSubs[0]) profSubs[0].textContent = tr['free_plan'] + ' · 15 messages/day';
-  if (profSubs[1]) profSubs[1].textContent = tr['resets_midnight'];
-  const upgradeBtn = document.querySelector('.btn-upgrade');
-  if (upgradeBtn) upgradeBtn.textContent = tr['upgrade_plan'];
-
-  // Pricing buttons
-  document.querySelectorAll('.pricing-btn').forEach((btn, i) => {
-    if (i === 0) btn.textContent = tr['current_plan'];
-  });
-
-  // User menu items (Profile, Pricing, Settings)
-  const menuItems = document.querySelectorAll('.user-menu-item');
-  const menuKeys  = ['profile', 'pricing', 'settings'];
-  menuItems.forEach((el, i) => {
-    if (menuKeys[i]) {
-      const span = el.querySelector('span');
-      const icon = span ? span.outerHTML : '';
-      if (span) el.innerHTML = icon + ' ' + tr[menuKeys[i]];
-    }
-  });
-
-  // New chat topnav button
-  const newChatTop = document.querySelector('.btn-newchat span:last-child');
-  if (newChatTop) newChatTop.textContent = tr['new_chat'].replace('+ ', '');
 }
 
 // ════════════════════════════════════════════════════════════════
 // ADMIN
 // ════════════════════════════════════════════════════════════════
-const OWNER_EMAILS    = ['zhenyamiller8@gmail.com'];
-const BACKEND_URL_APP = 'https://elyon-bot.onrender.com';
-
-function isOwner() {
-  try {
-    const u = JSON.parse(localStorage.getItem('elyon_user') || '{}');
-    return OWNER_EMAILS.includes(u.email) || u.provider === 'telegram';
-  } catch { return false; }
-}
+const OWNER_EMAILS=['zhenyamiller8@gmail.com'];
+function isOwner() { try { const u=JSON.parse(localStorage.getItem('elyon_user')||'{}'); return OWNER_EMAILS.includes(u.email)||u.provider==='telegram'; } catch { return false; } }
 function showAdminPanel() { showPanel('admin-panel'); loadAdminStats(); }
 async function loadAdminStats() {
-  const content = document.getElementById('admin-content');
-  content.innerHTML = '<div class="admin-loading">Loading...</div>';
+  const content=document.getElementById('admin-content');
+  content.innerHTML='<div class="admin-loading">Loading...</div>';
   try {
-    const res  = await fetch(`${BACKEND_URL_APP}/api/admin/stats`);
-    const data = await res.json();
-    content.innerHTML = `
-      <div class="admin-stat-grid">
-        <div class="admin-stat"><div class="admin-stat-num">${data.total_users??'—'}</div><div class="admin-stat-label">Total users</div></div>
-        <div class="admin-stat"><div class="admin-stat-num">${data.active_subs??'—'}</div><div class="admin-stat-label">Active subs</div></div>
-        <div class="admin-stat"><div class="admin-stat-num">${data.new_today??'—'}</div><div class="admin-stat-label">New today</div></div>
-        <div class="admin-stat"><div class="admin-stat-num">${data.total_messages??'—'}</div><div class="admin-stat-label">Messages</div></div>
-        <div class="admin-stat"><div class="admin-stat-num">${data.total_payments??'—'}</div><div class="admin-stat-label">Payments</div></div>
-        <div class="admin-stat"><div class="admin-stat-num">${data.miniapp_users??'—'}</div><div class="admin-stat-label">Web users</div></div>
-      </div>
-      <div class="admin-group-label">Actions</div>
-      <div>
-        <button class="btn-admin-action" onclick="loadUserList()">👥 Users</button>
-        <button class="btn-admin-action" onclick="loadAdminStats()">🔄 Refresh</button>
-      </div>
-      <div id="admin-users-wrap"></div>`;
-  } catch { content.innerHTML = '<div class="admin-loading">Server may be sleeping. Try again.</div>'; }
+    const res=await fetch(`${BACKEND}/api/admin/stats`); const data=await res.json();
+    content.innerHTML=`<div class="admin-stat-grid"><div class="admin-stat"><div class="admin-stat-num">${data.total_users??'—'}</div><div class="admin-stat-label">Total users</div></div><div class="admin-stat"><div class="admin-stat-num">${data.active_subs??'—'}</div><div class="admin-stat-label">Active subs</div></div><div class="admin-stat"><div class="admin-stat-num">${data.new_today??'—'}</div><div class="admin-stat-label">New today</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_messages??'—'}</div><div class="admin-stat-label">Messages</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_payments??'—'}</div><div class="admin-stat-label">Payments</div></div><div class="admin-stat"><div class="admin-stat-num">${data.miniapp_users??'—'}</div><div class="admin-stat-label">Web users</div></div></div><div class="admin-group-label">Actions</div><div><button class="btn-admin-action" onclick="loadUserList()">👥 Users</button><button class="btn-admin-action" onclick="loadAdminStats()">🔄 Refresh</button></div><div id="admin-users-wrap"></div>`;
+  } catch { content.innerHTML='<div class="admin-loading">Server may be sleeping. Try again.</div>'; }
 }
 async function loadUserList() {
-  const wrap = document.getElementById('admin-users-wrap');
-  if (!wrap) return;
-  wrap.innerHTML = '<div class="admin-loading">Loading...</div>';
+  const wrap=document.getElementById('admin-users-wrap'); if(!wrap) return;
+  wrap.innerHTML='<div class="admin-loading">Loading...</div>';
   try {
-    const res   = await fetch(`${BACKEND_URL_APP}/api/admin/users`);
-    const data  = await res.json();
-    const users = data.users || [];
-    wrap.innerHTML = `
-      <div class="admin-group-label">Users (${users.length})</div>
-      <div class="admin-user-list">
-        ${users.map(u => `
-          <div class="admin-user-row">
-            <div class="admin-user-avatar">${(u.username||'?')[0].toUpperCase()}</div>
-            <div class="admin-user-name">@${u.username||'unknown'}</div>
-            <div class="admin-user-role">${u.role||'user'}</div>
-            <div class="admin-user-sub">${u.sub_type!=='none'?'⭐ '+u.sub_type:'—'}</div>
-          </div>`).join('')}
-      </div>`;
-  } catch { wrap.innerHTML = '<div class="admin-loading">Error loading users.</div>'; }
+    const res=await fetch(`${BACKEND}/api/admin/users`); const data=await res.json();
+    const users=data.users||[];
+    wrap.innerHTML=`<div class="admin-group-label">Users (${users.length})</div><div class="admin-user-list">${users.map(u=>`<div class="admin-user-row"><div class="admin-user-avatar">${(u.username||'?')[0].toUpperCase()}</div><div class="admin-user-name">@${u.username||'unknown'}</div><div class="admin-user-role">${u.role||'user'}</div><div class="admin-user-sub">${u.sub_type!=='none'?'⭐ '+u.sub_type:'—'}</div></div>`).join('')}</div>`;
+  } catch { wrap.innerHTML='<div class="admin-loading">Error loading users.</div>'; }
 }
 
 // ════════════════════════════════════════════════════════════════
-// INIT — сессия пользователя
+// INIT
 // ════════════════════════════════════════════════════════════════
 (function initSession() {
-  if (!localStorage.getItem('elyon_auth')) {
-    window.location.href = 'auth.html'; return;
-  }
-  const raw = localStorage.getItem('elyon_user');
-  if (!raw) return;
+  if (!localStorage.getItem('elyon_auth')) { window.location.href='auth.html'; return; }
+  const raw=localStorage.getItem('elyon_user'); if (!raw) return;
   try {
-    const u      = JSON.parse(raw);
-    const letter = (u.first_name || u.email || 'U')[0].toUpperCase();
-    const avatarBtn = document.getElementById('user-avatar-btn');
-    const userMenu  = document.getElementById('user-menu');
+    const u=JSON.parse(raw);
+    const letter=(u.first_name||u.email||'U')[0].toUpperCase();
+    const avatarBtn=document.getElementById('user-avatar-btn');
+    const userMenu=document.getElementById('user-menu');
     if (u.avatar) {
-      const img = document.createElement('img');
-      img.src = u.avatar;
-      img.style.cssText = 'width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
-      img.onerror = () => { avatarBtn.innerHTML = letter; avatarBtn.appendChild(userMenu); };
-      avatarBtn.innerHTML = ''; avatarBtn.appendChild(img); avatarBtn.appendChild(userMenu);
-    } else {
-      avatarBtn.innerHTML = letter; avatarBtn.appendChild(userMenu);
-    }
-    const fullName = [u.first_name, u.last_name].filter(Boolean).join(' ') || u.email || 'User';
-    const nameEl   = document.querySelector('.profile-name');
-    const emailEl  = document.querySelector('.profile-email');
-    const bigAv    = document.querySelector('.profile-avatar-big');
-    if (nameEl)  nameEl.textContent  = fullName;
-    if (emailEl) emailEl.textContent = u.email || '';
-    if (bigAv)   bigAv.textContent   = letter;
-    if (isOwner()) {
-      const adminBtn = document.getElementById('sidebar-admin-btn');
-      if (adminBtn) adminBtn.style.display = 'flex';
-    }
-  } catch(e) { console.warn('Session load error:', e); }
+      const img=document.createElement('img');
+      img.src=u.avatar; img.style.cssText='width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
+      img.onerror=()=>{avatarBtn.innerHTML=letter; avatarBtn.appendChild(userMenu);};
+      avatarBtn.innerHTML=''; avatarBtn.appendChild(img); avatarBtn.appendChild(userMenu);
+    } else { avatarBtn.innerHTML=letter; avatarBtn.appendChild(userMenu); }
+    const fullName=[u.first_name,u.last_name].filter(Boolean).join(' ')||u.email||'User';
+    const nameEl=document.querySelector('.profile-name');
+    const emailEl=document.querySelector('.profile-email');
+    const bigAv=document.querySelector('.profile-avatar-big');
+    if (nameEl) nameEl.textContent=fullName;
+    if (emailEl) emailEl.textContent=u.email||'';
+    if (bigAv) bigAv.textContent=letter;
+    if (isOwner()) { const adminBtn=document.getElementById('sidebar-admin-btn'); if(adminBtn) adminBtn.style.display='flex'; }
+  } catch(e) { console.warn('Session load error:',e); }
 })();
 
-// Применяем язык
+// Восстанавливаем тему
+(function initTheme() {
+  const saved = localStorage.getItem('elyon_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const swatchId = { dark:'swatch-dark', amoled:'swatch-amoled', light:'swatch-light' }[saved];
+  if (swatchId) {
+    document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active'));
+    document.getElementById(swatchId)?.classList.add('active');
+  }
+})();
+
+// Язык
 (function initLang() {
-  const saved = localStorage.getItem('elyon_lang') || 'en';
-  if (saved === 'ru') {
-    document.querySelectorAll('.seg-btn').forEach(btn => {
-      const seg  = btn.closest('.segment');
-      if (!seg) return;
-      const btns = seg.querySelectorAll('.seg-btn');
-      if (btns.length === 2 && btns[0].textContent === 'EN') {
-        btns[0].classList.remove('active'); btns[1].classList.add('active');
-      }
-    });
+  const saved=localStorage.getItem('elyon_lang')||'en';
+  if (saved==='ru') {
+    const seg=document.getElementById('seg-lang');
+    if (seg) { seg.querySelectorAll('.seg-btn').forEach((b,i)=>b.classList.toggle('active',i===1)); }
     applyLang('ru');
   }
 })();
 
-// ФИХ 8: загружаем чаты при старте
 renderChatList();
 loadChatsFromServer();
 </script>
