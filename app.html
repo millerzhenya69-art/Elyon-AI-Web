@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elyon AI</title>
+<link rel="icon" type="image/png" href="elyon_logo.png">
+<link rel="apple-touch-icon" href="elyon_logo.png">
+<meta name="theme-color" content="#0e0e0e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -684,6 +687,27 @@ body {
   .input-hint { display: none; }
   .msg-user-bubble { max-width: 88%; }
 }
+
+/* ── Image preview in chat ── */
+.msg-img-wrap {
+  margin-bottom: 6px;
+  max-width: 280px;
+}
+.msg-img-preview {
+  width: 100%;
+  max-width: 280px;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  cursor: zoom-in;
+  transition: max-height 0.3s ease;
+}
+.msg-img-preview.expanded {
+  max-height: 500px;
+  cursor: zoom-out;
+  object-fit: contain;
+}
 </style>
 </head>
 <body>
@@ -753,8 +777,8 @@ body {
         <a href="#" class="user-menu-item" onclick="showPanel('pricing-panel')"><span>⭐</span> Pricing</a>
         <a href="#" class="user-menu-item" onclick="showPanel('settings-panel')"><span>⚙️</span> Settings</a>
         <div class="user-menu-sep"></div>
-        <a href="privacy.html" target="_blank" class="user-menu-item"><span>📄</span> Privacy Policy</a>
-        <a href="privacy.html?tab=terms" target="_blank" class="user-menu-item"><span>📋</span> Terms of Service</a>
+        <a href="javascript:void(0)" onclick="window.location.href='privacy.html'" class="user-menu-item"><span>📄</span> Privacy Policy</a>
+        <a href="javascript:void(0)" onclick="window.location.href='privacy.html?tab=terms'" class="user-menu-item"><span>📋</span> Terms of Service</a>
         <div class="user-menu-sep"></div>
         <a href="auth.html" class="user-menu-item danger" onclick="localStorage.clear()"><span>↩</span> Sign out</a>
       </div>
@@ -1010,6 +1034,19 @@ let activeChatId = 'default';
 let pendingFile  = null;
 let saveTimer    = null;
 
+// DonatePay — реальный виджет оплаты
+const DONATEPAY_BASE = 'https://widget.donatepay.ru/widgets/page/43438cb958e3f4f2577d5e4c4f1449cc489d201fe7cd925dbd705feecac2b187';
+const DONATEPAY_URLS = {
+  nova:       DONATEPAY_BASE + '?widget_id=7665261&sum=91',
+  pro:        DONATEPAY_BASE + '?widget_id=7665261&sum=182',
+  absolution: DONATEPAY_BASE + '?widget_id=7665261&sum=265',
+};
+function openDonatePay(tier) {
+  const url = DONATEPAY_URLS[tier];
+  if (!url) return;
+  window.open(url, '_blank');
+}
+
 const BACKEND       = 'https://elyon-bot.onrender.com';
 const MODEL_API_MAP = { core: 'gpt', nova: 'nova', pro: 'pro', absolution: 'absolution' };
 const PAID_MODELS   = ['nova', 'pro', 'absolution'];
@@ -1258,9 +1295,21 @@ function handleFile(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     const base64 = ev.target.result.split(',')[1];
-    pendingFile = {file, base64, mime, name:file.name, size:file.size};
+    const isImage = mime.startsWith('image/');
+    pendingFile = {
+      file, base64, mime, name:file.name, size:file.size,
+      // Для изображений сохраняем data URL для превью в чате
+      dataUrl: isImage ? ev.target.result : null,
+    };
     const bar = document.getElementById('file-preview-bar');
-    document.getElementById('fp-icon').textContent = getMimeIcon(mime, file.name);
+    const isImg = mime.startsWith('image/');
+    // В превью над инпутом показываем мини-превью для изображений
+    const fpIcon = document.getElementById('fp-icon');
+    if (isImg && ev.target.result) {
+      fpIcon.innerHTML = `<img src="${ev.target.result}" style="width:28px;height:28px;object-fit:cover;border-radius:5px;display:block;">`;
+    } else {
+      fpIcon.textContent = getMimeIcon(mime, file.name);
+    }
     document.getElementById('fp-name').textContent = file.name;
     document.getElementById('fp-size').textContent = formatSize(file.size);
     bar.style.display='flex'; updateSendBtn();
@@ -1284,13 +1333,20 @@ function appendMessage(role, content, scroll=true, fileInfo=null) {
   el.className = 'msg-group';
 
   if (role==='user') {
-    let fileCardHtml='';
+    let fileHtml='';
     if (fileInfo) {
-      const icon = getMimeIcon(fileInfo.mime, fileInfo.name);
-      fileCardHtml=`<div class="msg-file-card"><div class="msg-file-icon">${icon}</div><div><div class="msg-file-name">${escapeHtml(fileInfo.name)}</div><div class="msg-file-size">${formatSize(fileInfo.size)}</div></div><span class="msg-file-check">✓</span></div>`;
+      const isImage = fileInfo.mime && fileInfo.mime.startsWith('image/');
+      if (isImage && fileInfo.dataUrl) {
+        // Изображение показываем как картинку
+        fileHtml=`<div class="msg-img-wrap"><img src="${fileInfo.dataUrl}" alt="${escapeHtml(fileInfo.name)}" class="msg-img-preview" onclick="this.classList.toggle('expanded')"></div>`;
+      } else {
+        // Остальные файлы — карточка
+        const icon = getMimeIcon(fileInfo.mime, fileInfo.name);
+        fileHtml=`<div class="msg-file-card"><div class="msg-file-icon">${icon}</div><div><div class="msg-file-name">${escapeHtml(fileInfo.name)}</div><div class="msg-file-size">${formatSize(fileInfo.size)}</div></div><span class="msg-file-check">✓</span></div>`;
+      }
     }
     const textHtml = content ? `<div style="white-space:pre-wrap;word-break:break-word">${escapeHtml(content)}</div>` : '';
-    el.innerHTML = `<div class="msg-user"><div class="msg-user-bubble">${fileCardHtml}${textHtml}</div></div>`;
+    el.innerHTML = `<div class="msg-user"><div class="msg-user-bubble">${fileHtml}${textHtml}</div></div>`;
   } else {
     const rendered = renderAIContent(content);
     el.innerHTML = `<div class="msg-ai"><div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div><div class="msg-ai-content">${rendered}</div></div>`;
@@ -1437,7 +1493,9 @@ async function sendMessage() {
     const chat = chats.find(c=>c.id===activeChatId);
     if (chat) { chat.title=(text||pendingFile?.name||'Chat').slice(0,32); renderChatList(); }
   }
-  const fileInfoForHistory = pendingFile ? {name:pendingFile.name, size:pendingFile.size, mime:pendingFile.mime} : null;
+  const fileInfoForHistory = pendingFile
+    ? {name:pendingFile.name, size:pendingFile.size, mime:pendingFile.mime, dataUrl:pendingFile.dataUrl}
+    : null;
   input.value=''; input.style.height=''; clearFile(); updateSendBtn();
   const chat = chats.find(c=>c.id===activeChatId);
   const displayText = text||(pendingFile?`Analyze this file: ${pendingFile?.name}`:'');
@@ -1480,9 +1538,18 @@ async function sendMessage() {
 
 async function sendMessageWithFile(userId, text, apiModel, chat) {
   const history=(chat?.messages||[]).slice(0,-1).map(m=>({role:m.role, content:m.content}));
+  // Используем /api/file_b64 — как в Telegram Mini App, корректно читается Gemini
   const res = await fetch(`${BACKEND}/api/file_b64`, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({user_id:userId, model:apiModel, prompt:text||'Analyze this file', file_name:pendingFile.name, file_type:pendingFile.mime, file_data:pendingFile.base64, history})
+    body:JSON.stringify({
+      user_id:   userId,
+      model:     apiModel,
+      prompt:    text || 'Проанализируй этот файл',
+      file_name: pendingFile.name,
+      file_type: pendingFile.mime,
+      file_data: pendingFile.base64,
+      history,
+    })
   });
   return await res.json();
 }
