@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Elyon AI</title>
 <link rel="icon" type="image/png" href="elyon_logo.png">
 <link rel="apple-touch-icon" href="elyon_logo.png">
@@ -76,7 +79,7 @@
   --shadow-card:    0 4px 24px rgba(0,0,0,0.12);
 }
 
-html, body { height: 100%; overflow: hidden; }
+html, body { height: 100%; height: calc(var(--vh, 1vh) * 100); overflow: hidden; }
 
 body {
   background: var(--black);
@@ -242,7 +245,7 @@ body {
 /* ══ MAIN AREA ══════════════════════════════════════════════════════ */
 .main {
   margin-top: 52px; flex: 1; display: flex; flex-direction: column;
-  height: calc(100vh - 52px); position: relative; overflow: hidden;
+  height: calc(var(--vh, 1vh) * 100 - 52px); position: relative; overflow: hidden;
 }
 
 /* Welcome screen */
@@ -708,6 +711,106 @@ body {
   cursor: zoom-out;
   object-fit: contain;
 }
+
+/* ══ MOBILE FIXES ══════════════════════════════════════════════ */
+/* Все кнопки — touch-friendly минимум 44px */
+button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
+.user-avatar, .model-select, .chip, .chat-item, .sidebar-nav-item,
+.panel-back, .pricing-btn, .pricing-btn-donatepay, .seg-btn,
+.theme-swatch, .toggle, .sidebar-new-chat {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Фикс z-index — user-menu и model-dropdown поверх всего */
+.user-menu { position: fixed !important; top: auto !important; right: 12px !important; }
+.model-dropdown { position: fixed !important; top: auto !important; left: 12px !important; }
+
+/* На мобильном user-avatar позиционируется относительно экрана */
+@media (max-width: 768px) {
+  /* Минимальные размеры touch-целей */
+  .nav-trigger { min-width: 44px; min-height: 44px; }
+  .btn-newchat { min-height: 36px; padding: 8px 14px; }
+  .input-btn, .input-send { min-width: 40px; min-height: 40px; }
+  .user-avatar { min-width: 36px; min-height: 36px; }
+
+  /* User menu фиксированный на мобильном */
+  .user-menu {
+    position: fixed !important;
+    top: 56px !important;
+    right: 8px !important;
+    left: auto !important;
+    z-index: 9999 !important;
+    max-width: calc(100vw - 16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  /* Model dropdown фиксированный */
+  .model-dropdown {
+    position: fixed !important;
+    top: 56px !important;
+    left: 8px !important;
+    right: auto !important;
+    z-index: 9999 !important;
+    max-width: calc(100vw - 16px);
+  }
+
+  /* Sidebar overlay поверх всего */
+  .sidebar-overlay { z-index: 9998 !important; }
+  .sidebar { z-index: 9999 !important; }
+
+  /* Панели — полный экран на мобильном */
+  .panel { z-index: 10000 !important; }
+
+  /* Pricing cards на мобильном */
+  .pricing-body { padding: 16px; }
+  .pricing-card { padding: 16px; }
+
+  /* Input area — фикс для iOS Safari */
+  .input-area {
+    padding: 10px 12px 20px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+  }
+
+  /* Превью файлов на мобильном */
+  .file-preview-bar { flex-wrap: wrap; gap: 6px; }
+
+  /* Чипы — горизонтальный скролл */
+  .suggestions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    gap: 8px;
+  }
+  .suggestions::-webkit-scrollbar { display: none; }
+  .chip { flex-shrink: 0; }
+
+  /* Welcome screen — адаптив */
+  .welcome { padding: 20px 16px 140px; }
+  .welcome h1 { font-size: clamp(22px, 6vw, 36px); }
+  .welcome-logo { width: 48px; height: 48px; }
+
+  /* Messages — отступы */
+  .msg-group { padding: 4px 12px; }
+  .msg-user-bubble { max-width: 88%; }
+
+  /* Изображения в чате на мобильном */
+  .msg-img-wrap { max-width: 100%; }
+  .msg-img-preview { max-width: 100%; }
+
+  /* Sync indicator — убираем на мобильном */
+  .sync-indicator { display: none; }
+}
+
+/* iOS Safari — фикс 100vh */
+@supports (-webkit-touch-callout: none) {
+  .main { height: calc(100svh - 52px); }
+  html, body { height: 100svh; }
+}
 </style>
 </head>
 <body>
@@ -853,7 +956,7 @@ body {
       ></textarea>
       <div class="input-actions">
         <button class="input-btn" title="Attach file" onclick="document.getElementById('file-input').click()">📎</button>
-        <input type="file" id="file-input" style="display:none" onchange="handleFile(event)">
+        <input type="file" id="file-input" style="display:none" onchange="handleFile(event)" accept="image/*,video/*,audio/*,.pdf,.txt,.py,.js,.ts,.cpp,.c,.java,.go,.rs,.html,.css,.json,.csv,.md,.sql,.yaml,.yml">
         <button class="input-send" id="send-btn" onclick="sendMessage()" disabled>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 2L8 14M8 2L4 6M8 2L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -1080,9 +1183,7 @@ function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebar-overlay').classList.toggle('show');
 }
-function toggleModelDropdown() {
-  document.getElementById('model-dropdown').classList.toggle('open');
-}
+// toggleModelDropdown — moved to mobile-fix section below
 function selectModel(id, label, e) {
   e.stopPropagation();
   if (PAID_MODELS.includes(id)) {
@@ -1099,7 +1200,7 @@ function selectModel(id, label, e) {
   e.currentTarget.classList.add('active');
   document.getElementById('model-dropdown').classList.remove('open');
 }
-function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('open'); }
+// toggleUserMenu — moved to mobile-fix section below
 document.addEventListener('click', e => {
   if (!document.getElementById('model-select-btn').contains(e.target))
     document.getElementById('model-dropdown').classList.remove('open');
@@ -1678,6 +1779,71 @@ async function loadUserList() {
 
 renderChatList();
 loadChatsFromServer();
+
+// ══ MOBILE JS FIXES ═════════════════════════════════════════════
+
+// Фикс: user-menu позиционирование на мобильном
+function toggleUserMenu() {
+  const menu = document.getElementById('user-menu');
+  const btn  = document.getElementById('user-avatar-btn');
+  const isOpen = menu.classList.contains('open');
+  // Закрываем все дропдауны
+  document.getElementById('model-dropdown').classList.remove('open');
+  if (isOpen) {
+    menu.classList.remove('open');
+  } else {
+    // Позиционируем меню относительно кнопки
+    const rect = btn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 8) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.classList.add('open');
+  }
+}
+
+function toggleModelDropdown() {
+  const dd  = document.getElementById('model-dropdown');
+  const btn = document.getElementById('model-select-btn');
+  const isOpen = dd.classList.contains('open');
+  document.getElementById('user-menu').classList.remove('open');
+  if (isOpen) {
+    dd.classList.remove('open');
+  } else {
+    const rect = btn.getBoundingClientRect();
+    dd.style.top  = (rect.bottom + 8) + 'px';
+    dd.style.left = rect.left + 'px';
+    dd.classList.add('open');
+  }
+}
+
+// Закрываем дропдауны при тапе вне
+document.addEventListener('touchstart', function(e) {
+  const modelBtn = document.getElementById('model-select-btn');
+  const userBtn  = document.getElementById('user-avatar-btn');
+  if (modelBtn && !modelBtn.contains(e.target)) {
+    document.getElementById('model-dropdown').classList.remove('open');
+  }
+  if (userBtn && !userBtn.contains(e.target)) {
+    document.getElementById('user-menu').classList.remove('open');
+  }
+}, { passive: true });
+
+// Фикс файлов на мобильном: убираем hover-зависимые события, добавляем touch
+document.addEventListener('DOMContentLoaded', function() {
+  // iOS: убираем задержку 300ms на клик
+  // (уже решается через touch-action: manipulation в CSS)
+});
+
+// Фикс высоты для iOS Safari (100vh проблема)
+function fixMobileHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+fixMobileHeight();
+window.addEventListener('resize', fixMobileHeight);
+window.addEventListener('orientationchange', function() {
+  setTimeout(fixMobileHeight, 100);
+});
+
 </script>
 </body>
 </html>
