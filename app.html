@@ -1168,9 +1168,9 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
+// 
 // STATE
-// ════════════════════════════════════════════════════════════════
+// 
 let chatStarted  = false;
 let currentModel = 'core';
 let chats        = [{ id: 'default', title: 'New chat', messages: [], model: 'core' }];
@@ -1178,7 +1178,7 @@ let activeChatId = 'default';
 let pendingFile  = null;
 let saveTimer    = null;
 
-// DonatePay — реальный виджет оплаты
+// DonatePay                         
 const DONATEPAY_BASE = 'https://widget.donatepay.ru/widgets/page/43438cb958e3f4f2577d5e4c4f1449cc489d201fe7cd925dbd705feecac2b187';
 const DONATEPAY_URLS = {
   nova:       DONATEPAY_BASE + '?widget_id=7665261&sum=91',
@@ -1188,7 +1188,7 @@ const DONATEPAY_URLS = {
 function openDonatePay(tier) {
   const url = DONATEPAY_URLS[tier];
   if (!url) return;
-  // Передаём Telegram user_id в комментарии — для автоактивации подписки
+  //          Telegram user_id                                           
   const userId = getSessionUserId();
   const finalUrl = userId ? (url + '&comment=' + encodeURIComponent(String(userId))) : url;
   window.open(finalUrl, '_blank');
@@ -1204,30 +1204,14 @@ const MODEL_PRICES  = {
 };
 const TG_BOT = 'Elyon_by_unkony_bot';
 
-// ── DonatePay — открывает форму оплаты ──────────────────────────
-// ЗАМЕНИТЕ ваш реальный URL DonatePay после подключения
-const DONATEPAY_URLS = {
-  nova:       'https://donatepay.ru/don/YOUR_ID?preset=91',
-  pro:        'https://donatepay.ru/don/YOUR_ID?preset=182',
-  absolution: 'https://donatepay.ru/don/YOUR_ID?preset=265',
-};
-function openDonatePay(tier) {
-  const url = DONATEPAY_URLS[tier];
-  if (!url || url.includes('YOUR_ID')) {
-    showSubscribePrompt(tier);
-    return;
-  }
-  window.open(url, '_blank');
-}
-
-// ════════════════════════════════════════════════════════════════
+// 
 // SIDEBAR / MENUS
-// ════════════════════════════════════════════════════════════════
+// 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebar-overlay').classList.toggle('show');
 }
-// toggleModelDropdown — moved to mobile-fix section below
+
 function selectModel(id, label, e) {
   e.stopPropagation();
   if (PAID_MODELS.includes(id)) {
@@ -1244,7 +1228,7 @@ function selectModel(id, label, e) {
   e.currentTarget.classList.add('active');
   document.getElementById('model-dropdown').classList.remove('open');
 }
-// toggleUserMenu — moved to mobile-fix section below
+
 document.addEventListener('click', e => {
   if (!document.getElementById('model-select-btn').contains(e.target))
     document.getElementById('model-dropdown').classList.remove('open');
@@ -1252,9 +1236,9 @@ document.addEventListener('click', e => {
     document.getElementById('user-menu').classList.remove('open');
 });
 
-// ════════════════════════════════════════════════════════════════
+// 
 // PANELS
-// ════════════════════════════════════════════════════════════════
+// 
 function showPanel(id) {
   document.getElementById('user-menu').classList.remove('open');
   document.getElementById('sidebar').classList.remove('open');
@@ -1263,9 +1247,9 @@ function showPanel(id) {
 }
 function hidePanel(id) { document.getElementById(id).classList.remove('show'); }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // SESSION
-// ════════════════════════════════════════════════════════════════
+// 
 function getSessionUserId() {
   try { const u = JSON.parse(localStorage.getItem('elyon_user')||'{}'); return u.user_id||u.tg_id||null; } catch { return null; }
 }
@@ -1286,9 +1270,9 @@ async function syncSubFromServer() {
 }
 syncSubFromServer();
 
-// ════════════════════════════════════════════════════════════════
+// 
 // CHAT SAVE/LOAD
-// ════════════════════════════════════════════════════════════════
+// 
 function showSync(saving) {
   const ind = document.getElementById('sync-indicator');
   const dot = document.getElementById('sync-dot');
@@ -1343,11 +1327,11 @@ async function loadChatsFromServer() {
   } catch {}
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // CHAT MANAGEMENT
-// ════════════════════════════════════════════════════════════════
+// 
 function fillInput(chip) {
-  const text = chip.textContent.replace(/^[✦◎⌘◈❖]\s/, '');
+  const text = chip.textContent.replace(/^[]\s/, '');
   document.getElementById('input').value = text;
   document.getElementById('input').focus(); updateSendBtn();
 }
@@ -1378,9 +1362,9 @@ function renderChatList() {
   const list = document.getElementById('chat-list');
   list.innerHTML = chats.map(c=>`
     <div class="chat-item ${c.id===activeChatId?'active':''}" onclick="switchChat('${c.id}')">
-      <span class="chat-item-icon">💬</span>
+      <span class="chat-item-icon"></span>
       <span class="chat-item-title">${escapeHtml(c.title)}</span>
-      ${chats.length>1?`<button class="chat-item-del" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>`:''}
+      ${chats.length>1?`<button class="chat-item-del" onclick="event.stopPropagation();deleteChat('${c.id}')"></button>`:''}
     </div>`).join('');
 }
 function switchChat(id, closeSidebar=true) {
@@ -1410,22 +1394,22 @@ function deleteChat(id) {
   renderChatList(); localStorage.setItem('elyon_chats', JSON.stringify(chats));
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // FILES
-// ════════════════════════════════════════════════════════════════
+// 
 const EXT_MIME = {'.py':'text/x-python','.js':'text/javascript','.ts':'text/javascript','.cpp':'text/x-c++','.c':'text/x-c','.java':'text/x-java','.cs':'text/plain','.go':'text/plain','.rs':'text/plain','.sh':'text/plain','.md':'text/plain','.txt':'text/plain','.sql':'text/plain','.yaml':'text/plain','.yml':'text/plain','.toml':'text/plain','.env':'text/plain','.json':'application/json','.xml':'text/xml','.html':'text/html','.css':'text/css','.csv':'text/csv','.svg':'image/svg+xml'};
 function getMimeIcon(mime, name) {
-  if (!mime) return '📎';
-  if (mime.startsWith('image/')) return '🖼';
-  if (mime.startsWith('video/')) return '🎬';
-  if (mime.startsWith('audio/')) return '🎵';
-  if (mime==='application/pdf') return '📄';
-  if (mime.includes('python')||name?.endsWith('.py')) return '🐍';
-  if (mime.includes('javascript')||name?.endsWith('.js')) return '⚡';
+  if (!mime) return '';
+  if (mime.startsWith('image/')) return '';
+  if (mime.startsWith('video/')) return '';
+  if (mime.startsWith('audio/')) return '';
+  if (mime==='application/pdf') return '';
+  if (mime.includes('python')||name?.endsWith('.py')) return '';
+  if (mime.includes('javascript')||name?.endsWith('.js')) return '';
   if (mime.includes('json')) return '{}';
-  if (mime.includes('html')) return '🌐';
-  if (mime.includes('css')) return '🎨';
-  return '📎';
+  if (mime.includes('html')) return '';
+  if (mime.includes('css')) return '';
+  return '';
 }
 function formatSize(bytes) {
   if (bytes<1024) return bytes+' B';
@@ -1443,12 +1427,12 @@ function handleFile(e) {
     const isImage = mime.startsWith('image/');
     pendingFile = {
       file, base64, mime, name:file.name, size:file.size,
-      // Для изображений сохраняем data URL для превью в чате
+      //                           data URL                  
       dataUrl: isImage ? ev.target.result : null,
     };
     const bar = document.getElementById('file-preview-bar');
     const isImg = mime.startsWith('image/');
-    // В превью над инпутом показываем мини-превью для изображений
+    //                                     -                      
     const fpIcon = document.getElementById('fp-icon');
     if (isImg && ev.target.result) {
       fpIcon.innerHTML = `<img src="${ev.target.result}" style="width:28px;height:28px;object-fit:cover;border-radius:5px;display:block;">`;
@@ -1464,9 +1448,9 @@ function handleFile(e) {
 }
 function clearFile() { pendingFile=null; document.getElementById('file-preview-bar').style.display='none'; updateSendBtn(); }
 
-// ════════════════════════════════════════════════════════════════
-// RENDER MESSAGES — с анимацией по блокам
-// ════════════════════════════════════════════════════════════════
+// 
+// RENDER MESSAGES                        
+// 
 function escapeHtml(text) {
   if (!text) return '';
   return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1482,12 +1466,12 @@ function appendMessage(role, content, scroll=true, fileInfo=null) {
     if (fileInfo) {
       const isImage = fileInfo.mime && fileInfo.mime.startsWith('image/');
       if (isImage && fileInfo.dataUrl) {
-        // Изображение показываем как картинку
+        //                                    
         fileHtml=`<div class="msg-img-wrap"><img src="${fileInfo.dataUrl}" alt="${escapeHtml(fileInfo.name)}" class="msg-img-preview" onclick="this.classList.toggle('expanded')"></div>`;
       } else {
-        // Остальные файлы — карточка
+        //                           
         const icon = getMimeIcon(fileInfo.mime, fileInfo.name);
-        fileHtml=`<div class="msg-file-card"><div class="msg-file-icon">${icon}</div><div><div class="msg-file-name">${escapeHtml(fileInfo.name)}</div><div class="msg-file-size">${formatSize(fileInfo.size)}</div></div><span class="msg-file-check">✓</span></div>`;
+        fileHtml=`<div class="msg-file-card"><div class="msg-file-icon">${icon}</div><div><div class="msg-file-name">${escapeHtml(fileInfo.name)}</div><div class="msg-file-size">${formatSize(fileInfo.size)}</div></div><span class="msg-file-check"></span></div>`;
       }
     }
     const textHtml = content ? `<div style="white-space:pre-wrap;word-break:break-word">${escapeHtml(content)}</div>` : '';
@@ -1502,7 +1486,7 @@ function appendMessage(role, content, scroll=true, fileInfo=null) {
   return el;
 }
 
-// Умный рендер AI контента — разбиваем на блоки с анимацией
+//              AI                                          
 function renderAIContent(content) {
   if (!content) return '';
   const lines = content.split('\n').filter(l=>l.trim());
@@ -1519,13 +1503,13 @@ function renderAIContent(content) {
   return `<div class="md-body">${renderMarkdownAnimated(content)}</div>`;
 }
 
-// Markdown с анимацией — каждый "блок" получает класс anim-block
+// Markdown                      "    "                anim-block
 function renderMarkdownAnimated(text) {
   if (!text) return '';
-  // Сначала делаем обычный markdown
+  //                        markdown
   let html = renderMarkdown(text);
-  // Оборачиваем верхние блоки в anim-block
-  // Заменяем теги параграфов, заголовков, блоков кода, списков
+  //                             anim-block
+  //                         ,           ,            ,        
   html = html.replace(/<p class="md-p">/g, '<p class="md-p anim-block">');
   html = html.replace(/<h([234]) class="md-h([234])">/g, '<h$1 class="md-h$2 anim-block">');
   html = html.replace(/<ul class="md-ul">/g, '<ul class="md-ul anim-block">');
@@ -1565,9 +1549,9 @@ function renderMarkdown(text) {
   return html;
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // TYPING INDICATOR
-// ════════════════════════════════════════════════════════════════
+// 
 function showTyping() {
   const msgs = document.getElementById('messages');
   const el   = document.createElement('div');
@@ -1587,9 +1571,9 @@ function addThinkingStep(text) {
   return el;
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // SUBSCRIBE PROMPT
-// ════════════════════════════════════════════════════════════════
+// 
 function showSubscribePrompt(modelId) {
   const price = MODEL_PRICES[modelId]; if (!price) return;
   document.getElementById('sub-prompt')?.remove();
@@ -1598,27 +1582,27 @@ function showSubscribePrompt(modelId) {
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:500;padding:24px;backdrop-filter:blur(8px);';
   overlay.innerHTML=`
     <div style="background:var(--off);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;text-align:center;position:relative;">
-      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button>
+      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer"></button>
       <img src="elyon_logo.png" style="width:48px;height:48px;margin-bottom:16px;opacity:0.9">
       <div style="font-family:var(--serif);font-size:22px;color:var(--text-primary);margin-bottom:8px">${price.label}</div>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">Оформи подписку для доступа к этой модели.</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">      .</div>
       <div style="display:flex;flex-direction:column;gap:10px">
         <button onclick="openDonatePay('${modelId}');document.getElementById('sub-prompt').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--beige);color:var(--black);border-radius:12px;border:none;cursor:pointer;font-weight:500;font-size:14px;font-family:var(--sans);">
-          <span>💳 Оплатить картой / СБП</span><span>${price.rub} ₽ / мес</span>
+          <span>   / </span><span>${price.rub}  / </span>
         </button>
         <a href="https://t.me/${TG_BOT}?start=pay_${modelId==='absolution'?'abs':modelId}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--off);color:var(--text-primary);border:1px solid var(--border2);border-radius:12px;text-decoration:none;font-size:14px;">
-          <span>⭐ Telegram Stars</span>
+          <span> Telegram Stars</span>
         </a>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.5">После оплаты подписка активируется автоматически.</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.5">    .</div>
     </div>`;
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // SEND MESSAGE
-// ════════════════════════════════════════════════════════════════
+// 
 async function sendMessage() {
   const input = document.getElementById('input');
   const text  = input.value.trim();
@@ -1683,13 +1667,13 @@ async function sendMessage() {
 
 async function sendMessageWithFile(userId, text, apiModel, chat) {
   const history=(chat?.messages||[]).slice(0,-1).map(m=>({role:m.role, content:m.content}));
-  // Используем /api/file_b64 — как в Telegram Mini App, корректно читается Gemini
+  //            /api/file_b64         Telegram Mini App,                    Gemini
   const res = await fetch(`${BACKEND}/api/file_b64`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       user_id:   userId,
       model:     apiModel,
-      prompt:    text || 'Проанализируй этот файл',
+      prompt:    text || '  ',
       file_name: pendingFile.name,
       file_type: pendingFile.mime,
       file_data: pendingFile.base64,
@@ -1699,9 +1683,9 @@ async function sendMessageWithFile(userId, text, apiModel, chat) {
   return await res.json();
 }
 
-// ════════════════════════════════════════════════════════════════
-// SETTINGS — THEME с data-theme на :root
-// ════════════════════════════════════════════════════════════════
+// 
+// SETTINGS   THEME   data-theme    :root
+// 
 function setTheme(theme, el) {
   document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active'));
   el.classList.add('active');
@@ -1722,12 +1706,12 @@ function setLang(lang, el) {
   localStorage.setItem('elyon_lang', lang); applyLang(lang);
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // TRANSLATIONS
-// ════════════════════════════════════════════════════════════════
+// 
 const TRANSLATIONS = {
-  en: { welcome_title:'Hello, I am <em>Elyon.</em><br>How can I help you today?', welcome_sub:"Ask me anything — I'm here to think with you.", input_placeholder:'Message Elyon...', input_hint:'Elyon can make mistakes. Consider checking important information.', new_chat:'+ New chat', recent_chats:'Recent chats', menu_label:'Menu', profile:'Profile', pricing:'Pricing', settings:'Settings', sign_out:'Sign out', panel_settings:'Settings', panel_profile:'Profile', panel_pricing:'Plans', panel_admin:'Admin Panel', appearance:'Appearance', theme:'Theme', font_size:'Font size', language:'Language', interface_lang:'Interface language', chat_section:'Chat', send_enter:'Send with Enter', send_enter_sub:'Shift+Enter for new line', show_typing:'Show typing indicator', subscription:'Subscription', messages_today:'Messages today', resets_midnight:'Resets at midnight', member_since:'Member since', upgrade_plan:'Upgrade plan →', current_plan:'Current plan', free_plan:'Free plan', chip1:'✦ Explain quantum computing simply', chip2:'◎ Analyze this document', chip3:'⌘ Write a Python script', chip4:'◈ Latest AI news today', chip5:'❖ Help me brainstorm ideas' },
-  ru: { welcome_title:'Привет, я <em>Elyon.</em><br>Чем могу помочь сегодня?', welcome_sub:'Спрашивай всё что угодно — я здесь чтобы думать вместе с тобой.', input_placeholder:'Сообщение Elyon...', input_hint:'Elyon может ошибаться. Проверяй важную информацию.', new_chat:'+ Новый чат', recent_chats:'Последние чаты', menu_label:'Меню', profile:'Профиль', pricing:'Тарифы', settings:'Настройки', sign_out:'Выйти', panel_settings:'Настройки', panel_profile:'Профиль', panel_pricing:'Тарифы', panel_admin:'Панель управления', appearance:'Внешний вид', theme:'Тема', font_size:'Размер шрифта', language:'Язык', interface_lang:'Язык интерфейса', chat_section:'Чат', send_enter:'Отправка по Enter', send_enter_sub:'Shift+Enter для новой строки', show_typing:'Показывать индикатор набора', subscription:'Подписка', messages_today:'Сообщений сегодня', resets_midnight:'Сбрасывается в полночь', member_since:'Участник с', upgrade_plan:'Улучшить план →', current_plan:'Текущий план', free_plan:'Бесплатный план', chip1:'✦ Объясни квантовые вычисления просто', chip2:'◎ Проанализируй этот документ', chip3:'⌘ Напиши Python-скрипт', chip4:'◈ Последние новости AI', chip5:'❖ Помоги сгенерировать идеи' }
+  en: { welcome_title:'Hello, I am <em>Elyon.</em><br>How can I help you today?', welcome_sub:"Ask me anything  I'm here to think with you.", input_placeholder:'Message Elyon...', input_hint:'Elyon can make mistakes. Consider checking important information.', new_chat:'+ New chat', recent_chats:'Recent chats', menu_label:'Menu', profile:'Profile', pricing:'Pricing', settings:'Settings', sign_out:'Sign out', panel_settings:'Settings', panel_profile:'Profile', panel_pricing:'Plans', panel_admin:'Admin Panel', appearance:'Appearance', theme:'Theme', font_size:'Font size', language:'Language', interface_lang:'Interface language', chat_section:'Chat', send_enter:'Send with Enter', send_enter_sub:'Shift+Enter for new line', show_typing:'Show typing indicator', subscription:'Subscription', messages_today:'Messages today', resets_midnight:'Resets at midnight', member_since:'Member since', upgrade_plan:'Upgrade plan ', current_plan:'Current plan', free_plan:'Free plan', chip1:' Explain quantum computing simply', chip2:' Analyze this document', chip3:' Write a Python script', chip4:' Latest AI news today', chip5:' Help me brainstorm ideas' },
+  ru: { welcome_title:',  <em>Elyon.</em><br>   ?', welcome_sub:'           .', input_placeholder:' Elyon...', input_hint:'Elyon  .   .', new_chat:'+  ', recent_chats:' ', menu_label:'', profile:'', pricing:'', settings:'', sign_out:'', panel_settings:'', panel_profile:'', panel_pricing:'', panel_admin:' ', appearance:' ', theme:'', font_size:' ', language:'', interface_lang:' ', chat_section:'', send_enter:'  Enter', send_enter_sub:'Shift+Enter   ', show_typing:'  ', subscription:'', messages_today:' ', resets_midnight:'  ', member_since:' ', upgrade_plan:'  ', current_plan:' ', free_plan:' ', chip1:'    ', chip2:'   ', chip3:'  Python-', chip4:'   AI', chip5:'   ' }
 };
 function t(key) { const lang=localStorage.getItem('elyon_lang')||'en'; return TRANSLATIONS[lang]?.[key]||TRANSLATIONS['en'][key]||key; }
 function applyLang(lang) {
@@ -1748,9 +1732,9 @@ function applyLang(lang) {
   });
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // ADMIN
-// ════════════════════════════════════════════════════════════════
+// 
 const OWNER_EMAILS=['zhenyamiller8@gmail.com'];
 function isOwner() { try { const u=JSON.parse(localStorage.getItem('elyon_user')||'{}'); return OWNER_EMAILS.includes(u.email)||u.provider==='telegram'; } catch { return false; } }
 function showAdminPanel() { showPanel('admin-panel'); loadAdminStats(); }
@@ -1759,7 +1743,7 @@ async function loadAdminStats() {
   content.innerHTML='<div class="admin-loading">Loading...</div>';
   try {
     const res=await fetch(`${BACKEND}/api/admin/stats`); const data=await res.json();
-    content.innerHTML=`<div class="admin-stat-grid"><div class="admin-stat"><div class="admin-stat-num">${data.total_users??'—'}</div><div class="admin-stat-label">Total users</div></div><div class="admin-stat"><div class="admin-stat-num">${data.active_subs??'—'}</div><div class="admin-stat-label">Active subs</div></div><div class="admin-stat"><div class="admin-stat-num">${data.new_today??'—'}</div><div class="admin-stat-label">New today</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_messages??'—'}</div><div class="admin-stat-label">Messages</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_payments??'—'}</div><div class="admin-stat-label">Payments</div></div><div class="admin-stat"><div class="admin-stat-num">${data.miniapp_users??'—'}</div><div class="admin-stat-label">Web users</div></div></div><div class="admin-group-label">Actions</div><div><button class="btn-admin-action" onclick="loadUserList()">👥 Users</button><button class="btn-admin-action" onclick="loadAdminStats()">🔄 Refresh</button><button class="btn-admin-action" onclick="adminTestKeys()">🔑 Keys</button></div><div id="admin-users-wrap"></div>`;
+    content.innerHTML=`<div class="admin-stat-grid"><div class="admin-stat"><div class="admin-stat-num">${data.total_users??''}</div><div class="admin-stat-label">Total users</div></div><div class="admin-stat"><div class="admin-stat-num">${data.active_subs??''}</div><div class="admin-stat-label">Active subs</div></div><div class="admin-stat"><div class="admin-stat-num">${data.new_today??''}</div><div class="admin-stat-label">New today</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_messages??''}</div><div class="admin-stat-label">Messages</div></div><div class="admin-stat"><div class="admin-stat-num">${data.total_payments??''}</div><div class="admin-stat-label">Payments</div></div><div class="admin-stat"><div class="admin-stat-num">${data.miniapp_users??''}</div><div class="admin-stat-label">Web users</div></div></div><div class="admin-group-label">Actions</div><div><button class="btn-admin-action" onclick="loadUserList()"> Users</button><button class="btn-admin-action" onclick="loadAdminStats()"> Refresh</button><button class="btn-admin-action" onclick="adminTestKeys()"> Keys</button></div><div id="admin-users-wrap"></div>`;
   } catch { content.innerHTML='<div class="admin-loading">Server may be sleeping. Try again.</div>'; }
 }
 async function loadUserList() {
@@ -1768,13 +1752,13 @@ async function loadUserList() {
   try {
     const res=await fetch(`${BACKEND}/api/admin/users`); const data=await res.json();
     const users=data.users||[];
-    wrap.innerHTML=`<div class="admin-group-label">Users (${users.length})</div><div class="admin-user-list">${users.map(u=>`<div class="admin-user-row"><div class="admin-user-avatar">${(u.username||'?')[0].toUpperCase()}</div><div class="admin-user-name">@${u.username||'unknown'}</div><div class="admin-user-role">${u.role||'user'}</div><div class="admin-user-sub">${u.sub_type!=='none'?'⭐ '+u.sub_type:'—'}</div></div>`).join('')}</div>`;
+    wrap.innerHTML=`<div class="admin-group-label">Users (${users.length})</div><div class="admin-user-list">${users.map(u=>`<div class="admin-user-row"><div class="admin-user-avatar">${(u.username||'?')[0].toUpperCase()}</div><div class="admin-user-name">@${u.username||'unknown'}</div><div class="admin-user-role">${u.role||'user'}</div><div class="admin-user-sub">${u.sub_type!=='none'?' '+u.sub_type:''}</div></div>`).join('')}</div>`;
   } catch { wrap.innerHTML='<div class="admin-loading">Error loading users.</div>'; }
 }
 
-// ════════════════════════════════════════════════════════════════
+// 
 // INIT
-// ════════════════════════════════════════════════════════════════
+// 
 (function initSession() {
   if (!localStorage.getItem('elyon_auth')) { window.location.href='auth.html'; return; }
   const raw=localStorage.getItem('elyon_user'); if (!raw) return;
@@ -1800,7 +1784,7 @@ async function loadUserList() {
   } catch(e) { console.warn('Session load error:',e); }
 })();
 
-// Восстанавливаем тему
+//                     
 (function initTheme() {
   const saved = localStorage.getItem('elyon_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', saved);
@@ -1811,7 +1795,7 @@ async function loadUserList() {
   }
 })();
 
-// Язык
+//     
 (function initLang() {
   const saved=localStorage.getItem('elyon_lang')||'en';
   if (saved==='ru') {
@@ -1824,60 +1808,8 @@ async function loadUserList() {
 renderChatList();
 loadChatsFromServer();
 
-// ══ MOBILE JS FIXES ═════════════════════════════════════════════
 
-// Фикс: user-menu позиционирование на мобильном
-function toggleUserMenu() {
-  const menu = document.getElementById('user-menu');
-  const btn  = document.getElementById('user-avatar-btn');
-  const isOpen = menu.classList.contains('open');
-  // Закрываем все дропдауны
-  document.getElementById('model-dropdown').classList.remove('open');
-  if (isOpen) {
-    menu.classList.remove('open');
-  } else {
-    // Позиционируем меню относительно кнопки
-    const rect = btn.getBoundingClientRect();
-    menu.style.top  = (rect.bottom + 8) + 'px';
-    menu.style.right = (window.innerWidth - rect.right) + 'px';
-    menu.classList.add('open');
-  }
-}
-
-function toggleModelDropdown() {
-  const dd  = document.getElementById('model-dropdown');
-  const btn = document.getElementById('model-select-btn');
-  const isOpen = dd.classList.contains('open');
-  document.getElementById('user-menu').classList.remove('open');
-  if (isOpen) {
-    dd.classList.remove('open');
-  } else {
-    const rect = btn.getBoundingClientRect();
-    dd.style.top  = (rect.bottom + 8) + 'px';
-    dd.style.left = rect.left + 'px';
-    dd.classList.add('open');
-  }
-}
-
-// Закрываем дропдауны при тапе вне
-document.addEventListener('touchstart', function(e) {
-  const modelBtn = document.getElementById('model-select-btn');
-  const userBtn  = document.getElementById('user-avatar-btn');
-  if (modelBtn && !modelBtn.contains(e.target)) {
-    document.getElementById('model-dropdown').classList.remove('open');
-  }
-  if (userBtn && !userBtn.contains(e.target)) {
-    document.getElementById('user-menu').classList.remove('open');
-  }
-}, { passive: true });
-
-// Фикс файлов на мобильном: убираем hover-зависимые события, добавляем touch
-document.addEventListener('DOMContentLoaded', function() {
-  // iOS: убираем задержку 300ms на клик
-  // (уже решается через touch-action: manipulation в CSS)
-});
-
-// Фикс высоты для iOS Safari (100vh проблема)
+// Fix viewport height for iOS Safari
 function fixMobileHeight() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', vh + 'px');
@@ -1889,7 +1821,7 @@ window.addEventListener('orientationchange', function() {
 });
 
 
-// ══ ADMIN PANEL JS ═══════════════════════════════════════════════
+// ADMIN PANEL JS
 
 function getAdminHeaders() {
   const userId = getSessionUserId();
@@ -1905,7 +1837,7 @@ async function adminGiveSub() {
   const days   = parseInt(document.getElementById('admin-days').value) || 30;
   const res_el = document.getElementById('admin-sub-result');
 
-  if (!target) { res_el.textContent = '⚠ Enter username or email'; res_el.style.color='#fbbf24'; return; }
+  if (!target) { res_el.textContent = ' Enter username or email'; res_el.style.color='#fbbf24'; return; }
 
   res_el.textContent = 'Processing...'; res_el.style.color = 'var(--text-muted)';
   try {
@@ -1915,14 +1847,14 @@ async function adminGiveSub() {
     });
     const data = await res.json();
     if (data.ok) {
-      res_el.textContent = `✅ Done! ${target} → ${tier.toUpperCase()} until ${data.until}`;
+      res_el.textContent = ` Done! ${target}  ${tier.toUpperCase()} until ${data.until}`;
       res_el.style.color = '#4ade80';
     } else {
-      res_el.textContent = `❌ Error: ${data.error}`;
+      res_el.textContent = ` Error: ${data.error}`;
       res_el.style.color = '#f87171';
     }
   } catch(e) {
-    res_el.textContent = `❌ Network error: ${e.message}`;
+    res_el.textContent = ` Network error: ${e.message}`;
     res_el.style.color = '#f87171';
   }
 }
@@ -1931,7 +1863,7 @@ async function adminRemoveSub() {
   const target = document.getElementById('admin-target').value.trim();
   const res_el = document.getElementById('admin-sub-result');
 
-  if (!target) { res_el.textContent = '⚠ Enter username or email'; res_el.style.color='#fbbf24'; return; }
+  if (!target) { res_el.textContent = ' Enter username or email'; res_el.style.color='#fbbf24'; return; }
   if (!confirm(`Remove subscription from ${target}?`)) return;
 
   res_el.textContent = 'Processing...'; res_el.style.color = 'var(--text-muted)';
@@ -1942,14 +1874,14 @@ async function adminRemoveSub() {
     });
     const data = await res.json();
     if (data.ok) {
-      res_el.textContent = `✅ Subscription removed from ${target}`;
+      res_el.textContent = ` Subscription removed from ${target}`;
       res_el.style.color = '#4ade80';
     } else {
-      res_el.textContent = `❌ Error: ${data.error}`;
+      res_el.textContent = ` Error: ${data.error}`;
       res_el.style.color = '#f87171';
     }
   } catch(e) {
-    res_el.textContent = `❌ Network error: ${e.message}`;
+    res_el.textContent = ` Network error: ${e.message}`;
     res_el.style.color = '#f87171';
   }
 }
@@ -1973,19 +1905,73 @@ async function adminTestKeys() {
       for (const [tier, keys] of Object.entries(data.keys)) {
         text += `${TIER_LABELS[tier] || tier}:\n`;
         for (const k of keys) {
-          const icon = k.status === 'ok' ? '✅' : k.status === 'exhausted' ? '🔴' : '⚠️';
-          text += `  ${icon} ${k.key} — ${k.status}\n`;
+          const icon = k.status === 'ok' ? '' : k.status === 'exhausted' ? '' : '';
+          text += `  ${icon} ${k.key}  ${k.status}\n`;
         }
         text += '\n';
       }
       res_el.textContent = text.trim();
     } else {
-      res_el.textContent = `❌ Error: ${data.error}`;
+      res_el.textContent = ` Error: ${data.error}`;
     }
   } catch(e) {
-    res_el.textContent = `❌ Network error: ${e.message}`;
+    res_el.textContent = ` Network error: ${e.message}`;
   }
 }
+
+
+// ── User Menu Toggle ──
+function toggleUserMenu() {
+  const menu = document.getElementById('user-menu');
+  const btn  = document.getElementById('user-avatar-btn');
+  const isOpen = menu.classList.contains('open');
+  document.getElementById('model-dropdown').classList.remove('open');
+  if (isOpen) {
+    menu.classList.remove('open');
+  } else {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top  = (rect.bottom + 8) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.classList.add('open');
+  }
+}
+
+// ── Model Dropdown Toggle ──
+function toggleModelDropdown() {
+  const dd  = document.getElementById('model-dropdown');
+  const btn = document.getElementById('model-select-btn');
+  const isOpen = dd.classList.contains('open');
+  document.getElementById('user-menu').classList.remove('open');
+  if (isOpen) {
+    dd.classList.remove('open');
+  } else {
+    const rect = btn.getBoundingClientRect();
+    dd.style.top  = (rect.bottom + 8) + 'px';
+    dd.style.left = rect.left + 'px';
+    dd.classList.add('open');
+  }
+}
+
+// ── Close dropdowns on outside tap (mobile) ──
+document.addEventListener('touchstart', function(e) {
+  const modelBtn = document.getElementById('model-select-btn');
+  const userBtn  = document.getElementById('user-avatar-btn');
+  if (modelBtn && !modelBtn.contains(e.target))
+    document.getElementById('model-dropdown').classList.remove('open');
+  if (userBtn && !userBtn.contains(e.target))
+    document.getElementById('user-menu').classList.remove('open');
+}, { passive: true });
+
+// ── Fix viewport height for iOS Safari ──
+function fixMobileHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+fixMobileHeight();
+window.addEventListener('resize', fixMobileHeight);
+window.addEventListener('orientationchange', function() {
+  setTimeout(fixMobileHeight, 100);
+});
 
 </script>
 </body>
