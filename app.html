@@ -723,9 +723,6 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
 }
 
 /* Фикс z-index — user-menu и model-dropdown поверх всего */
-/* user-menu и model-dropdown позиционируются через JS */
-.user-menu { position: fixed !important; }
-.model-dropdown { position: fixed !important; }
 
 /* На мобильном user-avatar позиционируется относительно экрана */
 @media (max-width: 768px) {
@@ -735,19 +732,19 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
   .input-btn, .input-send { min-width: 40px; min-height: 40px; }
   .user-avatar { min-width: 36px; min-height: 36px; }
 
-  /* User menu — top/left/right выставляются через JS (toggleUserMenu/toggleModelDropdown) */
+  /* User menu — координаты выставляются JS через getBoundingClientRect */
   .user-menu {
     position: fixed !important;
+    width: 200px !important;
     z-index: 9999 !important;
-    max-width: calc(100vw - 16px);
     box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   }
 
-  /* Model dropdown — top/left выставляются через JS */
+  /* Model dropdown — координаты выставляются JS через getBoundingClientRect */
   .model-dropdown {
     position: fixed !important;
+    width: 220px !important;
     z-index: 9999 !important;
-    max-width: calc(100vw - 16px);
   }
 
   /* Sidebar overlay поверх всего */
@@ -1916,8 +1913,9 @@ function toggleUserMenu() {
     menu.classList.remove('open');
   } else {
     const rect = btn.getBoundingClientRect();
-    menu.style.top  = (rect.bottom + 8) + 'px';
-    menu.style.right = (window.innerWidth - rect.right) + 'px';
+    menu.style.top   = (rect.bottom + 8) + 'px';
+    menu.style.left  = 'auto';
+    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
     menu.classList.add('open');
   }
 }
@@ -1932,8 +1930,9 @@ function toggleModelDropdown() {
     dd.classList.remove('open');
   } else {
     const rect = btn.getBoundingClientRect();
-    dd.style.top  = (rect.bottom + 8) + 'px';
-    dd.style.left = rect.left + 'px';
+    dd.style.top   = (rect.bottom + 8) + 'px';
+    dd.style.right = 'auto';
+    dd.style.left  = Math.max(8, rect.left) + 'px';
     dd.classList.add('open');
   }
 }
