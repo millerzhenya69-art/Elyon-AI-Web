@@ -125,10 +125,10 @@ body {
 .model-select:hover { border-color: var(--border2); color: var(--text-primary); }
 .model-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--beige); flex-shrink: 0; }
 .model-dropdown {
-  position: absolute; top: calc(100% + 8px); left: 0;
+  position: fixed;
   background: var(--card); border: 1px solid var(--border2);
-  border-radius: var(--radius); padding: 6px; min-width: 200px;
-  display: none; z-index: 300; box-shadow: var(--shadow-card);
+  border-radius: var(--radius); padding: 6px; width: 220px;
+  display: none; z-index: 10000; box-shadow: var(--shadow-card);
 }
 .model-dropdown.open { display: block; }
 .model-option {
@@ -161,10 +161,10 @@ body {
 }
 [data-theme="light"] .user-avatar { color: #f5f4f0; }
 .user-menu {
-  position: absolute; top: calc(100% + 8px); right: 0;
+  position: fixed;
   background: var(--card); border: 1px solid var(--border2);
-  border-radius: var(--radius); padding: 6px; min-width: 180px;
-  display: none; z-index: 300; box-shadow: var(--shadow-card);
+  border-radius: var(--radius); padding: 6px; width: 200px;
+  display: none; z-index: 10000; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
 }
 .user-menu.open { display: block; }
 .user-menu-item {
@@ -732,24 +732,11 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
   .input-btn, .input-send { min-width: 40px; min-height: 40px; }
   .user-avatar { min-width: 36px; min-height: 36px; }
 
-  /* User menu — координаты выставляются JS через getBoundingClientRect */
-  .user-menu {
-    position: fixed !important;
-    width: 200px !important;
-    z-index: 9999 !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-  }
-
-  /* Model dropdown — координаты выставляются JS через getBoundingClientRect */
-  .model-dropdown {
-    position: fixed !important;
-    width: 220px !important;
-    z-index: 9999 !important;
-  }
+  /* user-menu и model-dropdown позиционируются через JS portal */
 
   /* Sidebar overlay поверх всего */
-  .sidebar-overlay { z-index: 9998 !important; }
-  .sidebar { z-index: 9999 !important; }
+  .sidebar-overlay { z-index: 9989 !important; }
+  .sidebar { z-index: 9990 !important; }
 
   /* Панели — полный экран на мобильном */
   .panel { z-index: 10000 !important; }
@@ -1802,6 +1789,14 @@ async function loadUserList() {
 renderChatList();
 loadChatsFromServer();
 
+// Явно закрываем все дропдауны при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('user-menu').classList.remove('open');
+  document.getElementById('model-dropdown').classList.remove('open');
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+});
+
 
 
 // ADMIN PANEL JS
@@ -1912,10 +1907,16 @@ function toggleUserMenu() {
   if (isOpen) {
     menu.classList.remove('open');
   } else {
+    // Перемещаем в body для надёжного position:fixed на мобильных
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
     const rect = btn.getBoundingClientRect();
+    const menuWidth = 200;
+    const rightSpace = window.innerWidth - rect.right;
     menu.style.top   = (rect.bottom + 8) + 'px';
     menu.style.left  = 'auto';
-    menu.style.right = Math.max(8, window.innerWidth - rect.right) + 'px';
+    menu.style.right = Math.max(8, rightSpace) + 'px';
     menu.classList.add('open');
   }
 }
@@ -1929,6 +1930,10 @@ function toggleModelDropdown() {
   if (isOpen) {
     dd.classList.remove('open');
   } else {
+    // Перемещаем в body для надёжного position:fixed на мобильных
+    if (dd.parentElement !== document.body) {
+      document.body.appendChild(dd);
+    }
     const rect = btn.getBoundingClientRect();
     dd.style.top   = (rect.bottom + 8) + 'px';
     dd.style.right = 'auto';
