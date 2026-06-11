@@ -184,7 +184,7 @@ body {
   border-bottom: 1px solid var(--border2);
   z-index: 150; transform: translateY(-100%);
   transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  max-height: calc(100vh - 52px); overflow-y: auto; scrollbar-width: none;
+  max-height: calc(var(--vh, 1vh) * 100 - 52px); overflow-y: auto; scrollbar-width: none;
 }
 .sidebar::-webkit-scrollbar { display: none; }
 .sidebar.open { transform: translateY(0); }
@@ -1681,12 +1681,13 @@ function setFontSize(size, el) {
   document.body.style.fontSize = {small:'13px', medium:'15px', large:'17px'}[size];
 }
 function setLang(lang, el) {
-  const seg = el.closest('.segment');
-  seg.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  localStorage.setItem('elyon_lang', lang); applyLang(lang);
+  // Обновляем все кнопки сегмента языка
+  document.querySelectorAll('#seg-lang .seg-btn').forEach((b, i) => {
+    b.classList.toggle('active', lang === 'ru' ? i === 1 : i === 0);
+  });
+  localStorage.setItem('elyon_lang', lang);
+  applyLang(lang);
 }
-
 // 
 // TRANSLATIONS
 // 
@@ -1696,21 +1697,60 @@ const TRANSLATIONS = {
 };
 function t(key) { const lang=localStorage.getItem('elyon_lang')||'en'; return TRANSLATIONS[lang]?.[key]||TRANSLATIONS['en'][key]||key; }
 function applyLang(lang) {
-  const tr = TRANSLATIONS[lang]||TRANSLATIONS['en'];
-  const wt=document.querySelector('.welcome h1'); if(wt) wt.innerHTML=tr.welcome_title;
-  const ws=document.querySelector('.welcome-sub'); if(ws) ws.textContent=tr.welcome_sub;
-  const inp=document.getElementById('input'); if(inp) inp.placeholder=tr.input_placeholder;
-  const hint=document.querySelector('.input-hint'); if(hint) hint.textContent=tr.input_hint;
-  document.querySelectorAll('.sidebar-section-label').forEach((el,i)=>{ el.textContent=i===0?tr.recent_chats:tr.menu_label; });
-  const chips=document.querySelectorAll('.chip');
-  ['chip1','chip2','chip3','chip4','chip5'].forEach((key,i)=>{ if(chips[i]) chips[i].textContent=tr[key]; });
-  const labels={appearance:'label-appearance',theme:'label-theme',font_size:'label-fontsize',language:'label-lang',interface_lang:'label-lang',chat_section:'label-chat-group',send_enter:'label-enter',send_enter_sub:'label-enter-sub',show_typing:'label-typing'};
-  Object.entries(labels).forEach(([key,id])=>{ const el=document.getElementById(id); if(el) el.textContent=tr[key]; });
-  ['settings-panel','profile-panel','pricing-panel','admin-panel'].forEach((id,i)=>{
-    const p=document.getElementById(id); if(!p) return;
-    const titles=['panel_settings','panel_profile','panel_pricing','panel_admin'];
-    const t2=p.querySelector('.panel-title'); if(t2) t2.textContent=tr[titles[i]];
+  const tr = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+
+  // Welcome screen
+  const wt = document.getElementById('welcome-screen')?.querySelector('h1');
+  if (wt) wt.innerHTML = tr.welcome_title;
+  const ws = document.querySelector('.welcome-sub');
+  if (ws) ws.textContent = tr.welcome_sub;
+
+  // Input
+  const inp = document.getElementById('input');
+  if (inp) inp.placeholder = tr.input_placeholder;
+  const hint = document.querySelector('.input-hint');
+  if (hint) hint.textContent = tr.input_hint;
+
+  // Chips
+  const chips = document.querySelectorAll('.chip');
+  ['chip1','chip2','chip3','chip4','chip5'].forEach((key, i) => {
+    if (chips[i] && tr[key]) chips[i].textContent = tr[key];
   });
+
+  // Sidebar labels
+  document.querySelectorAll('.sidebar-section-label').forEach((el, i) => {
+    el.textContent = i === 0 ? tr.recent_chats : tr.menu_label;
+  });
+
+  // Settings labels
+  const labelMap = {
+    appearance: 'label-appearance', theme: 'label-theme',
+    font_size: 'label-fontsize', interface_lang: 'label-lang',
+    language: 'label-lang-group', chat_section: 'label-chat-group',
+    send_enter: 'label-enter', send_enter_sub: 'label-enter-sub',
+    show_typing: 'label-typing'
+  };
+  Object.entries(labelMap).forEach(([key, id]) => {
+    const el = document.getElementById(id);
+    if (el && tr[key]) el.textContent = tr[key];
+  });
+
+  // Panel titles
+  ['settings-panel','profile-panel','pricing-panel','admin-panel'].forEach((id, i) => {
+    const p = document.getElementById(id); if (!p) return;
+    const t2 = p.querySelector('.panel-title');
+    if (t2) t2.textContent = tr[['panel_settings','panel_profile','panel_pricing','panel_admin'][i]];
+  });
+
+  // Profile labels
+  const profileLabels = document.querySelectorAll('.profile-card-label');
+  const profileSubs   = document.querySelectorAll('.profile-card-sub');
+  if (profileLabels[0]) profileLabels[0].textContent = tr.subscription;
+  if (profileLabels[1]) profileLabels[1].textContent = tr.messages_today;
+  if (profileSubs[1])   profileSubs[1].textContent   = tr.resets_midnight;
+  if (profileLabels[2]) profileLabels[2].textContent = tr.member_since;
+  const upgBtn = document.querySelector('.btn-upgrade');
+  if (upgBtn) upgBtn.textContent = tr.upgrade_plan;
 }
 
 // 
@@ -1778,12 +1818,14 @@ async function loadUserList() {
 
 //     
 (function initLang() {
-  const saved=localStorage.getItem('elyon_lang')||'en';
-  if (saved==='ru') {
-    const seg=document.getElementById('seg-lang');
-    if (seg) { seg.querySelectorAll('.seg-btn').forEach((b,i)=>b.classList.toggle('active',i===1)); }
-    applyLang('ru');
+  const saved = localStorage.getItem('elyon_lang') || 'en';
+  const seg = document.getElementById('seg-lang');
+  if (seg) {
+    seg.querySelectorAll('.seg-btn').forEach((b, i) => {
+      b.classList.toggle('active', saved === 'ru' ? i === 1 : i === 0);
+    });
   }
+  applyLang(saved);
 })();
 
 renderChatList();
