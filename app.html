@@ -723,8 +723,9 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
 }
 
 /* Фикс z-index — user-menu и model-dropdown поверх всего */
-.user-menu { position: fixed !important; top: auto !important; right: 12px !important; }
-.model-dropdown { position: fixed !important; top: auto !important; left: 12px !important; }
+/* user-menu и model-dropdown позиционируются через JS */
+.user-menu { position: fixed !important; }
+.model-dropdown { position: fixed !important; }
 
 /* На мобильном user-avatar позиционируется относительно экрана */
 @media (max-width: 768px) {
@@ -734,23 +735,17 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
   .input-btn, .input-send { min-width: 40px; min-height: 40px; }
   .user-avatar { min-width: 36px; min-height: 36px; }
 
-  /* User menu фиксированный на мобильном */
+  /* User menu — top/left/right выставляются через JS (toggleUserMenu/toggleModelDropdown) */
   .user-menu {
     position: fixed !important;
-    top: 56px !important;
-    right: 8px !important;
-    left: auto !important;
     z-index: 9999 !important;
     max-width: calc(100vw - 16px);
     box-shadow: 0 8px 32px rgba(0,0,0,0.6);
   }
 
-  /* Model dropdown фиксированный */
+  /* Model dropdown — top/left выставляются через JS */
   .model-dropdown {
     position: fixed !important;
-    top: 56px !important;
-    left: 8px !important;
-    right: auto !important;
     z-index: 9999 !important;
     max-width: calc(100vw - 16px);
   }
@@ -1212,9 +1207,11 @@ function toggleSidebar() {
   document.getElementById('sidebar-overlay').classList.toggle('show');
 }
 
-function selectModel(id, label, e) {
+async function selectModel(id, label, e) {
   e.stopPropagation();
   if (PAID_MODELS.includes(id)) {
+    // Всегда синхронизируем с сервером перед проверкой подписки
+    await syncSubFromServer();
     const sub = getSessionSub();
     const subMap = { nova:['nova','pro','absolution','forever','custom','month','halfyear'], pro:['pro','absolution','forever','custom'], absolution:['absolution','forever'] };
     if (!(subMap[id]||[]).includes(sub)) {
@@ -1582,19 +1579,19 @@ function showSubscribePrompt(modelId) {
   overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:500;padding:24px;backdrop-filter:blur(8px);';
   overlay.innerHTML=`
     <div style="background:var(--off);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;max-width:400px;width:100%;text-align:center;position:relative;">
-      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer"></button>
+      <button onclick="document.getElementById('sub-prompt').remove()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button>
       <img src="elyon_logo.png" style="width:48px;height:48px;margin-bottom:16px;opacity:0.9">
       <div style="font-family:var(--serif);font-size:22px;color:var(--text-primary);margin-bottom:8px">${price.label}</div>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">      .</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:24px;line-height:1.6">Оформи подписку для доступа к этой модели.</div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <button onclick="openDonatePay('${modelId}');document.getElementById('sub-prompt').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--beige);color:var(--black);border-radius:12px;border:none;cursor:pointer;font-weight:500;font-size:14px;font-family:var(--sans);">
-          <span>   / </span><span>${price.rub}  / </span>
+        <button onclick="openDonatePay('${modelId}');document.getElementById('sub-prompt').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--beige);color:#1a1814;border-radius:12px;border:none;cursor:pointer;font-weight:500;font-size:14px;font-family:var(--sans);">
+          <span>💳 Оплатить картой / СБП</span><span>${price.rub} ₽ / мес</span>
         </button>
         <a href="https://t.me/${TG_BOT}?start=pay_${modelId==='absolution'?'abs':modelId}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--off);color:var(--text-primary);border:1px solid var(--border2);border-radius:12px;text-decoration:none;font-size:14px;">
-          <span> Telegram Stars</span>
+          <span>⭐ Telegram Stars</span>
         </a>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.5">    .</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.5">После оплаты подписка активируется автоматически.</div>
     </div>`;
   overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
   document.body.appendChild(overlay);
@@ -1808,17 +1805,6 @@ async function loadUserList() {
 renderChatList();
 loadChatsFromServer();
 
-
-// Fix viewport height for iOS Safari
-function fixMobileHeight() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', vh + 'px');
-}
-fixMobileHeight();
-window.addEventListener('resize', fixMobileHeight);
-window.addEventListener('orientationchange', function() {
-  setTimeout(fixMobileHeight, 100);
-});
 
 
 // ADMIN PANEL JS
