@@ -476,6 +476,11 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
   .btn-newchat { min-height: 36px; padding: 8px 14px; }
   .input-btn, .input-send { min-width: 40px; min-height: 40px; }
   .user-avatar { min-width: 36px; min-height: 36px; }
+  /* model-select на мобильном — компактнее */
+  .model-select { padding: 6px 10px; font-size: 12px; }
+  .model-select svg { display: none; }
+  /* topnav не обрезает содержимое */
+  .topnav { overflow: visible; }
   .sidebar-overlay { z-index: 9989 !important; }
   .sidebar { z-index: 9990 !important; }
   .panel { z-index: 10000 !important; }
@@ -523,24 +528,6 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
       <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor" style="opacity:0.5">
         <path d="M2 3.5 L5 6.5 L8 3.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
       </svg>
-      <div class="model-dropdown" id="model-dropdown">
-        <div class="model-option active" onclick="selectModel('core', 'Core', event)">
-          <div><div class="model-option-name">Elyon Core</div><div class="model-option-desc">Fast &amp; free · 15 msg/day</div></div>
-          <span class="model-badge">FREE</span>
-        </div>
-        <div class="model-option" onclick="selectModel('nova', 'Nova', event)">
-          <div><div class="model-option-name">Elyon Nova</div><div class="model-option-desc">Smarter responses · 30 msg/day</div></div>
-          <span class="model-badge">91₽</span>
-        </div>
-        <div class="model-option" onclick="selectModel('pro', 'PRO', event)">
-          <div><div class="model-option-name">Elyon PRO</div><div class="model-option-desc">Deep reasoning · 30 msg/day</div></div>
-          <span class="model-badge">182₽</span>
-        </div>
-        <div class="model-option" onclick="selectModel('absolution', 'Absolution', event)">
-          <div><div class="model-option-name">Elyon Absolution</div><div class="model-option-desc">Maximum capability · 30 msg/day</div></div>
-          <span class="model-badge">265₽</span>
-        </div>
-      </div>
     </div>
   </div>
   <div class="topnav-right">
@@ -550,16 +537,6 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
     </button>
     <div class="user-avatar" onclick="toggleUserMenu()" id="user-avatar-btn">
       U
-      <div class="user-menu" id="user-menu">
-        <a href="#" class="user-menu-item" onclick="showPanel('profile-panel')"><span>👤</span> Profile</a>
-        <a href="#" class="user-menu-item" onclick="showPanel('pricing-panel')"><span>⭐</span> Pricing</a>
-        <a href="#" class="user-menu-item" onclick="showPanel('settings-panel')"><span>⚙️</span> Settings</a>
-        <div class="user-menu-sep"></div>
-        <a href="javascript:void(0)" onclick="window.location.href='privacy.html'" class="user-menu-item"><span>📄</span> Privacy Policy</a>
-        <a href="javascript:void(0)" onclick="window.location.href='privacy.html?tab=terms'" class="user-menu-item"><span>📋</span> Terms of Service</a>
-        <div class="user-menu-sep"></div>
-        <a href="auth.html" class="user-menu-item danger" onclick="localStorage.clear()"><span>↩</span> Sign out</a>
-      </div>
     </div>
   </div>
 </nav>
@@ -819,6 +796,38 @@ button, .btn-newchat, .nav-trigger, .input-btn, .input-send,
     </div>
   </div>
 </div>
+
+<!-- ══ PORTALS — меню живут здесь, не внутри topnav ══ -->
+<div class="user-menu" id="user-menu" style="display:none">
+  <a href="#" class="user-menu-item" onclick="showPanel('profile-panel')"><span>👤</span> Profile</a>
+  <a href="#" class="user-menu-item" onclick="showPanel('pricing-panel')"><span>⭐</span> Pricing</a>
+  <a href="#" class="user-menu-item" onclick="showPanel('settings-panel')"><span>⚙️</span> Settings</a>
+  <div class="user-menu-sep"></div>
+  <a href="javascript:void(0)" onclick="window.location.href='privacy.html'" class="user-menu-item"><span>📄</span> Privacy Policy</a>
+  <a href="javascript:void(0)" onclick="window.location.href='privacy.html?tab=terms'" class="user-menu-item"><span>📋</span> Terms of Service</a>
+  <div class="user-menu-sep"></div>
+  <a href="auth.html" class="user-menu-item danger" onclick="localStorage.clear()"><span>↩</span> Sign out</a>
+</div>
+
+<div class="model-dropdown" id="model-dropdown" style="display:none">
+  <div class="model-option active" onclick="selectModel('core', 'Core', event)">
+    <div><div class="model-option-name">Elyon Core</div><div class="model-option-desc">Fast &amp; free · 15 msg/day</div></div>
+    <span class="model-badge">FREE</span>
+  </div>
+  <div class="model-option" onclick="selectModel('nova', 'Nova', event)">
+    <div><div class="model-option-name">Elyon Nova</div><div class="model-option-desc">Smarter responses · 30 msg/day</div></div>
+    <span class="model-badge">91₽</span>
+  </div>
+  <div class="model-option" onclick="selectModel('pro', 'PRO', event)">
+    <div><div class="model-option-name">Elyon PRO</div><div class="model-option-desc">Deep reasoning · 30 msg/day</div></div>
+    <span class="model-badge">182₽</span>
+  </div>
+  <div class="model-option" onclick="selectModel('absolution', 'Absolution', event)">
+    <div><div class="model-option-name">Elyon Absolution</div><div class="model-option-desc">Maximum capability · 30 msg/day</div></div>
+    <span class="model-badge">265₽</span>
+  </div>
+</div>
+
 
 <script>
 let chatStarted  = false;
@@ -1410,13 +1419,12 @@ async function loadUserList() {
     const u=JSON.parse(raw);
     const letter=(u.first_name||u.email||'U')[0].toUpperCase();
     const avatarBtn=document.getElementById('user-avatar-btn');
-    const userMenu=document.getElementById('user-menu');
     if (u.avatar) {
       const img=document.createElement('img');
       img.src=u.avatar; img.style.cssText='width:32px;height:32px;border-radius:50%;object-fit:cover;pointer-events:none';
-      img.onerror=()=>{avatarBtn.innerHTML=letter; avatarBtn.appendChild(userMenu);};
-      avatarBtn.innerHTML=''; avatarBtn.appendChild(img); avatarBtn.appendChild(userMenu);
-    } else { avatarBtn.innerHTML=letter; avatarBtn.appendChild(userMenu); }
+      img.onerror=()=>{ avatarBtn.textContent=letter; };
+      avatarBtn.innerHTML=''; avatarBtn.appendChild(img);
+    } else { avatarBtn.textContent=letter; }
     const fullName=[u.first_name,u.last_name].filter(Boolean).join(' ')||u.email||'User';
     const nameEl=document.querySelector('.profile-name');
     const emailEl=document.querySelector('.profile-email');
@@ -1443,6 +1451,7 @@ loadChatsFromServer();
 
 // ══ DOMContentLoaded — язык применяем когда DOM готов ══
 document.addEventListener('DOMContentLoaded', function() {
+  // Меню уже скрыты через CSS display:none, просто гарантируем
   document.getElementById('user-menu').classList.remove('open');
   document.getElementById('model-dropdown').classList.remove('open');
   document.getElementById('sidebar').classList.remove('open');
@@ -1519,12 +1528,11 @@ function toggleUserMenu() {
   if (isOpen) {
     menu.classList.remove('open');
   } else {
-    if (menu.parentElement !== document.body) document.body.appendChild(menu);
     const rect = btn.getBoundingClientRect();
     const rightSpace = window.innerWidth - rect.right;
     menu.style.top   = (rect.bottom + 8) + 'px';
     menu.style.left  = 'auto';
-    menu.style.right = Math.max(8, rightSpace) + 'px';
+    menu.style.right = Math.max(8, Math.round(rightSpace)) + 'px';
     menu.classList.add('open');
   }
 }
@@ -1536,11 +1544,10 @@ function toggleModelDropdown() {
   if (isOpen) {
     dd.classList.remove('open');
   } else {
-    if (dd.parentElement !== document.body) document.body.appendChild(dd);
     const rect = btn.getBoundingClientRect();
     dd.style.top   = (rect.bottom + 8) + 'px';
     dd.style.right = 'auto';
-    dd.style.left  = Math.max(8, rect.left) + 'px';
+    dd.style.left  = Math.max(8, Math.round(rect.left)) + 'px';
     dd.classList.add('open');
   }
 }
