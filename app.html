@@ -135,34 +135,69 @@ body { background: var(--black); color: var(--text-primary); font-family: var(--
   background: var(--bg-topnav); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--border2); z-index: 150; transform: translateY(-100%);
   transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  max-height: calc(var(--vh, 1vh) * 100 - 52px); overflow-y: auto; scrollbar-width: none;
+  max-height: calc(var(--vh, 1vh) * 100 - 52px); overflow-y: auto; overflow-x: hidden; scrollbar-width: none;
 }
 .sidebar::-webkit-scrollbar { display: none; }
 .sidebar.open { transform: translateY(0); }
 
-/* ══ SIDEBAR INNER — десктоп ══ */
+/* ══ SIDEBAR INNER ══ */
 .sidebar-inner {
-  max-width: 900px; margin: 0 auto; padding: 20px 24px 24px;
-  display: flex; gap: 24px; align-items: flex-start;
+  max-width: 900px; width: 100%; margin: 0 auto; padding: 20px 24px 24px;
+  display: flex; gap: 24px; align-items: flex-start; box-sizing: border-box;
 }
 
-/* ══ SIDEBAR INNER — мобильный (≤600px) ══ */
-@media (max-width: 600px) {
-  .sidebar-inner {
-    flex-direction: column; gap: 0; padding: 12px 12px 16px;
+/* ══ МОБИЛЬНЫЙ САЙДБАР (≤768px) — полная переработка ══ */
+@media (max-width: 768px) {
+  /* sidebar занимает весь экран под topnav, скроллится */
+  .sidebar {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
-  .sidebar-chats { width: 100%; }
+  .sidebar-inner {
+    flex-direction: column !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+  }
+  /* Чаты — сверху, полная ширина */
+  .sidebar-chats {
+    width: 100%;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--border2);
+  }
+  .chat-list-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+  /* Nav — снизу, горизонтальная плашка */
   .sidebar-nav {
-    width: 100%; padding-left: 0; border-left: none;
-    border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;
-    flex-direction: row; flex-wrap: wrap; gap: 2px;
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    padding: 8px 8px 12px !important;
+    border-left: none !important;
+    gap: 4px !important;
   }
   .sidebar-nav-item {
-    flex: 1; min-width: 90px; padding: 10px 6px;
-    justify-content: center; font-size: 12px;
+    flex: 1 1 auto !important;
+    min-width: 80px !important;
+    padding: 10px 8px !important;
+    justify-content: center !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+    white-space: normal !important;
   }
-  .sidebar-nav .sidebar-section-label { display: none; }
-  .chat-list-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  /* Скрываем разделители и заголовок nav */
+  .sidebar-nav > div[style*="height:1px"] { display: none !important; }
+  .sidebar-nav .sidebar-section-label { display: none !important; }
+  /* Sign out — красная кнопка на всю ширину */
+  .sidebar-nav > a[style*="color:#e07070"] {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    justify-content: center !important;
+    border-top: 1px solid var(--border) !important;
+    margin-top: 4px !important;
+    padding-top: 12px !important;
+  }
 }
 
 .sidebar-chats { flex: 1; min-width: 0; }
