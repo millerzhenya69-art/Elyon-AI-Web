@@ -2,13 +2,6 @@
   "rewrites": [
     { "source": "/auth", "destination": "/auth.html" }
   ],
-  "routes": [
-    { "src": "/privacy.html", "dest": "/privacy.html" },
-    { "src": "/privacy.html\\?.*", "dest": "/privacy.html" },
-    { "src": "/auth.html", "dest": "/auth.html" },
-    { "src": "/app.html", "dest": "/app.html" },
-    { "src": "/", "dest": "/index.html" }
-  ],
   "headers": [
     {
       "source": "/(.*)",

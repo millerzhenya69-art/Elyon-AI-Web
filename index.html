@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Elyon AI</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0e0e0e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Elyon AI">
+<link rel="apple-touch-icon" href="elyon_logo.png">
+<link rel="apple-touch-startup-image" href="elyon_logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -38,6 +48,12 @@
   .orbit-dot { position: absolute; top: -3px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: var(--beige); border-radius: 50%; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Hero quick-download row (under hero CTA) */
+  .hero-downloads { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 36px; opacity: 0; animation: fadeUp 0.9s 0.45s forwards; }
+  .hero-dl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--off); border: 1px solid var(--border); border-radius: 100px; color: var(--white); text-decoration: none; font-size: 13px; font-weight: 500; transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+  .hero-dl-btn:hover { border-color: rgba(232,221,208,0.3); background: var(--card); transform: translateY(-1px); }
+  .hero-dl-btn .dl-glyph { font-size: 14px; color: var(--beige2); }
+
   /* Sections */
   .section { position: relative; z-index: 1; padding: 100px 48px; max-width: 1100px; margin: 0 auto; }
   .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--beige2); margin-bottom: 20px; }
@@ -50,6 +66,23 @@
   .feature h3 { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--white); margin-bottom: 10px; }
   .feature p { font-size: 14px; color: var(--muted); line-height: 1.65; }
   .divider { position: relative; z-index: 1; border: none; border-top: 1px solid var(--border); margin: 0 48px; }
+
+  /* ── Download section ──────────────────────────────────────── */
+  .download-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-top: 48px; }
+  .download-card { position: relative; display: flex; flex-direction: column; background: var(--off); border: 1px solid var(--border); border-radius: 18px; padding: 26px 24px; transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+  .download-card:hover { border-color: rgba(232,221,208,0.28); background: var(--card); transform: translateY(-2px); }
+  .download-card.featured { border-color: rgba(232,221,208,0.3); }
+  .download-card.featured::before { content: 'RECOMMENDED'; position: absolute; top: -1px; right: 18px; transform: translateY(-50%); background: var(--beige); color: var(--black); font-size: 9px; font-weight: 600; letter-spacing: 0.1em; padding: 3px 9px; border-radius: 100px; }
+  .download-icon { width: 44px; height: 44px; border-radius: 11px; background: rgba(232,221,208,0.08); border: 1px solid rgba(232,221,208,0.16); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--beige); margin-bottom: 20px; }
+  .download-platform { font-family: var(--serif); font-size: 22px; font-weight: 400; color: var(--white); margin-bottom: 4px; }
+  .download-meta { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .download-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 11px 18px; background: var(--beige); color: var(--black); border: none; border-radius: 11px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.2s, transform 0.15s; letter-spacing: 0.01em; margin-top: auto; }
+  .download-btn:hover { background: var(--white); transform: translateY(-1px); }
+  .download-btn.secondary { background: transparent; color: var(--white); border: 1px solid var(--border); }
+  .download-btn.secondary:hover { border-color: rgba(232,221,208,0.3); background: rgba(232,221,208,0.06); }
+  .download-btn[aria-disabled="true"] { background: var(--card); color: var(--muted); cursor: not-allowed; pointer-events: none; border: 1px solid var(--border); }
+  .download-note { margin-top: 32px; font-size: 12px; color: var(--muted); line-height: 1.7; max-width: 640px; }
+  .download-note strong { color: var(--beige2); font-weight: 500; }
 
   /* Socials — ОБНОВЛЕНО: 6 карточек */
   .socials-section { position: relative; z-index: 1; padding: 80px 48px; max-width: 1100px; margin: 0 auto; }
@@ -91,6 +124,7 @@
     footer { padding: 24px 20px; flex-direction: column; text-align: center; }
     .cta-box { padding: 40px 24px; }
     .socials-grid { grid-template-columns: 1fr 1fr; }
+    .hero-downloads { flex-direction: column; align-items: stretch; }
   }
 </style>
 </head>
@@ -101,7 +135,7 @@
     <img src="elyon_logo.png" alt="Elyon logo">
     <span>Elyon</span>
   </a>
-  <a href="auth.html" class="nav-cta">Get started →</a>
+  <a href="#download" class="nav-cta">Download →</a>
 </nav>
 
 <section class="hero">
@@ -114,6 +148,14 @@
   <p class="hero-sub" style="opacity:0;animation:fadeUp 0.9s 0.35s forwards">
     Elyon AI is a personal intelligence layer — built for clarity, speed, and depth. Ask anything. Understand everything.
   </p>
+
+  <!-- Quick download row: jumps to the full Download section below -->
+  <div class="hero-downloads">
+    <a href="#download" class="hero-dl-btn"><span class="dl-glyph">⟡</span> Windows</a>
+    <a href="#download" class="hero-dl-btn"><span class="dl-glyph">▲</span> Android</a>
+    <a href="#download" class="hero-dl-btn"><span class="dl-glyph">◐</span> macOS</a>
+    <a href="#download" class="hero-dl-btn"><span class="dl-glyph">⬢</span> Linux</a>
+  </div>
 </section>
 
 <hr class="divider">
@@ -153,6 +195,89 @@
       <p>From free Core to Absolution — pick the model that fits your depth of work.</p>
     </div>
   </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ DOWNLOAD — new section ══════════════════════════════════ -->
+<section class="section" id="download">
+  <p class="section-label reveal">Get the app</p>
+  <h2 class="section-title reveal">Available <em>everywhere</em> you work.</h2>
+
+  <div class="download-grid reveal">
+
+    <!-- Windows -->
+    <div class="download-card">
+      <div class="download-icon">⟡</div>
+      <div class="download-platform">Windows</div>
+      <div class="download-meta">Coming soon</div>
+      <a href="#" class="download-btn" aria-disabled="true">Not available yet</a>
+    </div>
+
+    <!-- Android -->
+    <div class="download-card featured">
+      <div class="download-icon">▲</div>
+      <div class="download-platform">Android</div>
+      <div class="download-meta">Android 5.0+ · ~9 MB · APK</div>
+      <a href="downloads/elyon-ai-android-arm64.apk"
+         class="download-btn" download style="margin-bottom:8px">64-bit .apk <span style="font-size:11px;opacity:0.6">(modern)</span></a>
+      <a href="downloads/elyon-ai-android-arm32.apk"
+         class="download-btn secondary" download style="font-size:12px">32-bit .apk <span style="font-size:11px;opacity:0.6">(Old Phone)</span></a>
+    </div>
+
+    <!-- macOS -->
+    <div class="download-card">
+      <div class="download-icon">◐</div>
+      <div class="download-platform">macOS</div>
+      <div class="download-meta">Apple Silicon &amp; Intel · ~25 MB</div>
+      <a href="downloads/elyon-ai-macos.dmg"
+         class="download-btn" download>Download .dmg</a>
+    </div>
+
+    <!-- Linux -->
+    <div class="download-card">
+      <div class="download-icon">⬢</div>
+      <div class="download-platform">Linux</div>
+      <div class="download-meta">x64 · tar.gz bundle · ~19 MB</div>
+      <a href="downloads/elyon-ai-linux.tar.gz"
+         class="download-btn" download>Download .tar.gz</a>
+    </div>
+
+    <!-- iOS — Web App (Add to Home Screen) -->
+    <div class="download-card" id="ios-card">
+      <div class="download-icon">◌</div>
+      <div class="download-platform">iOS</div>
+      <div class="download-meta">iPhone &amp; iPad · Add to Home Screen</div>
+      <button class="download-btn secondary" id="ios-pwa-btn" onclick="showIosInstructions()">Add to iPhone</button>
+    </div>
+
+    <!-- iOS install instructions tooltip -->
+    <div id="ios-instructions" style="display:none;grid-column:1/-1;background:var(--card);border:1px solid rgba(232,221,208,0.2);border-radius:14px;padding:24px 28px;font-size:13px;color:var(--muted);line-height:1.8">
+      <strong style="color:var(--beige2);font-size:14px">How to add Elyon to your iPhone home screen:</strong><br><br>
+      1. Open <strong style="color:var(--white)">Safari</strong> on your iPhone (must be Safari, not Chrome)<br>
+      2. Go to <strong style="color:var(--white)">http://elyon-ai-web.vercel.app/</strong> and tap the app to open it<br>
+      3. Tap the <strong style="color:var(--white)">Share</strong> button (box with arrow) at the bottom of the screen<br>
+      4. Scroll down and tap <strong style="color:var(--white)">&ldquo;Add to Home Screen&rdquo;</strong><br>
+      5. Tap <strong style="color:var(--white)">&ldquo;Add&rdquo;</strong> in the top right corner<br><br>
+      Elyon will appear on your home screen like a native app — with its own icon, no browser chrome, and full-screen mode.
+    </div>
+
+    <!-- Web — always available, no install needed -->
+    <div class="download-card">
+      <div class="download-icon">◎</div>
+      <div class="download-platform">Web App</div>
+      <div class="download-meta">No install · works in any browser</div>
+      <a href="auth.html" class="download-btn secondary">Open in browser</a>
+    </div>
+
+  </div>
+
+  <p class="download-note">
+    Installers are distributed via <strong>GitHub Releases</strong> and signed where the platform requires it.
+    Windows SmartScreen may show a publisher warning on first run — this is expected for a new code-signing
+    certificate and will fade as installs accumulate reputation. Always download from this page or our official
+    <a href="https://t.me/AI_Elyon" target="_blank" style="color:var(--beige2)">Telegram channel</a> — never from third-party mirrors.
+  </p>
 </section>
 
 <hr class="divider">
@@ -256,6 +381,29 @@ const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.12 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// iOS PWA instructions toggle
+function showIosInstructions() {
+  const box = document.getElementById('ios-instructions');
+  const btn = document.getElementById('ios-pwa-btn');
+  if (box.style.display === 'none') {
+    box.style.display = 'block';
+    btn.textContent = 'Hide instructions';
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    box.style.display = 'none';
+    btn.textContent = 'Add to iPhone';
+  }
+}
+
+// Register Service Worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.warn('SW registration failed:', err);
+    });
+  });
+}
 </script>
 </body>
 </html>

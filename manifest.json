@@ -1,0 +1,27 @@
+{
+  "name": "Elyon AI",
+  "short_name": "Elyon",
+  "description": "Elyon AI — personal intelligence layer. Think deeper, move faster.",
+  "start_url": "/auth.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "elyon_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "elyon_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"]
+}
