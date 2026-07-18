@@ -492,15 +492,7 @@ async function handleGoogleAccessToken(accessToken) {
 // Используем имя бота, Telegram сам резолвит ID через oauth.telegram.org
 // ══ TELEGRAM AUTH — через /auth в боте ════════════════════════════
 
-// Проверяем tg_token в URL при загрузке страницы
-(function checkTgToken() {
-  const params = new URLSearchParams(window.location.search);
-  const token  = params.get('tg_token');
-  if (!token) return;
-
-  // Чистим URL
-  window.history.replaceState({}, document.title, window.location.pathname);
-
+function verifyTelegramToken(token) {
   showLoading('Signing in with Telegram...');
   fetch(`${BACKEND_URL}/api/auth/telegram_token`, {
     method:  'POST',
@@ -521,6 +513,30 @@ async function handleGoogleAccessToken(accessToken) {
     hideLoading();
     showToast('Network error. Try again.', 'error');
   });
+}
+
+// Проверяем tg_token в URL при загрузке страницы. Telegram Bot API не
+// разрешает кастомные схемы (elyonai://) в url кнопок — только http(s)/tg:// —
+// поэтому бот всегда шлёт ссылку сюда, на обычную https-страницу. Чтобы всё
+// же открыть нативное приложение напрямую на телефоне, пробуем передать
+// управление в elyonai:// здесь, на этой уже открывшейся https-странице:
+// если приложение установлено, ОС перехватит переход и покинет страницу;
+// если нет — страница остаётся видимой, и через короткий таймаут просто
+// продолжаем обычный веб-вход (тот же токен, ещё не использован).
+(function checkTgToken() {
+  const params = new URLSearchParams(window.location.search);
+  const token  = params.get('tg_token');
+  if (!token) return;
+
+  window.history.replaceState({}, document.title, window.location.pathname);
+
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = `elyonai://auth?token=${encodeURIComponent(token)}`;
+    setTimeout(() => verifyTelegramToken(token), 1200);
+  } else {
+    verifyTelegramToken(token);
+  }
 })();
 
 function triggerTelegram() {
