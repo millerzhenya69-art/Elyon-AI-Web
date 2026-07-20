@@ -492,7 +492,8 @@ async function handleGoogleAccessToken(accessToken) {
 // Используем имя бота, Telegram сам резолвит ID через oauth.telegram.org
 // ══ TELEGRAM AUTH — через /auth в боте ════════════════════════════
 
-function verifyTelegramToken(token) {
+function verifyTelegramToken(token, opts) {
+  opts = opts || {};
   showLoading('Signing in with Telegram...');
   fetch(`${BACKEND_URL}/api/auth/telegram_token`, {
     method:  'POST',
@@ -503,32 +504,74 @@ function verifyTelegramToken(token) {
   .then(data => {
     hideLoading();
     if (data.ok) {
-      showToast('Welcome to Elyon!', 'success');
-      setTimeout(() => saveSessionAndRedirect(data.user), 700);
+      if (opts.native) {
+        // Нативное приложение открыло эту страницу через
+        // flutter_web_auth_2 — отдаём данные пользователя обратно в
+        // приложение через elyonai://auth-callback — само приложение
+        // делает HTTP-запрос через браузерный стек, а не свой собственный
+        // сокет, обходя проблемы с DNS/сокетами на отдельных устройствах.
+        const u = data.user || {};
+        const cb = new URLSearchParams({
+          user_id:    u.user_id    || '',
+          email:      u.email      || '',
+          first_name: u.first_name || '',
+          last_name:  u.last_name  || '',
+          avatar:     u.avatar     || '',
+          provider:   u.provider   || 'telegram',
+          username:   u.username   || '',
+          sub_type:   u.sub_type   || 'none',
+        });
+        window.location.href = `elyonai://auth-callback?${cb.toString()}`;
+      } else {
+        showToast('Welcome to Elyon!', 'success');
+        setTimeout(() => saveSessionAndRedirect(data.user), 700);
+      }
     } else {
-      showToast(data.error || 'Telegram sign-in failed.', 'error');
+      if (opts.native) {
+        window.location.href = `elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Telegram sign-in failed.')}`;
+      } else {
+        showToast(data.error || 'Telegram sign-in failed.', 'error');
+      }
     }
   })
   .catch(() => {
     hideLoading();
-    showToast('Network error. Try again.', 'error');
+    if (opts.native) {
+      window.location.href = `elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`;
+    } else {
+      showToast('Network error. Try again.', 'error');
+    }
   });
 }
 
-// Проверяем tg_token в URL при загрузке страницы. Telegram Bot API не
-// разрешает кастомные схемы (elyonai://) в url кнопок — только http(s)/tg:// —
-// поэтому бот всегда шлёт ссылку сюда, на обычную https-страницу. Чтобы всё
-// же открыть нативное приложение напрямую на телефоне, пробуем передать
-// управление в elyonai:// здесь, на этой уже открывшейся https-странице:
-// если приложение установлено, ОС перехватит переход и покинет страницу;
-// если нет — страница остаётся видимой, и через короткий таймаут просто
-// продолжаем обычный веб-вход (тот же токен, ещё не использован).
+// Проверяем tg_token в URL при загрузке страницы.
+//
+// Два разных сценария используют один и тот же tg_token-параметр:
+//
+// 1) native=1 — страница открыта из приложения через flutter_web_auth_2
+//    (Android/iOS). Делаем verify прямо тут (в браузерном/WebView сетевом
+//    стеке — это и есть весь смысл, на отдельных устройствах у приложения
+//    свои сокеты почему-то не резолвят DNS, а у браузера всё работает) и
+//    отдаём результат обратно в приложение через elyonai://auth-callback.
+//
+// 2) без native — старый сценарий: пользователь перешёл по https-ссылке
+//    прямо из сообщения бота в Telegram (Bot API не пропускает кастomные
+//    url-схемы в кнопках, поэтому бот всегда шлёт сюда). Пробуем сразу же
+//    передать управление в elyonai://auth?token=... — если приложение
+//    установлено, ОС перехватит переход; если нет — через таймаут просто
+//    продолжаем обычный веб-вход тем же токеном.
 (function checkTgToken() {
   const params = new URLSearchParams(window.location.search);
   const token  = params.get('tg_token');
   if (!token) return;
 
+  const isNative = params.get('native') === '1';
   window.history.replaceState({}, document.title, window.location.pathname);
+
+  if (isNative) {
+    verifyTelegramToken(token, { native: true });
+    return;
+  }
 
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isMobile) {
