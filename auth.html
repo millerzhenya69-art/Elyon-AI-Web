@@ -435,6 +435,26 @@ function saveSessionAndRedirect(userData) {
 // ══ GOOGLE AUTH ═══════════════════════════════════════════════════
 const GOOGLE_REDIRECT_URI = window.location.origin + window.location.pathname;
 
+// native=1&provider=google — эта страница открыта из приложения через
+// flutter_web_auth_2 (Android/iOS): сама страница делает весь Google OAuth
+// (стандартный https-redirect_uri, без custom URI scheme и без отдельного
+// Android-клиента), а по завершении отдаёт результат обратно в приложение
+// через elyonai://auth-callback — тот же паттерн, что и уже рабочий native-
+// флоу для Telegram ниже. Google-редирект не может пронести через себя наш
+// собственный query-параметр (redirect_uri — фиксированная строка без наших
+// параметров, иначе Google бы его отклонил как незарегистрированный),
+// поэтому намерение "native" сохраняется в sessionStorage на время redirect'а.
+const GOOGLE_NATIVE_FLAG = 'elyon_google_native_auth';
+
+(function initGoogleNative() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('provider') === 'google' && params.get('native') === '1') {
+    sessionStorage.setItem(GOOGLE_NATIVE_FLAG, '1');
+    window.history.replaceState({}, document.title, window.location.pathname);
+    triggerGoogle();
+  }
+})();
+
 function triggerGoogle() {
   const params = new URLSearchParams({
     client_id:     GOOGLE_CLIENT_ID,
@@ -460,6 +480,8 @@ function triggerGoogle() {
 
 async function handleGoogleAccessToken(accessToken) {
   showLoading('Verifying with Google...');
+  const isNative = sessionStorage.getItem(GOOGLE_NATIVE_FLAG) === '1';
+  sessionStorage.removeItem(GOOGLE_NATIVE_FLAG);
   try {
     const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: 'Bearer ' + accessToken }
@@ -475,15 +497,40 @@ async function handleGoogleAccessToken(accessToken) {
     const data = await res.json();
     hideLoading();
     if (data.ok) {
-      showToast('Welcome to Elyon!', 'success');
-      setTimeout(() => saveSessionAndRedirect(data.user), 700);
+      if (isNative) {
+        // Тот же принцип, что и в verifyTelegramToken ниже — отдаём данные
+        // пользователя обратно в приложение через elyonai://auth-callback.
+        const u = data.user || {};
+        const cb = new URLSearchParams({
+          user_id:    u.user_id    || '',
+          email:      u.email      || '',
+          first_name: u.first_name || '',
+          last_name:  u.last_name  || '',
+          avatar:     u.avatar     || '',
+          provider:   u.provider   || 'google',
+          username:   u.username   || '',
+          sub_type:   u.sub_type   || 'none',
+        });
+        window.location.href = `elyonai://auth-callback?${cb.toString()}`;
+      } else {
+        showToast('Welcome to Elyon!', 'success');
+        setTimeout(() => saveSessionAndRedirect(data.user), 700);
+      }
     } else {
-      showToast(data.error || 'Sign-in failed.', 'error');
+      if (isNative) {
+        window.location.href = `elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Google sign-in failed.')}`;
+      } else {
+        showToast(data.error || 'Sign-in failed.', 'error');
+      }
     }
   } catch (e) {
     hideLoading();
-    showToast('Network error. Try again.', 'error');
     console.error('Google auth error:', e);
+    if (isNative) {
+      window.location.href = `elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`;
+    } else {
+      showToast('Network error. Try again.', 'error');
+    }
   }
 }
 
