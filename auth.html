@@ -432,6 +432,43 @@ function saveSessionAndRedirect(userData) {
   window.location.href = 'app.html';
 }
 
+// ── Native handoff (elyonai://auth-callback) ───────────────────────
+// window.location.href на кастомную схему, вызванный ИЗ JS БЕЗ реального
+// пользовательского жеста, во многих браузерах (включая Chrome Custom Tabs
+// на Android) молча блокируется политиками user-activation — страница
+// просто остаётся на месте / падает на обычный веб-флоу без вообще какой-
+// либо ошибки. Поэтому: сначала пробуем программный клик по <a> (иногда
+// засчитывается как activation), И ОДНОВРЕМЕННО показываем видимую кнопку-
+// фолбэк — так пользователь никогда не застревает на сайте молча, даже
+// если автоматический способ не сработал.
+function handoffToApp(url) {
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (e) {}
+
+  hideLoading();
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;inset:0;background:#0e0e0e;z-index:1000;' +
+    'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;text-align:center;';
+  banner.innerHTML = `
+    <div style="font-family:'Instrument Serif',Georgia,serif;font-size:26px;color:#f8f5f0;">
+      ✓ Signed in to Elyon AI
+    </div>
+    <div style="font-family:'DM Sans',sans-serif;font-size:14px;color:rgba(248,245,240,0.5);max-width:320px;">
+      If the app didn't open automatically, tap the button below.
+    </div>
+    <a href="${url}" style="font-family:'DM Sans',sans-serif;background:#e8ddd0;color:#0e0e0e;
+      padding:14px 28px;border-radius:100px;text-decoration:none;font-size:14px;font-weight:500;">
+      Return to Elyon app
+    </a>`;
+  document.body.appendChild(banner);
+}
+
 // ══ GOOGLE AUTH ═══════════════════════════════════════════════════
 const GOOGLE_REDIRECT_URI = window.location.origin + window.location.pathname;
 
@@ -511,14 +548,14 @@ async function handleGoogleAccessToken(accessToken) {
           username:   u.username   || '',
           sub_type:   u.sub_type   || 'none',
         });
-        window.location.href = `elyonai://auth-callback?${cb.toString()}`;
+        handoffToApp(`elyonai://auth-callback?${cb.toString()}`);
       } else {
         showToast('Welcome to Elyon!', 'success');
         setTimeout(() => saveSessionAndRedirect(data.user), 700);
       }
     } else {
       if (isNative) {
-        window.location.href = `elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Google sign-in failed.')}`;
+        handoffToApp(`elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Google sign-in failed.')}`);
       } else {
         showToast(data.error || 'Sign-in failed.', 'error');
       }
@@ -527,7 +564,7 @@ async function handleGoogleAccessToken(accessToken) {
     hideLoading();
     console.error('Google auth error:', e);
     if (isNative) {
-      window.location.href = `elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`;
+      handoffToApp(`elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`);
     } else {
       showToast('Network error. Try again.', 'error');
     }
@@ -568,14 +605,14 @@ function verifyTelegramToken(token, opts) {
           username:   u.username   || '',
           sub_type:   u.sub_type   || 'none',
         });
-        window.location.href = `elyonai://auth-callback?${cb.toString()}`;
+        handoffToApp(`elyonai://auth-callback?${cb.toString()}`);
       } else {
         showToast('Welcome to Elyon!', 'success');
         setTimeout(() => saveSessionAndRedirect(data.user), 700);
       }
     } else {
       if (opts.native) {
-        window.location.href = `elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Telegram sign-in failed.')}`;
+        handoffToApp(`elyonai://auth-callback?error=${encodeURIComponent(data.error || 'Telegram sign-in failed.')}`);
       } else {
         showToast(data.error || 'Telegram sign-in failed.', 'error');
       }
@@ -584,7 +621,7 @@ function verifyTelegramToken(token, opts) {
   .catch(() => {
     hideLoading();
     if (opts.native) {
-      window.location.href = `elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`;
+      handoffToApp(`elyonai://auth-callback?error=${encodeURIComponent('Network error. Try again.')}`);
     } else {
       showToast('Network error. Try again.', 'error');
     }
