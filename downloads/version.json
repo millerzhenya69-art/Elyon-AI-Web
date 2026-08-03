@@ -1,0 +1,10 @@
+{
+  "version": "1.0.1",
+  "urls": {
+    "windows":       "https://elyon-ai-web.vercel.app/downloads/elyon-ai-windows.zip",
+    "android_arm64": "https://elyon-ai-web.vercel.app/downloads/elyon-ai-android-arm64.apk",
+    "android_arm32": "https://elyon-ai-web.vercel.app/downloads/elyon-ai-android-arm32.apk",
+    "linux":         "https://elyon-ai-web.vercel.app/downloads/elyon-ai-linux.tar.gz",
+    "macos":         "https://elyon-ai-web.vercel.app/downloads/elyon-ai-macos.dmg"
+  }
+}
