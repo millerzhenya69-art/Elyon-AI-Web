@@ -1,5 +1,5 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.0",
   "urls": {
     "windows":       "https://elyon-ai-web.vercel.app/downloads/elyon-ai-windows.zip",
     "android_arm64": "https://elyon-ai-web.vercel.app/downloads/elyon-ai-android-arm64.apk",
