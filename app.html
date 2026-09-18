@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Elyon AI</title>
 <link rel="icon" type="image/png" href="elyon_logo.png">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="apple-touch-icon" href="elyon_logo.png">
 <meta name="theme-color" content="#0e0e0e">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,6 +67,13 @@ body {
   display: flex;
   flex-direction: column;
 }
+/* Плавный переход при смене темы (data-theme) вместо резкого скачка цветов.
+   Не конфликтует с более конкретными hover/active-переходами ниже — те
+   более специфичны и перекрывают это правило для своих свойств. */
+body, body * {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+}
+.topnav.scrolled { box-shadow: 0 6px 20px rgba(0,0,0,0.16); }
 
 /* ══ TOP NAV ══ */
 .topnav {
@@ -75,6 +83,8 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+  transition: box-shadow .25s ease;
   display: flex; align-items: center;
   justify-content: space-between;
   padding: 0 16px; gap: 10px;
@@ -172,15 +182,17 @@ body {
   color: var(--text-primary);
   display: flex; align-items: center; gap: 8px;
   text-decoration: none;
-  transition: background 0.12s;
+  transition: background 0.12s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .dd-item:hover { background: rgba(128,128,128,0.08); }
+.dd-item:active { transform: scale(0.98); }
 .dd-item.danger { color: #e07070; }
 .dd-sep { height: 1px; background: var(--border); margin: 4px 0; }
 
-.model-opt { padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.12s; display: flex; align-items: center; gap: 10px; -webkit-tap-highlight-color: transparent; }
+.model-opt { padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background 0.12s, transform 0.1s; display: flex; align-items: center; gap: 10px; -webkit-tap-highlight-color: transparent; }
 .model-opt:hover { background: rgba(128,128,128,0.07); }
+.model-opt:active { transform: scale(0.98); }
 .model-opt.active { background: rgba(128,128,128,0.12); }
 .model-opt-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .model-opt-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
@@ -259,10 +271,11 @@ body {
   padding: 9px 11px; border-radius: 10px;
   cursor: pointer; font-size: 13px;
   color: var(--text-muted); border: 1px solid transparent;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.12s, color 0.12s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .chat-item:hover { background: rgba(128,128,128,0.06); color: var(--text-primary); border-color: var(--border); }
+.chat-item:active { transform: scale(0.98); }
 .chat-item.active { background: rgba(128,128,128,0.10); color: var(--text-primary); border-color: var(--border2); }
 .chat-item-icon { font-size: 12px; opacity: 0.5; flex-shrink: 0; }
 .chat-item-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -351,10 +364,17 @@ body {
   font-size: 13px; color: var(--text-muted);
   cursor: pointer; flex-shrink: 0;
   font-family: var(--sans);
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.12s;
   -webkit-tap-highlight-color: transparent;
+  animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both;
 }
+.chip:nth-child(1){animation-delay:.04s}
+.chip:nth-child(2){animation-delay:.09s}
+.chip:nth-child(3){animation-delay:.14s}
+.chip:nth-child(4){animation-delay:.19s}
+.chip:nth-child(5){animation-delay:.24s}
 .chip:hover { border-color: var(--border2); color: var(--text-primary); background: var(--card); }
+.chip:active { transform: scale(0.95); }
 
 /* Messages */
 .messages {
@@ -431,9 +451,19 @@ body {
 .msg-file-name { font-size:12px; font-weight:500; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
 .msg-file-size { font-size:10px; color:var(--text-muted); margin-top:1px; }
 .msg-file-ok { margin-left:auto; font-size:13px; color:#4ade80; flex-shrink:0; }
-.msg-img-wrap { margin-bottom:6px; }
+.msg-img-wrap { margin-bottom:6px; position:relative; display:inline-block; max-width:100%; animation: fadeUp 0.35s cubic-bezier(0.22,1,0.36,1) both; }
 .msg-img { width:100%; max-width:260px; max-height:190px; object-fit:cover; border-radius:10px; display:block; cursor:zoom-in; transition:max-height .3s; }
 .msg-img.big { max-height:460px; cursor:zoom-out; object-fit:contain; }
+.msg-img-gen { width:100%; max-width:360px; max-height:360px; object-fit:contain; border-radius:14px; display:block; cursor:zoom-in; transition:max-height .3s; box-shadow:var(--shadow); }
+.msg-img-gen.big { max-height:640px; cursor:zoom-out; }
+.msg-img-dl {
+  position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%;
+  background:rgba(20,20,20,0.55); backdrop-filter:blur(4px); border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px;
+  transition:background .15s, transform .15s; z-index:2;
+}
+.msg-img-dl:hover { background:rgba(20,20,20,0.8); transform:scale(1.08); }
+.msg-img-dl:active { transform:scale(0.95); }
 
 /* AI response card */
 .ai-card { background:var(--card); border:1px solid var(--border2); border-radius:15px; overflow:hidden; margin-bottom:4px; box-shadow:var(--shadow); }
@@ -509,6 +539,24 @@ body {
 [data-theme="light"] .ia-send { color: #f5f4f0; }
 .ia-send:hover { filter: brightness(1.08); transform: scale(1.04); }
 .ia-send:disabled { opacity: 0.32; cursor: default; transform: none; filter: none; }
+.ia-send.stop-mode { background: #e05a5a; color: #fff; }
+[data-theme="light"] .ia-send.stop-mode { color: #fff; }
+.ia-send.stop-mode:hover { filter: brightness(1.1); }
+.ia-btn.mic-btn.recording { color: #e05a5a; background: rgba(224,90,90,0.12); animation: micPulse 1.4s infinite; }
+.ia-btn.mic-btn.transcribing { color: var(--text-muted); opacity: 0.6; pointer-events: none; }
+@keyframes micPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,90,90,0.28); } 50% { box-shadow: 0 0 0 6px rgba(224,90,90,0); } }
+.rec-bar {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 11px; margin-bottom: 7px;
+  background: rgba(224,90,90,0.07);
+  border: 1px solid rgba(224,90,90,0.22);
+  border-radius: 11px; font-size: 12px; color: var(--text-label);
+}
+.rec-bar .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #e05a5a; flex-shrink: 0; animation: pulse 1.2s ease-in-out infinite; }
+.rec-bar .rec-label { flex: 1; }
+.rec-bar .rec-timer { font-variant-numeric: tabular-nums; color: var(--text-muted); flex-shrink: 0; }
+.rec-bar .rec-cancel { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; padding: 0 2px; flex-shrink: 0; transition: color .12s; }
+.rec-bar .rec-cancel:hover { color: #e07070; }
 .input-hint { text-align: center; font-size: 11px; color: var(--text-muted); opacity: 0.55; margin-top: 8px; }
 @media (max-width: 600px) { .input-hint { display: none; } }
 
@@ -564,6 +612,10 @@ body {
 .p-card-label { font-size: 10px; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .08em; }
 .p-card-value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
 .p-card-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.p-token-bar { height: 5px; border-radius: 3px; background: rgba(128,128,128,.15); margin-top: 8px; overflow: hidden; }
+.p-token-fill { height: 100%; border-radius: 3px; background: var(--beige); width: 0%; transition: width .4s ease; }
+.p-token-fill.high { background: #e0a05a; }
+.p-token-fill.full { background: #e05a5a; }
 .btn-upgrade { width:100%; padding:12px; background:var(--beige); color:var(--black); border:none; border-radius:var(--r); font-family:var(--sans); font-size:14px; font-weight:500; cursor:pointer; transition:filter .15s; margin-top:5px; -webkit-tap-highlight-color: transparent; }
 [data-theme="light"] .btn-upgrade { color: #f5f4f0; }
 .btn-upgrade:hover { filter: brightness(1.08); }
@@ -571,8 +623,8 @@ body {
 /* Pricing */
 .pr-body { padding: 22px; max-width: 620px; }
 .pr-grid { display: flex; flex-direction: column; gap: 9px; }
-.pr-card { background:var(--off); border:1px solid var(--border); border-radius:var(--r); padding:18px; transition:border-color .18s; position:relative; overflow:hidden; }
-.pr-card:hover { border-color: var(--border2); }
+.pr-card { background:var(--off); border:1px solid var(--border); border-radius:var(--r); padding:18px; transition:border-color .18s, transform .2s, box-shadow .2s; position:relative; overflow:hidden; }
+.pr-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.16); }
 .pr-card.featured { border-color:var(--border2); background:var(--card); }
 .pr-card.featured::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--beige2),var(--beige)); }
 .pr-tier { font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--text-label); margin-bottom:7px; }
@@ -581,13 +633,15 @@ body {
 .pr-price span { font-size:13px; color:var(--text-muted); }
 .pr-limit { display:inline-flex; align-items:center; gap:5px; font-size:11px; color:var(--text-label); background:rgba(128,128,128,.08); padding:3px 9px; border-radius:100px; margin-bottom:13px; }
 .pr-desc { font-size:12px; color:var(--text-muted); line-height:1.6; margin-bottom:14px; }
-.pr-btn { width:100%; padding:10px; border-radius:9px; border:1px solid var(--border2); background:none; color:var(--text-primary); font-family:var(--sans); font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; -webkit-tap-highlight-color: transparent; }
+.pr-btn { width:100%; padding:10px; border-radius:9px; border:1px solid var(--border2); background:none; color:var(--text-primary); font-family:var(--sans); font-size:13px; font-weight:500; cursor:pointer; transition:background .15s, transform .1s; -webkit-tap-highlight-color: transparent; }
 .pr-btn:hover { background: rgba(128,128,128,.07); }
+.pr-btn:active { transform: scale(0.97); }
 .pr-card.featured .pr-btn { background:var(--beige); color:var(--black); border-color:transparent; }
 [data-theme="light"] .pr-card.featured .pr-btn { color: #f5f4f0; }
 .pr-card.featured .pr-btn:hover { filter: brightness(1.07); }
-.pr-btn-tg { width:100%; padding:10px; border-radius:9px; border:1px solid rgba(255,140,0,.28); background:rgba(255,140,0,.06); color:var(--text-primary); font-family:var(--sans); font-size:13px; font-weight:500; cursor:pointer; transition:background .15s; margin-top:7px; display:flex; align-items:center; justify-content:center; gap:5px; -webkit-tap-highlight-color: transparent; }
+.pr-btn-tg { width:100%; padding:10px; border-radius:9px; border:1px solid rgba(255,140,0,.28); background:rgba(255,140,0,.06); color:var(--text-primary); font-family:var(--sans); font-size:13px; font-weight:500; cursor:pointer; transition:background .15s, transform .1s; margin-top:7px; display:flex; align-items:center; justify-content:center; gap:5px; -webkit-tap-highlight-color: transparent; }
 .pr-btn-tg:hover { background: rgba(255,140,0,.12); }
+.pr-btn-tg:active { transform: scale(0.97); }
 @media (max-width:600px) { .pr-body { padding: 14px; } .pr-card { padding: 14px; } }
 
 /* Admin */
@@ -626,7 +680,12 @@ body {
 .md .ic { background:rgba(128,128,128,.10); border:1px solid rgba(128,128,128,.14); border-radius:4px; padding:1px 5px; font-family:'Courier New',monospace; font-size:12px; color:var(--beige); white-space:nowrap; }
 [data-theme="light"] .md .ic { color:#7a6a5a; background:rgba(0,0,0,.07); }
 .md .cb { background:var(--off); border:1px solid var(--border2); border-radius:11px; margin:12px 0; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.18); }
-.md .cb .cl { display:block; padding:6px 13px 5px; font-size:10px; font-weight:500; color:var(--text-label); background:rgba(128,128,128,.05); border-bottom:1px solid var(--border); letter-spacing:.05em; text-transform:uppercase; }
+.md .cb .cl-bar { display:flex; align-items:center; justify-content:space-between; padding:6px 8px 5px 13px; background:rgba(128,128,128,.05); border-bottom:1px solid var(--border); }
+.md .cb .cl { font-size:10px; font-weight:500; color:var(--text-label); letter-spacing:.05em; text-transform:uppercase; }
+.md .cb .cb-copy { display:flex; align-items:center; gap:5px; padding:4px 9px; background:transparent; border:1px solid transparent; border-radius:6px; color:var(--text-muted); font-family:var(--sans); font-size:10.5px; font-weight:500; cursor:pointer; transition:background .15s,color .15s,border-color .15s; }
+.md .cb .cb-copy:hover { background:rgba(128,128,128,.10); border-color:var(--border2); color:var(--text-secondary); }
+.md .cb .cb-copy:active { transform:scale(0.94); }
+.md .cb .cb-copy.copied { color:#4ade80; }
 .md .cb pre { margin:0; padding:13px 15px; overflow-x:auto; scrollbar-width:thin; }
 .md .cb code { font-family:'Courier New','SF Mono',monospace; font-size:12px; line-height:1.6; color:var(--text-secondary); white-space:pre; }
 
@@ -706,33 +765,40 @@ button, a, .chip, .chat-item, .model-pill, .avatar, .nav-btn, .seg-btn, .theme-s
 
 <!-- MODEL DROPDOWN (прямой дочерний элемент body) -->
 <div class="dropdown" id="dd-model">
-  <div class="model-opt active" id="opt-core" onclick="selectModel('core','Core',this)">
+  <div class="model-opt active" id="opt-elyon_nova" onclick="selectModel('elyon_nova','Elyon Nova',this)">
     <div>
-      <div class="model-opt-name">Elyon Core</div>
-      <div class="model-opt-desc">Fast &amp; free · 15 msg/day</div>
+      <div class="model-opt-name">🌙 Elyon Nova</div>
+      <div class="model-opt-desc">Fast &amp; free</div>
     </div>
     <span class="model-badge">FREE</span>
   </div>
-  <div class="model-opt" id="opt-nova" onclick="selectModel('nova','Nova',this)">
+  <div class="model-opt" id="opt-elyon_nox" onclick="selectModel('elyon_nox','Elyon Nox',this)">
     <div>
-      <div class="model-opt-name">Elyon Nova</div>
-      <div class="model-opt-desc">Smarter · 30 msg/day</div>
+      <div class="model-opt-name">🌌 Elyon Nox</div>
+      <div class="model-opt-desc">Free</div>
     </div>
-    <span class="model-badge">91₽</span>
+    <span class="model-badge">FREE</span>
   </div>
-  <div class="model-opt" id="opt-pro" onclick="selectModel('pro','PRO',this)">
+  <div class="model-opt" id="opt-elyon_sage" onclick="selectModel('elyon_sage','Elyon Sage',this)">
     <div>
-      <div class="model-opt-name">Elyon PRO</div>
-      <div class="model-opt-desc">Deep reasoning · 30 msg/day</div>
+      <div class="model-opt-name">🦉 Elyon Sage</div>
+      <div class="model-opt-desc">Free</div>
     </div>
-    <span class="model-badge">182₽</span>
+    <span class="model-badge">FREE</span>
   </div>
-  <div class="model-opt" id="opt-absolution" onclick="selectModel('absolution','Absolution',this)">
+  <div class="model-opt" id="opt-elyon_sol" onclick="selectModel('elyon_sol','Elyon Sol',this)">
     <div>
-      <div class="model-opt-name">Elyon Absolution</div>
-      <div class="model-opt-desc">Maximum · 30 msg/day</div>
+      <div class="model-opt-name">☀️ Elyon Sol</div>
+      <div class="model-opt-desc">Deep reasoning</div>
     </div>
-    <span class="model-badge">265₽</span>
+    <span class="model-badge">PRO</span>
+  </div>
+  <div class="model-opt" id="opt-elyon_rune" onclick="selectModel('elyon_rune','Elyon Rune',this)">
+    <div>
+      <div class="model-opt-name">🪄 Elyon Rune</div>
+      <div class="model-opt-desc">Fastest reasoning</div>
+    </div>
+    <span class="model-badge">PRO</span>
   </div>
 </div>
 
@@ -812,14 +878,21 @@ button, a, .chip, .chat-item, .model-pill, .avatar, .nav-btn, .seg-btn, .theme-s
       <span class="fb-size" id="fb-size"></span>
       <button class="fb-del" onclick="clearFile()">✕</button>
     </div>
+    <div id="rec-bar" style="display:none" class="rec-bar">
+      <span class="rec-dot"></span>
+      <span class="rec-label">Recording...</span>
+      <span class="rec-timer" id="rec-timer">00:00</span>
+      <button class="rec-cancel" title="Cancel" onclick="cancelRecording()">✕</button>
+    </div>
     <div class="input-box">
       <textarea class="input-ta" id="input" placeholder="Message Elyon..." rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this);updateSend()"></textarea>
       <div class="input-actions">
         <button class="ia-btn" title="Attach file" onclick="document.getElementById('file-input').click()">📎</button>
         <input type="file" id="file-input" style="display:none" onchange="handleFile(event)"
-          accept="image/*,video/*,audio/*,.pdf,.txt,.py,.js,.ts,.cpp,.c,.java,.go,.rs,.html,.css,.json,.csv,.md,.sql,.yaml,.yml">
-        <button class="ia-send" id="send-btn" onclick="sendMessage()" disabled>
+          accept="*/*">
+        <button class="ia-btn mic-btn" id="mic-btn" title="Voice message" onclick="toggleRecording()">🎙️</button>
+        <button class="ia-send" id="send-btn" onclick="handleSendOrStop()" disabled>
           <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <path d="M8 2v12M8 2L4 6M8 2l4 4"/>
           </svg>
@@ -919,8 +992,24 @@ button, a, .chip, .chat-item, .model-pill, .avatar, .nav-btn, .seg-btn, .theme-s
       <div class="p-card-sub" id="lbl-resets">Resets at midnight</div>
     </div>
     <div class="p-card">
+      <div class="p-card-label" id="lbl-tokens-today">Tokens today</div>
+      <div class="p-token-bar"><div class="p-token-fill" id="p-tok-in-bar"></div></div>
+      <div class="p-card-sub" id="p-tok-in-text">Input: 0 / 100,000</div>
+      <div class="p-token-bar"><div class="p-token-fill" id="p-tok-out-bar"></div></div>
+      <div class="p-card-sub" id="p-tok-out-text">Output: 0 / 250,000</div>
+    </div>
+    <div class="p-card">
       <div class="p-card-label" id="lbl-member-since">Member since</div>
       <div class="p-card-value">June 2026</div>
+    </div>
+    <div class="p-card" id="p-tg-section" style="display:none">
+      <div class="p-card-label">🪙 Referral</div>
+      <div class="p-card-sub" style="margin-bottom:8px">Приглашено друзей: <span id="p-ref-count">0</span></div>
+      <button class="pr-btn" style="width:100%" onclick="copyRefLink()">🔗 Копировать реф. ссылку</button>
+    </div>
+    <div class="p-card" id="p-tg-history" style="display:none">
+      <div class="p-card-label">🧾 История покупок</div>
+      <div id="p-history-list" class="p-card-sub" style="margin-top:6px;line-height:1.7">—</div>
     </div>
     <button class="btn-upgrade" id="lbl-upgrade" onclick="closePanel('panel-profile');openPanel('panel-pricing')">Upgrade plan →</button>
   </div>
@@ -936,38 +1025,20 @@ button, a, .chip, .chat-item, .model-pill, .avatar, .nav-btn, .seg-btn, .theme-s
     <div class="pr-grid">
       <div class="pr-card">
         <div class="pr-tier">Free</div>
-        <div class="pr-name">Elyon Core</div>
+        <div class="pr-name">Elyon Nova / Nox / Sage</div>
         <div class="pr-price">0 ₽ <span>/ month</span></div>
-        <div class="pr-limit">◎ 15 messages / day</div>
-        <div class="pr-desc">Fast and always free. Perfect for everyday questions and quick tasks.</div>
+        <div class="pr-limit">◎ 3 быстрых бесплатных модели</div>
+        <div class="pr-desc">Всегда бесплатно. Скорость и качество для каждого дня.</div>
         <button class="pr-btn">Current plan</button>
       </div>
       <div class="pr-card featured">
-        <div class="pr-tier">Popular</div>
-        <div class="pr-name">Elyon Nova</div>
-        <div class="pr-price">91 ₽ <span>/ month</span></div>
-        <div class="pr-limit">◎ 30 messages / day</div>
-        <div class="pr-desc">Smarter and faster. Built for work that demands real quality.</div>
-        <button class="pr-btn" onclick="openDonatePay('nova')">Оплатить 91 ₽</button>
-        <button class="pr-btn-tg" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">⭐ 50 Stars в Telegram</button>
-      </div>
-      <div class="pr-card">
-        <div class="pr-tier">Advanced</div>
-        <div class="pr-name">Elyon PRO</div>
-        <div class="pr-price">182 ₽ <span>/ month</span></div>
-        <div class="pr-limit">◎ 30 messages / day</div>
-        <div class="pr-desc">Deep reasoning and nuanced analysis for complex challenges.</div>
-        <button class="pr-btn" onclick="openDonatePay('pro')">Оплатить 182 ₽</button>
-        <button class="pr-btn-tg" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">⭐ 100 Stars в Telegram</button>
-      </div>
-      <div class="pr-card">
-        <div class="pr-tier">Ultimate</div>
-        <div class="pr-name">Elyon Absolution</div>
-        <div class="pr-price">265 ₽ <span>/ month</span></div>
-        <div class="pr-limit">◎ 30 messages / day</div>
-        <div class="pr-desc">Maximum capability. The most powerful intelligence Elyon offers.</div>
-        <button class="pr-btn" onclick="openDonatePay('absolution')">Оплатить 265 ₽</button>
-        <button class="pr-btn-tg" onclick="window.open('https://t.me/Elyon_by_unkony_bot','_blank')">⭐ 150 Stars в Telegram</button>
+        <div class="pr-tier">Pro</div>
+        <div class="pr-name">☀️ Elyon Sol · 🪄 Elyon Rune</div>
+        <div class="pr-price">150 ₽ <span>/ month</span></div>
+        <div class="pr-limit">◎ Глубокое рассуждение · высокий лимит</div>
+        <div class="pr-desc">Одна подписка — доступ ко всем Pro-моделям сразу.</div>
+        <button class="pr-btn" onclick="openDonatePay()">Оплатить 150 ₽</button>
+        <button class="pr-btn-tg" onclick="openStarsPayment()">⭐ 50 Stars в Telegram</button>
       </div>
     </div>
   </div>
@@ -982,22 +1053,19 @@ button, a, .chip, .chat-item, .model-pill, .avatar, .nav-btn, .seg-btn, .theme-s
   <div class="adm-body">
     <div id="adm-content"><div class="adm-loading">Loading stats...</div></div>
     <div style="margin-top:20px">
-      <div class="adm-gl">Give / Remove Subscription</div>
+      <div class="adm-gl">Give / Remove Elyon Pro</div>
       <div style="background:var(--off);border:1px solid var(--border);border-radius:13px;padding:14px;margin-bottom:11px">
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px">
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px;align-items:center">
           <input id="adm-target" type="text" placeholder="@username or email"
             style="flex:1;min-width:130px;padding:8px 11px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--text-primary);font-family:var(--sans);font-size:13px;outline:none">
-          <select id="adm-tier"
-            style="padding:8px 11px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--text-primary);font-family:var(--sans);font-size:13px;outline:none">
-            <option value="nova">Nova</option>
-            <option value="pro">PRO</option>
-            <option value="absolution">Absolution</option>
-          </select>
           <input id="adm-days" type="number" value="30" min="1" max="365"
             style="width:65px;padding:8px 11px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;color:var(--text-primary);font-family:var(--sans);font-size:13px;outline:none">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary)">
+            <input id="adm-forever" type="checkbox"> Навсегда
+          </label>
         </div>
         <div style="display:flex;gap:7px">
-          <button onclick="admGiveSub()" class="btn-adm" style="background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.3);color:#4ade80">✅ Give Sub</button>
+          <button onclick="admGiveSub()" class="btn-adm" style="background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.3);color:#4ade80">✅ Give Pro</button>
           <button onclick="admRemoveSub()" class="btn-adm danger">❌ Remove Sub</button>
         </div>
         <div id="adm-sub-result" style="margin-top:7px;font-size:11px;color:var(--text-muted)"></div>
@@ -1039,20 +1107,15 @@ function dbgToggle() {
 // STATE
 // ══════════════════════════════════════════════════════
 let chatStarted  = false;
-let currentModel = 'core';
+let currentModel = 'elyon_nova';
 let activeChatId = 'default';
-let chats        = [{ id:'default', title:'New chat', messages:[], model:'core' }];
+let chats        = [{ id:'default', title:'New chat', messages:[], model:'elyon_nova' }];
 let pendingFile  = null;
 let saveTimer    = null;
 
 const BACKEND       = 'https://elyon-ai-web.vercel.app/api/relay';
-const MODEL_API_MAP = { core:'gpt', nova:'nova', pro:'pro', absolution:'absolution' };
-const PAID_MODELS   = ['nova','pro','absolution'];
-const MODEL_PRICES  = {
-  nova:       { rub:91,  label:'Elyon Nova' },
-  pro:        { rub:182, label:'Elyon PRO' },
-  absolution: { rub:265, label:'Elyon Absolution' },
-};
+const PAID_MODELS   = ['elyon_sol','elyon_rune'];
+const DEFAULT_MODEL = 'elyon_nova';
 const TG_BOT = 'Elyon_by_unkony_bot';
 const DONATEPAY_BASE = 'https://widget.donatepay.ru/widgets/page/43438cb958e3f4f2577d5e4c4f1449cc489d201fe7cd925dbd705feecac2b187';
 
@@ -1126,9 +1189,7 @@ async function selectModel(id, label, el) {
   log('selectModel', id);
   if (PAID_MODELS.includes(id)) {
     await syncSubFromServer();
-    const sub = getSessionSub();
-    const map = { nova:['nova','pro','absolution','forever','custom','month','halfyear'], pro:['pro','absolution','forever','custom'], absolution:['absolution','forever'] };
-    if (!(map[id]||[]).includes(sub)) {
+    if (!getSessionUser().has_sub) {
       closeDD('dd-model');
       showSubPrompt(id);
       return;
@@ -1166,10 +1227,74 @@ function openPanel(id) {
   closeSidebar();
   document.getElementById(id).classList.add('show');
   log('openPanel', id);
+  if (id === 'panel-profile') loadProfileData();
 }
 function closePanel(id) {
   document.getElementById(id).classList.remove('show');
   log('closePanel', id);
+}
+
+async function loadProfileData() {
+  const uid = getSessionUserId(); if (!uid) return;
+  try {
+    const res = await fetch(`${BACKEND}/api/user/${uid}`);
+    const d = await res.json();
+    if (d.error) return;
+    const subEl = document.getElementById('p-sub-name');
+    const subDesc = document.getElementById('p-sub-desc');
+    if (d.has_sub) {
+      subEl.textContent = '☀️ Elyon Pro';
+      subDesc.textContent = (d.sub_until && d.sub_until !== 'none') ? `До ${d.sub_until}` : 'Активна';
+    } else {
+      subEl.textContent = 'Free';
+      subDesc.textContent = 'Elyon Nova · Nox · Sage';
+    }
+    if (d.token_usage && d.token_limits) renderTokenUsage(d.token_usage, d.token_limits);
+    const inTg = !!(window.Telegram?.WebApp?.initDataUnsafe?.user);
+    const tgSection = document.getElementById('p-tg-section');
+    const tgHistory = document.getElementById('p-tg-history');
+    if (inTg) {
+      tgSection.style.display = '';
+      document.getElementById('p-ref-count').textContent = d.referrals ?? 0;
+      window._refLink = d.ref_link || '';
+      if (Array.isArray(d.purchase_history) && d.purchase_history.length) {
+        tgHistory.style.display = '';
+        document.getElementById('p-history-list').innerHTML = d.purchase_history.slice(0,10).map(p => {
+          const [, label, method, amount, status] = p;
+          const ok = status === 'completed' || status === 'success' || !status;
+          return `${ok?'✅':'⏳'} ${label||''} · ${amount||''} (${method||''})`;
+        }).join('<br>');
+      }
+    }
+  } catch(e) { log('loadProfileData error', e); }
+}
+
+function renderTokenUsage(usage, limits) {
+  const setBar = (barId, textId, label, used, limit) => {
+    const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+    const bar = document.getElementById(barId);
+    const text = document.getElementById(textId);
+    if (bar) {
+      bar.style.width = pct + '%';
+      bar.classList.toggle('high', pct >= 80 && pct < 100);
+      bar.classList.toggle('full', pct >= 100);
+    }
+    if (text) text.textContent = `${label}: ${used.toLocaleString()} / ${limit.toLocaleString()}`;
+  };
+  setBar('p-tok-in-bar',  'p-tok-in-text',  'Input',  usage.input  || 0, limits.input  || 1);
+  setBar('p-tok-out-bar', 'p-tok-out-text', 'Output', usage.output || 0, limits.output || 1);
+}
+
+function copyRefLink() {
+  const link = window._refLink; if (!link) return;
+  try { navigator.clipboard?.writeText(link); } catch(e) {}
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.HapticFeedback?.notificationOccurred('success');
+    tg.showAlert ? tg.showAlert('Ссылка скопирована!') : alert('Скопировано: ' + link);
+  } else {
+    alert('Скопировано: ' + link);
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1243,8 +1368,8 @@ async function loadChatsFromServer() {
     const res  = await fetch(`${BACKEND}/api/chats/${uid}`);
     const data = await res.json();
     if (data.chats && data.chats.length) {
-      chats = data.chats.map(c=>({id:c.id,title:c.title||'Chat',model:c.model||'core',messages:Array.isArray(c.messages)?c.messages:[]}));
-      if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'core'}];
+      chats = data.chats.map(c=>({id:c.id,title:c.title||'Chat',model:c.model||'elyon_nova',messages:Array.isArray(c.messages)?c.messages:[]}));
+      if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'elyon_nova'}];
       localStorage.setItem('elyon_chats', JSON.stringify(chats));
       renderChatList();
       const last = localStorage.getItem('elyon_active_chat');
@@ -1288,7 +1413,9 @@ function switchChat(id, close=true) {
   msgs.innerHTML = '';
   if (chat && chat.messages.length > 0) {
     chatStarted = true;
-    chat.messages.forEach(m => appendMessage(m.role, m.content, false, m.fileInfo));
+    chat.messages.forEach(m => m.imageDataUrl
+      ? appendImageMessage(m.imageDataUrl, m.imagePrompt, false)
+      : appendMessage(m.role, m.content, false, m.fileInfo));
     msgs.classList.add('show');
     document.getElementById('welcome-screen').classList.add('hidden');
     setWelcomeMode(false);
@@ -1306,7 +1433,7 @@ function switchChat(id, close=true) {
 function deleteChat(id) {
   deleteChatFromServer(id);
   chats = chats.filter(c=>c.id!==id);
-  if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'core'}];
+  if (!chats.length) chats=[{id:'default',title:'New chat',messages:[],model:'elyon_nova'}];
   if (activeChatId===id) switchChat(chats[0].id, false);
   renderChatList();
   localStorage.setItem('elyon_chats', JSON.stringify(chats));
@@ -1380,6 +1507,139 @@ function clearFile() {
 }
 
 // ══════════════════════════════════════════════════════
+// VOICE MESSAGES (record → transcribe → fill input)
+// ══════════════════════════════════════════════════════
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingStream = null;
+let recordingStartTime = null;
+let recordingTimerInterval = null;
+let isTranscribing = false;
+
+function pickAudioMime() {
+  const candidates = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
+  if (!window.MediaRecorder || !MediaRecorder.isTypeSupported) return '';
+  for (const c of candidates) { if (MediaRecorder.isTypeSupported(c)) return c; }
+  return '';
+}
+
+function toggleRecording() {
+  if (isTranscribing) return;
+  if (mediaRecorder && mediaRecorder.state === 'recording') { stopRecording(); return; }
+  startRecording();
+}
+
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    appendMessage('assistant','Voice recording is not supported in this browser.');
+    return;
+  }
+  try {
+    recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    appendMessage('assistant','Microphone access denied. Please allow microphone access to send voice messages.');
+    log('mic error:', err.message);
+    return;
+  }
+  const mime = pickAudioMime();
+  try {
+    mediaRecorder = mime ? new MediaRecorder(recordingStream, { mimeType: mime }) : new MediaRecorder(recordingStream);
+  } catch (err) {
+    mediaRecorder = new MediaRecorder(recordingStream);
+  }
+  audioChunks = [];
+  mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) audioChunks.push(e.data); };
+  mediaRecorder.onstop = onRecordingStop;
+  mediaRecorder.start();
+  recordingStartTime = Date.now();
+  document.getElementById('mic-btn').classList.add('recording');
+  document.getElementById('rec-bar').style.display = 'flex';
+  document.getElementById('file-bar').style.display = 'none';
+  updateRecTimer();
+  recordingTimerInterval = setInterval(updateRecTimer, 500);
+  log('voice recording started');
+}
+
+function updateRecTimer() {
+  if (!recordingStartTime) return;
+  const secs = Math.floor((Date.now() - recordingStartTime) / 1000);
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  const el = document.getElementById('rec-timer');
+  if (el) el.textContent = `${m}:${s}`;
+}
+
+function stopRecording() {
+  if (!mediaRecorder || mediaRecorder.state !== 'recording') return;
+  mediaRecorder.stop();
+  clearInterval(recordingTimerInterval);
+  recordingTimerInterval = null;
+  document.getElementById('mic-btn').classList.remove('recording');
+}
+
+function cancelRecording() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.onstop = null;
+    mediaRecorder.stop();
+  }
+  clearInterval(recordingTimerInterval);
+  recordingTimerInterval = null;
+  document.getElementById('mic-btn').classList.remove('recording');
+  document.getElementById('rec-bar').style.display = 'none';
+  if (recordingStream) { recordingStream.getTracks().forEach(t => t.stop()); recordingStream = null; }
+  mediaRecorder = null;
+  audioChunks = [];
+  log('voice recording cancelled');
+}
+
+async function onRecordingStop() {
+  document.getElementById('rec-bar').style.display = 'none';
+  if (recordingStream) { recordingStream.getTracks().forEach(t => t.stop()); recordingStream = null; }
+  const chunks = audioChunks; audioChunks = [];
+  const mimeType = mediaRecorder ? mediaRecorder.mimeType : '';
+  mediaRecorder = null;
+  if (!chunks.length) return;
+  const blob = new Blob(chunks, { type: mimeType || chunks[0].type || 'audio/webm' });
+  if (blob.size < 800) { log('voice recording too short, skipped'); return; }
+  await transcribeAndFill(blob);
+}
+
+async function transcribeAndFill(blob) {
+  const uid = getSessionUserId();
+  if (!uid) { appendMessage('assistant','Session error. Please sign out and sign in again.'); return; }
+  isTranscribing = true;
+  const micBtn = document.getElementById('mic-btn');
+  micBtn.classList.add('transcribing');
+  try {
+    const ext = blob.type.includes('mp4') ? 'm4a' : (blob.type.includes('ogg') ? 'ogg' : 'webm');
+    const fd = new FormData();
+    fd.append('user_id', uid);
+    fd.append('file', blob, `voice.${ext}`);
+    const res = await fetch(`${BACKEND}/api/voice`, { method: 'POST', body: fd });
+    const data = await res.json();
+    if (data.error) {
+      const msg = data.error === 'Не удалось распознать речь'
+        ? 'Could not recognize speech. Please try again.'
+        : (data.error === 'Maintenance in progress' ? 'Technical maintenance in progress. Please try again later.' : 'Voice transcription failed. Please try again.');
+      appendMessage('assistant', msg);
+      log('voice transcribe error:', data.error);
+    } else if (data.transcript) {
+      const input = document.getElementById('input');
+      const existing = input.value.trim();
+      input.value = existing ? `${existing} ${data.transcript}` : data.transcript;
+      autoResize(input); updateSend(); input.focus();
+      log('voice transcribed, length:', data.transcript.length);
+    }
+  } catch (err) {
+    appendMessage('assistant','Connection error while transcribing voice message.');
+    log('voice transcribe error:', err.message);
+  }
+  isTranscribing = false;
+  micBtn.classList.remove('transcribing');
+}
+
+
+// ══════════════════════════════════════════════════════
 // RENDER MESSAGES
 // ══════════════════════════════════════════════════════
 function esc(t) { return String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1403,6 +1663,51 @@ function appendMessage(role, content, scroll=true, fileInfo=null) {
   } else {
     el.innerHTML = `<div class="msg-ai"><div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div><div class="msg-ai-content">${renderAI(content)}</div></div>`;
   }
+  msgs.appendChild(el);
+  if (scroll) requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+  return el;
+}
+
+function copyCodeBlock(btn) {
+  const code = btn.closest('.cb')?.querySelector('code');
+  if (!code) return;
+  navigator.clipboard.writeText(code.textContent).then(() => {
+    const label = btn.querySelector('span');
+    const original = label.textContent;
+    label.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { label.textContent = original; btn.classList.remove('copied'); }, 1500);
+  }).catch(()=>{});
+}
+
+// Тонкая тень под шапкой при прокрутке чата — даёт понять, что выше есть ещё сообщения.
+(function initScrollShadow() {
+  const msgs = document.getElementById('messages');
+  const nav  = document.querySelector('.topnav');
+  if (!msgs || !nav) return;
+  msgs.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', msgs.scrollTop > 4);
+  }, { passive: true });
+})();
+
+function downloadGeneratedImage(btn) {
+  const img = btn.previousElementSibling;
+  if (!img || !img.src) return;
+  const ext = (img.src.match(/^data:image\/(\w+);/)||[])[1] || 'png';
+  const a = document.createElement('a');
+  a.href = img.src;
+  a.download = `elyon-image-${Date.now()}.${ext}`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  log('image downloaded');
+}
+
+function appendImageMessage(dataUrl, prompt, scroll=true) {
+  const msgs = document.getElementById('messages');
+  const el   = document.createElement('div');
+  el.className = 'msg-group';
+  el.innerHTML = `<div class="msg-ai"><div class="msg-ai-avatar"><img src="elyon_logo.png" alt=""></div><div class="msg-ai-content"><div class="msg-img-wrap"><img src="${dataUrl}" class="msg-img-gen" onclick="this.classList.toggle('big')" alt="${esc(prompt||'')}"><button class="msg-img-dl" onclick="downloadGeneratedImage(this)" title="Download">⬇</button></div></div></div>`;
   msgs.appendChild(el);
   if (scroll) requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
   return el;
@@ -1433,7 +1738,7 @@ function mdAnimated(text) {
 function renderMD(text) {
   if (!text) return '';
   let h = esc(text);
-  h = h.replace(/```(\w*)\n?([\s\S]*?)```/g, (_,lang,code) => `<div class="cb">${lang?`<span class="cl">${lang}</span>`:''}<pre><code>${code.trim()}</code></pre></div>`);
+  h = h.replace(/```(\w*)\n?([\s\S]*?)```/g, (_,lang,code) => `<div class="cb"><div class="cl-bar">${lang?`<span class="cl">${lang}</span>`:'<span class="cl"></span>'}<button class="cb-copy" onclick="copyCodeBlock(this)" title="Copy code"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M3.5 10.5h-1a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v1"/></svg><span>Copy</span></button></div><pre><code>${code.trim()}</code></pre></div>`);
   h = h.replace(/`([^`\n]+)`/g, '<code class="ic">$1</code>');
   h = h.replace(/^### (.+)$/gm, '<h4 class="h3">$1</h4>');
   h = h.replace(/^## (.+)$/gm,  '<h3 class="h2">$1</h3>');
@@ -1483,7 +1788,7 @@ function addThinkStep(text) {
 // SUBSCRIBE PROMPT
 // ══════════════════════════════════════════════════════
 function showSubPrompt(modelId) {
-  const price = MODEL_PRICES[modelId]; if (!price) return;
+  const price = { label: 'Elyon Pro', rub: 150 };
   document.getElementById('sub-prompt-el')?.remove();
   const ov = document.createElement('div');
   ov.id='sub-prompt-el'; ov.className='sub-overlay';
@@ -1491,12 +1796,12 @@ function showSubPrompt(modelId) {
     <button class="sub-close" onclick="document.getElementById('sub-prompt-el').remove()">✕</button>
     <img src="elyon_logo.png" style="width:44px;height:44px;margin-bottom:14px;opacity:.9">
     <div style="font-family:var(--serif);font-size:20px;color:var(--text-primary);margin-bottom:7px">${price.label}</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">Оформи подписку для доступа к этой модели.</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:20px;line-height:1.6">Доступ ко всем Pro-моделям в одной подписке.</div>
     <div style="display:flex;flex-direction:column;gap:9px">
-      <button onclick="openDonatePay('${modelId}');document.getElementById('sub-prompt-el').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--beige);color:#1a1814;border-radius:11px;border:none;cursor:pointer;font-weight:500;font-size:13px;font-family:var(--sans)">
+      <button onclick="openDonatePay();document.getElementById('sub-prompt-el').remove()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--beige);color:#1a1814;border-radius:11px;border:none;cursor:pointer;font-weight:500;font-size:13px;font-family:var(--sans)">
         <span>💳 Оплатить картой / СБП</span><span>${price.rub} ₽ / мес</span>
       </button>
-      <a href="https://t.me/${TG_BOT}?start=pay_${modelId==='absolution'?'abs':modelId}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--off);color:var(--text-primary);border:1px solid var(--border2);border-radius:11px;text-decoration:none;font-size:13px">
+      <a href="#" onclick="openStarsPayment();return false" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--off);color:var(--text-primary);border:1px solid var(--border2);border-radius:11px;text-decoration:none;font-size:13px">
         <span>⭐ Telegram Stars</span>
       </a>
     </div>
@@ -1506,25 +1811,66 @@ function showSubPrompt(modelId) {
   document.body.appendChild(ov);
 }
 
-function openDonatePay(tier) {
-  const urls = { nova:DONATEPAY_BASE+'?widget_id=7665261&sum=91', pro:DONATEPAY_BASE+'?widget_id=7665261&sum=182', absolution:DONATEPAY_BASE+'?widget_id=7665261&sum=265' };
-  const url = urls[tier]; if (!url) return;
+function openDonatePay() {
+  const url = DONATEPAY_BASE+'?widget_id=7665261&sum=150';
   const uid = getSessionUserId();
   window.open(uid ? url+'&comment='+encodeURIComponent(String(uid)) : url, '_blank');
+}
+
+function openStarsPayment() {
+  const link = `https://t.me/${TG_BOT}?start=pay_pro`;
+  const tg = window.Telegram?.WebApp;
+  if (tg?.openTelegramLink) { tg.openTelegramLink(link); }
+  else { window.open(link, '_blank'); }
 }
 
 // ══════════════════════════════════════════════════════
 // SEND MESSAGE
 // ══════════════════════════════════════════════════════
+let currentAbortController = null;
+let isGenerating = false;
+
+function handleSendOrStop() {
+  if (isGenerating) { stopGeneration(); } else { sendMessage(); }
+}
+
+function stopGeneration() {
+  if (currentAbortController) { currentAbortController.abort(); currentAbortController = null; }
+}
+
+function setGenerating(active) {
+  isGenerating = active;
+  const btn = document.getElementById('send-btn');
+  btn.disabled = false;
+  btn.classList.toggle('stop-mode', active);
+  btn.title = active ? 'Stop generating' : '';
+  btn.innerHTML = active
+    ? `<svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="2"/></svg>`
+    : `<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M8 2L4 6M8 2l4 4"/></svg>`;
+  if (!active) updateSend();
+}
+
 async function sendMessage() {
+  if (isGenerating) return; // защита от повторной отправки через Enter поверх ещё не завершённой генерации
   const input = document.getElementById('input');
   const text  = input.value.trim();
   if (!text && !pendingFile) return;
 
+  // /image <prompt> — генерация картинок (Pro), ровно как в боте — только команда,
+  // без кнопки/автоопределения по тексту — осознанное решение.
+  if (/^\/image(\s|$)/i.test(text) && !pendingFile) {
+    const prompt = text.replace(/^\/image\s*/i, '').trim();
+    input.value=''; input.style.height=''; updateSend();
+    if (!prompt) {
+      appendMessage('assistant', 'Usage: /image <description>\nExample: /image a cat astronaut in watercolor style');
+      return;
+    }
+    await sendImageGeneration(prompt);
+    return;
+  }
+
   if (PAID_MODELS.includes(currentModel)) {
-    const sub = getSessionSub();
-    const map = {nova:['nova','pro','absolution','forever'],pro:['pro','absolution','forever'],absolution:['absolution','forever']};
-    if (!(map[currentModel]||[]).includes(sub)) { showSubPrompt(currentModel); return; }
+    if (!getSessionUser().has_sub) { showSubPrompt(currentModel); return; }
   }
 
   const uid = getSessionUserId();
@@ -1549,29 +1895,34 @@ async function sendMessage() {
   appendMessage('user', displayText, true, fileInfo);
 
   let steps=[];
-  if (currentModel!=='core') {
+  if (PAID_MODELS.includes(currentModel)) {
     steps.push(addThinkStep('Processing your request...'));
     if (fileInfo) setTimeout(()=>steps.push(addThinkStep(`Analyzing ${fileInfo.name}...`)),400);
   } else { showTyping(); }
 
-  document.getElementById('send-btn').disabled = true;
   log('sending:', currentModel, text.slice(0,40));
 
+  const controller = new AbortController();
+  currentAbortController = controller;
+  setGenerating(true);
+
   try {
-    const apiModel = MODEL_API_MAP[currentModel]||'gpt';
+    const apiModel = currentModel || DEFAULT_MODEL;
     let data;
     if (savedFile) {
       const history = (chat?.messages||[]).slice(0,-1).map(m=>({role:m.role,content:m.content}));
       const res = await fetch(`${BACKEND}/api/file_b64`, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({user_id:uid,model:apiModel,prompt:text||' ',file_name:savedFile.name,file_type:savedFile.mime,file_data:savedFile.base64,history})
+        body:JSON.stringify({user_id:uid,model:apiModel,prompt:text||' ',file_name:savedFile.name,file_type:savedFile.mime,file_data:savedFile.base64,history}),
+        signal: controller.signal
       });
       data = await res.json();
     } else {
       const history = (chat?.messages||[]).slice(0,-1).map(m=>({role:m.role,content:m.content}));
       const res = await fetch(`${BACKEND}/api/chat`, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({user_id:uid,model:apiModel,messages:[...history,{role:'user',content:text}]})
+        body:JSON.stringify({user_id:uid,model:apiModel,messages:[...history,{role:'user',content:text}]}),
+        signal: controller.signal
       });
       data = await res.json();
     }
@@ -1579,6 +1930,10 @@ async function sendMessage() {
     const reply = data.reply||data.error||'No response.';
     if (data.error==='daily_limit') {
       appendMessage('assistant','Daily message limit reached. Resets at midnight.');
+    } else if (data.error==='token_limit') {
+      appendMessage('assistant', `Daily token limit reached (${data.tier==='pro'?'Pro':'Free'} plan). Resets at 00:00 UTC.`);
+    } else if (data.error==='already_generating') {
+      appendMessage('assistant','A response is already being generated for this account. Please wait for it to finish.');
     } else {
       chat?.messages.push({role:'assistant',content:reply});
       appendMessage('assistant', reply);
@@ -1587,10 +1942,83 @@ async function sendMessage() {
     log('reply received, length:', reply.length);
   } catch(err) {
     steps.forEach(s=>s.remove()); hideTyping();
-    appendMessage('assistant','Connection error. Please try again.');
-    log('send error:', err.message);
+    if (err.name === 'AbortError') {
+      log('generation stopped by user');
+    } else {
+      appendMessage('assistant','Connection error. Please try again.');
+      log('send error:', err.message);
+    }
+  } finally {
+    currentAbortController = null;
+    setGenerating(false);
   }
-  document.getElementById('send-btn').disabled = false;
+}
+
+async function sendImageGeneration(prompt) {
+  const uid = getSessionUserId();
+  if (!uid) { appendMessage('assistant','Session error. Please sign out and sign in again.'); return; }
+  if (!getSessionUser().has_sub) { showSubPrompt(currentModel||'elyon_sol'); return; }
+
+  if (!chatStarted) {
+    chatStarted = true;
+    document.getElementById('welcome-screen').classList.add('hidden');
+    document.getElementById('messages').classList.add('show');
+    setWelcomeMode(false);
+    const chat0 = chats.find(c=>c.id===activeChatId);
+    if (chat0) { chat0.title = prompt.slice(0,32) || 'Image'; renderChatList(); }
+  }
+
+  const chat = chats.find(c=>c.id===activeChatId);
+  const displayText = `🎨 /image ${prompt}`;
+  chat?.messages.push({role:'user', content:displayText});
+  appendMessage('user', displayText);
+
+  showTyping();
+  log('generating image:', prompt.slice(0,40));
+
+  const controller = new AbortController();
+  currentAbortController = controller;
+  setGenerating(true);
+
+  try {
+    const res = await fetch(`${BACKEND}/api/generate_image`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: uid, prompt }),
+      signal: controller.signal
+    });
+    const data = await res.json();
+    hideTyping();
+    if (data.error === 'daily_limit') {
+      appendMessage('assistant', `Daily image generation limit reached (${data.limit||3}/day). Resets at 00:00 UTC.`);
+    } else if (data.error === 'already_generating') {
+      appendMessage('assistant','A response is already being generated for this account. Please wait for it to finish.');
+    } else if (data.error === 'No active subscription') {
+      showSubPrompt(currentModel||'elyon_sol');
+    } else if (data.error === 'Maintenance in progress') {
+      appendMessage('assistant','Technical maintenance in progress. Please try again later.');
+    } else if (data.error) {
+      appendMessage('assistant', `Could not generate image: ${data.error}`);
+    } else if (data.image) {
+      const dataUrl = `data:${data.mime_type||'image/png'};base64,${data.image}`;
+      appendImageMessage(dataUrl, prompt);
+      chat?.messages.push({role:'assistant', content:'[image]', imageDataUrl:dataUrl, imagePrompt:prompt});
+      scheduleSave(chat);
+    } else {
+      appendMessage('assistant','No response.');
+    }
+    log('image received');
+  } catch(err) {
+    hideTyping();
+    if (err.name === 'AbortError') {
+      log('image generation stopped by user');
+    } else {
+      appendMessage('assistant','Connection error. Please try again.');
+      log('image gen error:', err.message);
+    }
+  } finally {
+    currentAbortController = null;
+    setGenerating(false);
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1705,10 +2133,10 @@ async function loadUserList() {
   } catch { w.innerHTML='<div class="adm-loading">Error.</div>'; }
 }
 async function admGiveSub() {
-  const target=document.getElementById('adm-target').value.trim(), tier=document.getElementById('adm-tier').value, days=parseInt(document.getElementById('adm-days').value)||30, r=document.getElementById('adm-sub-result');
+  const target=document.getElementById('adm-target').value.trim(), days=parseInt(document.getElementById('adm-days').value)||30, forever=document.getElementById('adm-forever').checked, r=document.getElementById('adm-sub-result');
   if(!target){r.textContent='⚠ Enter username or email';r.style.color='#fbbf24';return;}
   r.textContent='Processing...';r.style.color='var(--text-muted)';
-  try{const res=await fetch(`${BACKEND}/api/admin/give_sub`,{method:'POST',headers:getAdmHeaders(),body:JSON.stringify({target,tier,days})});const d=await res.json();if(d.ok){r.textContent=`✅ Done! ${target} → ${tier.toUpperCase()} until ${d.until}`;r.style.color='#4ade80';}else{r.textContent=`❌ ${d.error}`;r.style.color='#f87171';}}catch(e){r.textContent=`❌ ${e.message}`;r.style.color='#f87171';}
+  try{const res=await fetch(`${BACKEND}/api/admin/give_sub`,{method:'POST',headers:getAdmHeaders(),body:JSON.stringify({target,days,forever})});const d=await res.json();if(d.ok){r.textContent=`✅ Done! ${target} → Elyon Pro until ${d.until}`;r.style.color='#4ade80';}else{r.textContent=`❌ ${d.error}`;r.style.color='#f87171';}}catch(e){r.textContent=`❌ ${e.message}`;r.style.color='#f87171';}
 }
 async function admRemoveSub() {
   const target=document.getElementById('adm-target').value.trim(), r=document.getElementById('adm-sub-result');
@@ -1719,7 +2147,7 @@ async function admRemoveSub() {
 }
 async function admTestKeys() {
   const r=document.getElementById('adm-keys-result'); r.textContent='Testing...';
-  try{const res=await fetch(`${BACKEND}/api/admin/test_keys`,{headers:getAdmHeaders()});const d=await res.json();if(d.ok){const L={core_flash_lite:'Core',nova_flash:'Nova',pro:'PRO',absolution:'Absolution'};let txt='';for(const[tier,keys]of Object.entries(d.keys)){txt+=`${L[tier]||tier}:\n`;for(const k of keys){txt+=`  ${k.status==='ok'?'✅':k.status==='exhausted'?'🔴':'⚠️'} ${k.key} → ${k.status}\n`;}txt+='\n';}r.textContent=txt.trim();}else{r.textContent=`❌ ${d.error}`;}}catch(e){r.textContent=`❌ ${e.message}`;}
+  try{const res=await fetch(`${BACKEND}/api/admin/test_keys`,{headers:getAdmHeaders()});const d=await res.json();if(d.ok){const L={elyon_sol:'☀️ Sol',elyon_nova:'🌙 Nova',elyon_rune:'🪄 Rune',elyon_nox:'🌌 Nox',elyon_sage:'🦉 Sage',gemini_reserve:'🛡 Gemini reserve'};let txt='';for(const[tier,keys]of Object.entries(d.keys)){txt+=`${L[tier]||tier}:\n`;for(const k of keys){txt+=`  ${k.status==='ok'?'✅':(k.status==='exhausted'||k.status==='invalid')?'🔴':'⚠️'} ${k.key} → ${k.status}\n`;}txt+='\n';}r.textContent=txt.trim();}else{r.textContent=`❌ ${d.error}`;}}catch(e){r.textContent=`❌ ${e.message}`;}
 }
 
 // ══════════════════════════════════════════════════════
@@ -1774,6 +2202,41 @@ function fixVH() {
   document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px');
 }
 
+// ══════════════════════════════════════════════════════
+// TELEGRAM MINI APP
+// ══════════════════════════════════════════════════════
+// Мини-апп — это тот же app.html, открытый внутри Telegram. Если скрипт
+// telegram-web-app.js отдал данные пользователя — авторизуемся без Google-логина
+// и включаем Telegram-специфику (тема, haptics, fullscreen).
+function initTelegramWebApp() {
+  const tg = window.Telegram?.WebApp;
+  if (!tg || !tg.initDataUnsafe?.user) return false;
+  try {
+    tg.ready();
+    tg.expand();
+    tg.setHeaderColor?.('#0e0e0e');
+    tg.setBackgroundColor?.('#0e0e0e');
+    tg.enableClosingConfirmation?.();
+  } catch(e) { log('tg init error', e); }
+
+  document.documentElement.classList.add('tg-webapp');
+  const u = tg.initDataUnsafe.user;
+  if (!localStorage.getItem('elyon_auth')) {
+    localStorage.setItem('elyon_auth', '1');
+    localStorage.setItem('elyon_user', JSON.stringify({
+      user_id: u.id, tg_id: u.id,
+      first_name: u.first_name || 'User',
+      username: u.username || '',
+      provider: 'telegram',
+      avatar: null,
+    }));
+  }
+  // "Sign out" бессмыслен внутри Telegram — авторизация привязана к Telegram-аккаунту,
+  // выход из него не имеет смысла.
+  document.querySelectorAll('.sb-signout, .dd-item.danger').forEach(el => el.style.display = 'none');
+  return true;
+}
+
 // ── BOOT ──
 log('app.html loading...');
 fixVH();
@@ -1782,6 +2245,7 @@ window.addEventListener('orientationchange', () => setTimeout(fixVH, 120));
 
 document.addEventListener('DOMContentLoaded', () => {
   log('DOMContentLoaded fired');
+  initTelegramWebApp();
   initSession();
   initTheme();
   initLang();
